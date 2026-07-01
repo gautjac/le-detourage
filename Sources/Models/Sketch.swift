@@ -1,12 +1,31 @@
 import SwiftUI
 import CoreGraphics
 
-/// One freehand stroke: a polyline in a sketch's local space, with a color and a
-/// local-space width.
+/// One freehand stroke: a polyline in a sketch's local space, with a color, a
+/// local-space width, and a brush texture.
 struct SketchStroke: Codable, Equatable {
     var points: [CGPoint]
     var colorIndex: Int
     var width: CGFloat
+    var brush: Brush
+
+    init(points: [CGPoint], colorIndex: Int, width: CGFloat, brush: Brush = .marker) {
+        self.points = points
+        self.colorIndex = colorIndex
+        self.width = width
+        self.brush = brush
+    }
+
+    enum CodingKeys: String, CodingKey { case points, colorIndex, width, brush }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        points = try c.decode([CGPoint].self, forKey: .points)
+        colorIndex = try c.decode(Int.self, forKey: .colorIndex)
+        width = try c.decode(CGFloat.self, forKey: .width)
+        // Sketches saved before brushes existed default to the marker.
+        brush = try c.decodeIfPresent(Brush.self, forKey: .brush) ?? .marker
+    }
 }
 
 /// A freehand pencil drawing bundled into a single, transformable canvas element.
@@ -47,7 +66,7 @@ struct Sketch: Codable, Equatable {
         let origin = CGPoint(x: minX, y: minY)
         let local = strokes.map { stroke in
             SketchStroke(points: stroke.points.map { CGPoint(x: $0.x - origin.x, y: $0.y - origin.y) },
-                         colorIndex: stroke.colorIndex, width: stroke.width)
+                         colorIndex: stroke.colorIndex, width: stroke.width, brush: stroke.brush)
         }
         let center = CGPoint(x: origin.x + box.width / 2, y: origin.y + box.height / 2)
         return (Sketch(strokes: local, size: box), center, box)
@@ -64,28 +83,9 @@ struct Sketch: Codable, Equatable {
         // y-down so the page-convention stroke coordinates draw upright.
         ctx.translateBy(x: 0, y: CGFloat(h))
         ctx.scaleBy(x: 1, y: -1)
-        let scale = CGFloat(w) / size.width
-        ctx.setLineCap(.round)
-        ctx.setLineJoin(.round)
-        for stroke in strokes where stroke.points.count > 1 {
-            ctx.setStrokeColor(Sketch.color(stroke.colorIndex).cg)
-            ctx.setLineWidth(max(0.5, stroke.width * scale))
-            ctx.addLines(between: stroke.points.map { CGPoint(x: $0.x * scale, y: $0.y * scale) })
-            ctx.strokePath()
-        }
+        paint(strokes, in: ctx, scale: CGFloat(w) / size.width)
         guard let cg = ctx.makeImage() else { return nil }
         return PlatformImage.from(cgImage: cg)
     }
 }
 
-/// Draw scaled strokes into a SwiftUI graphics context (shared by the live sketch
-/// element and the drawing editor).
-func paint(_ strokes: [SketchStroke], in ctx: GraphicsContext, scale: CGFloat) {
-    for stroke in strokes where stroke.points.count > 1 {
-        var path = Path()
-        path.addLines(stroke.points.map { CGPoint(x: $0.x * scale, y: $0.y * scale) })
-        ctx.stroke(path, with: .color(Sketch.color(stroke.colorIndex)),
-                   style: StrokeStyle(lineWidth: max(0.5, stroke.width * scale),
-                                      lineCap: .round, lineJoin: .round))
-    }
-}

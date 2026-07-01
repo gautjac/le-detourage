@@ -11,6 +11,7 @@
 		0256327EDDF86B50623B3B8A /* Exporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A27AB488667FD626B8AA6DC /* Exporter.swift */; };
 		05309191E74DFE30900C543C /* Collage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 107C61804F5EF5153C6CC0D4 /* Collage.swift */; };
 		0DEAFBB428935FF7B28E6838 /* TextEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A241C48A8A8F485261BD2564 /* TextEditorSheet.swift */; };
+		0DFAE3744A294A63F24DC011 /* Brush.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C83E7A35CD41B2272C59AE3 /* Brush.swift */; };
 		11D7B7A1F43EA35AEC5F890C /* ExportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3760CDDDE0DAE85611DBC7F /* ExportSheet.swift */; };
 		16967CB2B1AED00B9EAFAC04 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0F3CB5ECD0D7CF7021CA2F8 /* Components.swift */; };
 		1870A3421AA0F5791EF10F77 /* DrawerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 109FCF50B2EDA6DAD635F196 /* DrawerView.swift */; };
@@ -79,6 +80,7 @@
 		65D37F04326A2446DB1D5A28 /* CollageHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageHistory.swift; sourceTree = "<group>"; };
 		67A7EC18E06D341F03E0596E /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		69F5C681523A7C13F7714993 /* StickerInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerInspector.swift; sourceTree = "<group>"; };
+		6C83E7A35CD41B2272C59AE3 /* Brush.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Brush.swift; sourceTree = "<group>"; };
 		75F89ADE4A2658D2F9D24AB3 /* StickerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerStore.swift; sourceTree = "<group>"; };
 		7BECD975AA70627F87AD9124 /* CollageDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageDocument.swift; sourceTree = "<group>"; };
 		8109D753A97A12A71F087ADC /* DoodleCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoodleCanvas.swift; sourceTree = "<group>"; };
@@ -205,6 +207,7 @@
 		9E79ED978597236482C193CE /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				6C83E7A35CD41B2272C59AE3 /* Brush.swift */,
 				107C61804F5EF5153C6CC0D4 /* Collage.swift */,
 				7BECD975AA70627F87AD9124 /* CollageDocument.swift */,
 				65D37F04326A2446DB1D5A28 /* CollageHistory.swift */,
@@ -348,6 +351,7 @@
 			files = (
 				C4EB726D55F4D2412F00B79F /* AtelierView.swift in Sources */,
 				42B786E28B2D00D70E1EBCA9 /* BackgroundPickerSheet.swift in Sources */,
+				0DFAE3744A294A63F24DC011 /* Brush.swift in Sources */,
 				F9E9A4C8CFC3A55091C44CD3 /* CanvasFormatSheet.swift in Sources */,
 				05309191E74DFE30900C543C /* Collage.swift in Sources */,
 				AE30552F9206C7B2829E1AD3 /* CollageCanvasView.swift in Sources */,
