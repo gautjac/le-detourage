@@ -10,11 +10,15 @@
 		024739C60D374FD9C737E636 /* StickerLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FA4CE9F1B701F23EEB2096 /* StickerLayer.swift */; };
 		0256327EDDF86B50623B3B8A /* Exporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A27AB488667FD626B8AA6DC /* Exporter.swift */; };
 		05309191E74DFE30900C543C /* Collage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 107C61804F5EF5153C6CC0D4 /* Collage.swift */; };
+		0DEAFBB428935FF7B28E6838 /* TextEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A241C48A8A8F485261BD2564 /* TextEditorSheet.swift */; };
 		11D7B7A1F43EA35AEC5F890C /* ExportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3760CDDDE0DAE85611DBC7F /* ExportSheet.swift */; };
 		16967CB2B1AED00B9EAFAC04 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0F3CB5ECD0D7CF7021CA2F8 /* Components.swift */; };
 		1870A3421AA0F5791EF10F77 /* DrawerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 109FCF50B2EDA6DAD635F196 /* DrawerView.swift */; };
 		34356D355D58A1F87FFBCED5 /* CutoutStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8D4464E4F065B8F4F2CB8A /* CutoutStage.swift */; };
+		3A29C38A0651B4463D0CE6D2 /* CollageHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D37F04326A2446DB1D5A28 /* CollageHistory.swift */; };
 		42B786E28B2D00D70E1EBCA9 /* BackgroundPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90957FE1DDE6AD46149E44E5 /* BackgroundPickerSheet.swift */; };
+		435D5B165706C4805D1C1D57 /* TextContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86F62B8F75BABF0038F4AFFF /* TextContent.swift */; };
+		43F25DC9827EE30FF20268EE /* TextRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7A1834756D8949B5D182D7 /* TextRendering.swift */; };
 		46E96372071C91DACE3BFADC /* CollageRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7BFFF22DCDF89F324B193C0 /* CollageRenderer.swift */; };
 		4A953376D45AB479A42E7CBB /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D1F5B08652620E252FCABC /* Theme.swift */; };
 		4E7EE01A9BBDDDF3E68D3B02 /* SubjectLiftView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD05BF5480A62CE26E0CE9B2 /* SubjectLiftView.swift */; };
@@ -22,16 +26,21 @@
 		56750BE3CCC789513D8E8A43 /* SubjectMasker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D12F82B9B2514C36E1E3DA1A /* SubjectMasker.swift */; };
 		6F1D3C3BA2F3EC2E69DCE334 /* LeDetourageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3CB268535A6D8F469F86A8 /* LeDetourageTests.swift */; };
 		7495738D613B1D5D8228D314 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85ED9FE1EF95A998ABB79549 /* RootView.swift */; };
+		7C9491DB541A33F9500D9831 /* SavedCollage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45A0CE1CE1E18159838F6522 /* SavedCollage.swift */; };
+		8B47906B390A5877AFB49BAD /* GallerySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1F0938F90E5ECF9FA957A6 /* GallerySheet.swift */; };
 		8C22E3095F1D887F2E599E38 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034A9E3CEF3E980D95F80738 /* Session.swift */; };
 		922CB810FE4EC4C63458E84C /* LeDetourageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF432E8DFDC59AF5421A4EB /* LeDetourageApp.swift */; };
 		A9684436D68C9CD8047097BB /* CrossPlatform.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3F3088EDF7D2000FF4803A /* CrossPlatform.swift */; };
 		AE30552F9206C7B2829E1AD3 /* CollageCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BD4E952DB33D85AD160CB7 /* CollageCanvasView.swift */; };
 		AE4565955B4461A320CAE9D9 /* SampleImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D0C9FBABF1D027A3FC7AD0 /* SampleImage.swift */; };
+		B8AB2825B72ACB230581DF35 /* CollageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD15D70F9936423CB061D184 /* CollageStore.swift */; };
 		C2D240510B4620FC6F28EC45 /* Loc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F16EBF7B464B0451BD9A2E /* Loc.swift */; };
 		C4EB726D55F4D2412F00B79F /* AtelierView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B74BB6FED8617EAE3FB8F0C1 /* AtelierView.swift */; };
+		D1BDA781E45748BFD900EFF0 /* CollageDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BECD975AA70627F87AD9124 /* CollageDocument.swift */; };
 		ED4A936B1DA2EDF926B02264 /* StickerInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69F5C681523A7C13F7714993 /* StickerInspector.swift */; };
 		EEE99B58A021E78778687244 /* StickerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F89ADE4A2658D2F9D24AB3 /* StickerStore.swift */; };
 		F426B606ABD09ECA521C411D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CD9EE311BD5B87EB5A9754F7 /* Assets.xcassets */; };
+		FFF2270B27B5F2B3DC9378DA /* CollageFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD191069C7F56DDD4F40856 /* CollageFeatureTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,26 +62,35 @@
 		1ED6F67D4747B295AB0C8C4B /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
 		22FA4CE9F1B701F23EEB2096 /* StickerLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerLayer.swift; sourceTree = "<group>"; };
 		27F16EBF7B464B0451BD9A2E /* Loc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Loc.swift; sourceTree = "<group>"; };
+		2B7A1834756D8949B5D182D7 /* TextRendering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRendering.swift; sourceTree = "<group>"; };
 		32D86CB6B6DE93F0AA76522E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		45A0CE1CE1E18159838F6522 /* SavedCollage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCollage.swift; sourceTree = "<group>"; };
 		53BD4E952DB33D85AD160CB7 /* CollageCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageCanvasView.swift; sourceTree = "<group>"; };
+		65D37F04326A2446DB1D5A28 /* CollageHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageHistory.swift; sourceTree = "<group>"; };
 		67A7EC18E06D341F03E0596E /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		69F5C681523A7C13F7714993 /* StickerInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerInspector.swift; sourceTree = "<group>"; };
 		75F89ADE4A2658D2F9D24AB3 /* StickerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerStore.swift; sourceTree = "<group>"; };
+		7BECD975AA70627F87AD9124 /* CollageDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageDocument.swift; sourceTree = "<group>"; };
 		85ED9FE1EF95A998ABB79549 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		86F62B8F75BABF0038F4AFFF /* TextContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextContent.swift; sourceTree = "<group>"; };
 		886495CA5544EAE37D06348E /* LeDetourageTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LeDetourageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		90957FE1DDE6AD46149E44E5 /* BackgroundPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundPickerSheet.swift; sourceTree = "<group>"; };
+		A241C48A8A8F485261BD2564 /* TextEditorSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextEditorSheet.swift; sourceTree = "<group>"; };
 		A9D0C9FBABF1D027A3FC7AD0 /* SampleImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleImage.swift; sourceTree = "<group>"; };
 		A9F9C736E301466CE84D459A /* LeDetourage.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LeDetourage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA3CB268535A6D8F469F86A8 /* LeDetourageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeDetourageTests.swift; sourceTree = "<group>"; };
+		AC1F0938F90E5ECF9FA957A6 /* GallerySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GallerySheet.swift; sourceTree = "<group>"; };
 		AC8D4464E4F065B8F4F2CB8A /* CutoutStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutoutStage.swift; sourceTree = "<group>"; };
 		B74BB6FED8617EAE3FB8F0C1 /* AtelierView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtelierView.swift; sourceTree = "<group>"; };
 		BD05BF5480A62CE26E0CE9B2 /* SubjectLiftView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectLiftView.swift; sourceTree = "<group>"; };
+		BD15D70F9936423CB061D184 /* CollageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageStore.swift; sourceTree = "<group>"; };
 		C7BFFF22DCDF89F324B193C0 /* CollageRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageRenderer.swift; sourceTree = "<group>"; };
 		CCF432E8DFDC59AF5421A4EB /* LeDetourageApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeDetourageApp.swift; sourceTree = "<group>"; };
 		CD9EE311BD5B87EB5A9754F7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D0F3CB5ECD0D7CF7021CA2F8 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		D12F82B9B2514C36E1E3DA1A /* SubjectMasker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectMasker.swift; sourceTree = "<group>"; };
 		D8D1F5B08652620E252FCABC /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		DDD191069C7F56DDD4F40856 /* CollageFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageFeatureTests.swift; sourceTree = "<group>"; };
 		EE3F3088EDF7D2000FF4803A /* CrossPlatform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossPlatform.swift; sourceTree = "<group>"; };
 		F3760CDDDE0DAE85611DBC7F /* ExportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -101,6 +119,7 @@
 		2CBDE5C00FB6420798D19817 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				DDD191069C7F56DDD4F40856 /* CollageFeatureTests.swift */,
 				AA3CB268535A6D8F469F86A8 /* LeDetourageTests.swift */,
 			);
 			path = Tests;
@@ -116,9 +135,11 @@
 				AC8D4464E4F065B8F4F2CB8A /* CutoutStage.swift */,
 				109FCF50B2EDA6DAD635F196 /* DrawerView.swift */,
 				F3760CDDDE0DAE85611DBC7F /* ExportSheet.swift */,
+				AC1F0938F90E5ECF9FA957A6 /* GallerySheet.swift */,
 				85ED9FE1EF95A998ABB79549 /* RootView.swift */,
 				69F5C681523A7C13F7714993 /* StickerInspector.swift */,
 				22FA4CE9F1B701F23EEB2096 /* StickerLayer.swift */,
+				A241C48A8A8F485261BD2564 /* TextEditorSheet.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -167,9 +188,13 @@
 			isa = PBXGroup;
 			children = (
 				107C61804F5EF5153C6CC0D4 /* Collage.swift */,
+				7BECD975AA70627F87AD9124 /* CollageDocument.swift */,
+				65D37F04326A2446DB1D5A28 /* CollageHistory.swift */,
 				27F16EBF7B464B0451BD9A2E /* Loc.swift */,
+				45A0CE1CE1E18159838F6522 /* SavedCollage.swift */,
 				034A9E3CEF3E980D95F80738 /* Session.swift */,
 				75F89ADE4A2658D2F9D24AB3 /* StickerStore.swift */,
+				86F62B8F75BABF0038F4AFFF /* TextContent.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -187,8 +212,10 @@
 			isa = PBXGroup;
 			children = (
 				C7BFFF22DCDF89F324B193C0 /* CollageRenderer.swift */,
+				BD15D70F9936423CB061D184 /* CollageStore.swift */,
 				1A27AB488667FD626B8AA6DC /* Exporter.swift */,
 				A9D0C9FBABF1D027A3FC7AD0 /* SampleImage.swift */,
+				2B7A1834756D8949B5D182D7 /* TextRendering.swift */,
 			);
 			path = Engine;
 			sourceTree = "<group>";
@@ -289,6 +316,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FFF2270B27B5F2B3DC9378DA /* CollageFeatureTests.swift in Sources */,
 				6F1D3C3BA2F3EC2E69DCE334 /* LeDetourageTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -301,23 +329,31 @@
 				42B786E28B2D00D70E1EBCA9 /* BackgroundPickerSheet.swift in Sources */,
 				05309191E74DFE30900C543C /* Collage.swift in Sources */,
 				AE30552F9206C7B2829E1AD3 /* CollageCanvasView.swift in Sources */,
+				D1BDA781E45748BFD900EFF0 /* CollageDocument.swift in Sources */,
+				3A29C38A0651B4463D0CE6D2 /* CollageHistory.swift in Sources */,
 				46E96372071C91DACE3BFADC /* CollageRenderer.swift in Sources */,
+				B8AB2825B72ACB230581DF35 /* CollageStore.swift in Sources */,
 				16967CB2B1AED00B9EAFAC04 /* Components.swift in Sources */,
 				A9684436D68C9CD8047097BB /* CrossPlatform.swift in Sources */,
 				34356D355D58A1F87FFBCED5 /* CutoutStage.swift in Sources */,
 				1870A3421AA0F5791EF10F77 /* DrawerView.swift in Sources */,
 				11D7B7A1F43EA35AEC5F890C /* ExportSheet.swift in Sources */,
 				0256327EDDF86B50623B3B8A /* Exporter.swift in Sources */,
+				8B47906B390A5877AFB49BAD /* GallerySheet.swift in Sources */,
 				922CB810FE4EC4C63458E84C /* LeDetourageApp.swift in Sources */,
 				C2D240510B4620FC6F28EC45 /* Loc.swift in Sources */,
 				7495738D613B1D5D8228D314 /* RootView.swift in Sources */,
 				AE4565955B4461A320CAE9D9 /* SampleImage.swift in Sources */,
+				7C9491DB541A33F9500D9831 /* SavedCollage.swift in Sources */,
 				8C22E3095F1D887F2E599E38 /* Session.swift in Sources */,
 				ED4A936B1DA2EDF926B02264 /* StickerInspector.swift in Sources */,
 				024739C60D374FD9C737E636 /* StickerLayer.swift in Sources */,
 				EEE99B58A021E78778687244 /* StickerStore.swift in Sources */,
 				4E7EE01A9BBDDDF3E68D3B02 /* SubjectLiftView.swift in Sources */,
 				56750BE3CCC789513D8E8A43 /* SubjectMasker.swift in Sources */,
+				435D5B165706C4805D1C1D57 /* TextContent.swift in Sources */,
+				0DEAFBB428935FF7B28E6838 /* TextEditorSheet.swift in Sources */,
+				43F25DC9827EE30FF20268EE /* TextRendering.swift in Sources */,
 				4A953376D45AB479A42E7CBB /* Theme.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -5,6 +5,7 @@ import SwiftData
 /// subject → arrange the collage) and the Tiroir (the saved-sticker drawer).
 struct RootView: View {
     @State private var session = Session()
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -32,6 +33,11 @@ struct RootView: View {
         .animation(.spring(duration: 0.35), value: session.toast != nil)
         .animation(.spring(duration: 0.3), value: session.tab)
         .tint(Theme.accent)
+        .onChange(of: scenePhase) { _, phase in
+            // Never lose an in-progress collage: flush the working draft the
+            // moment the app leaves the foreground.
+            if phase != .active { session.flushAutosave() }
+        }
     }
 }
 

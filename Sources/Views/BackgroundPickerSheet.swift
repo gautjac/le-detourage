@@ -21,6 +21,7 @@ struct BackgroundPickerSheet: View {
                 VStack(alignment: .leading, spacing: 22) {
                     section(titleKey: "bg.color") {
                         swatchGrid(Theme.backgroundSwatches) { color in
+                            session.checkpoint()
                             session.collage.background = .color(color)
                         } isSelected: { color in
                             if case .color(let c) = session.collage.background { return c == color }
@@ -34,6 +35,7 @@ struct BackgroundPickerSheet: View {
                                 let g = gradients[i]
                                 Button {
                                     Haptics.tap()
+                                    session.checkpoint()
                                     session.collage.background = .gradient(g.0, g.1)
                                 } label: {
                                     RoundedRectangle(cornerRadius: 14, style: .continuous)
@@ -51,11 +53,13 @@ struct BackgroundPickerSheet: View {
                         HStack(spacing: 12) {
                             PhotoImportButton(titleKey: "bg.photo", systemImage: "photo",
                                               tint: Theme.teal, filled: false) { img in
+                                session.checkpoint()
                                 session.collage.backgroundImage = img
                                 session.collage.background = .photo
                             }
                             Button {
                                 Haptics.tap()
+                                session.checkpoint()
                                 session.collage.background = .transparent
                             } label: {
                                 HStack(spacing: 8) {

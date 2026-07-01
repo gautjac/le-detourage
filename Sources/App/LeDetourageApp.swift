@@ -3,9 +3,9 @@ import SwiftData
 
 @main
 struct LeDetourageApp: App {
-    /// Shared SwiftData stack for the sticker drawer.
+    /// Shared SwiftData stack for the sticker drawer and the saved-collage gallery.
     let modelContainer: ModelContainer = {
-        let schema = Schema([SavedSticker.self])
+        let schema = Schema([SavedSticker.self, SavedCollage.self])
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
         do {
             return try ModelContainer(for: schema, configurations: [config])

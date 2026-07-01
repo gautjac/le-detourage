@@ -26,6 +26,14 @@ enum StickerStyle: String, CaseIterable, Identifiable, Codable {
     }
 }
 
+/// The visual content of a placed element: a lifted transparent cutout, or a
+/// text label. Both share the same transform (position/scale/rotation/flip),
+/// z-order, shadow and gesture handling — only how they draw differs.
+enum ElementKind {
+    case cutout(PlatformImage)
+    case text(TextContent)
+}
+
 /// The collage background choice.
 enum CollageBackground: Equatable {
     case color(Color)
@@ -41,16 +49,17 @@ enum CollageBackground: Equatable {
     }
 }
 
-/// A single cutout placed on the canvas. Position is stored in **normalized
-/// canvas coordinates** (0…1 on both axes, relative to the canvas's shorter
-/// edge for scale) so a collage looks the same on iPhone and on a Mac window.
+/// A single element placed on the canvas — a cutout or a text label. Position is
+/// stored in **normalized canvas coordinates** (0…1 on both axes, relative to
+/// the canvas's shorter edge for scale) so a collage looks the same on iPhone
+/// and on a Mac window.
 @Observable
 final class PlacedSticker: Identifiable {
     let id: UUID
-    /// Source drawer sticker id (nil for a one-off lift not yet saved).
+    /// Source drawer sticker id (nil for a one-off lift or a text element).
     var sourceID: UUID?
-    /// The transparent PNG of the cutout.
-    var image: PlatformImage
+    /// What this element is — a cutout image or a text label.
+    var kind: ElementKind
     /// Center position in normalized canvas space (0…1).
     var position: CGPoint
     /// Scale multiplier relative to a base size (see `baseFraction`).
@@ -59,20 +68,26 @@ final class PlacedSticker: Identifiable {
     var rotation: CGFloat
     /// Horizontal mirror.
     var flipped: Bool
-    /// Decorative sticker border.
+    /// Decorative sticker border (cutouts only; text uses its own chip).
     var style: StickerStyle
     /// Drop shadow on/off.
     var shadow: Bool
     /// Draw order — higher is on top.
     var z: Int
-    /// Aspect ratio of the source image (w/h).
-    let aspect: CGFloat
+
+    /// Aspect ratio of a cutout's source image (w/h); 1 for text.
+    @ObservationIgnored private let cutoutAspect: CGFloat
+    /// Lazily-encoded cutout PNG bytes, cached so autosave doesn't re-encode an
+    /// unchanged cutout on every keystroke.
+    @ObservationIgnored private var cachedCutoutPNG: Data?
 
     /// Base on-canvas footprint as a fraction of the canvas's shorter edge,
     /// before `scale` is applied. Keeps a freshly dropped cutout a comfortable
     /// size regardless of its pixel dimensions.
     static let baseFraction: CGFloat = 0.42
 
+    /// Designated init for a **cutout** element. Kept source-compatible with the
+    /// original call sites and tests.
     init(id: UUID = UUID(),
          sourceID: UUID? = nil,
          image: PlatformImage,
@@ -85,7 +100,7 @@ final class PlacedSticker: Identifiable {
          z: Int = 0) {
         self.id = id
         self.sourceID = sourceID
-        self.image = image
+        self.kind = .cutout(image)
         self.position = position
         self.scale = scale
         self.rotation = rotation
@@ -94,20 +109,73 @@ final class PlacedSticker: Identifiable {
         self.shadow = shadow
         self.z = z
         let px = image.pixelSize
-        self.aspect = px.height > 0 ? px.width / px.height : 1
+        self.cutoutAspect = px.height > 0 ? px.width / px.height : 1
     }
 
-    /// The on-screen size (points) of this cutout for a given canvas size,
-    /// honoring aspect ratio, the base fraction, and the user scale.
+    /// Init for a **text** element.
+    init(id: UUID = UUID(),
+         text: TextContent,
+         position: CGPoint = CGPoint(x: 0.5, y: 0.5),
+         scale: CGFloat = 1,
+         rotation: CGFloat = 0,
+         flipped: Bool = false,
+         shadow: Bool = true,
+         z: Int = 0) {
+        self.id = id
+        self.sourceID = nil
+        self.kind = .text(text)
+        self.position = position
+        self.scale = scale
+        self.rotation = rotation
+        self.flipped = flipped
+        self.style = .none
+        self.shadow = shadow
+        self.z = z
+        self.cutoutAspect = 1
+    }
+
+    // MARK: Kind accessors
+
+    var isText: Bool { if case .text = kind { return true }; return false }
+
+    /// The cutout image, or nil for a text element.
+    var image: PlatformImage? {
+        if case .cutout(let img) = kind { return img }
+        return nil
+    }
+
+    /// The text content, or nil for a cutout. Setting it replaces the kind.
+    var text: TextContent? {
+        get { if case .text(let t) = kind { return t }; return nil }
+        set { if let value = newValue { kind = .text(value) } }
+    }
+
+    /// The cutout's encoded PNG bytes (cached), or nil for text.
+    var cutoutPNGData: Data? {
+        guard case .cutout(let img) = kind else { return nil }
+        if let cached = cachedCutoutPNG { return cached }
+        let data = img.pngData
+        cachedCutoutPNG = data
+        return data
+    }
+
+    // MARK: Layout
+
+    /// The on-screen size (points) of this element for a given canvas size.
     func renderSize(in canvas: CGSize) -> CGSize {
-        let shorter = min(canvas.width, canvas.height)
-        let base = shorter * Self.baseFraction * scale
-        // `base` sizes the longer image dimension so wide and tall cutouts feel
-        // similarly prominent.
-        if aspect >= 1 {
-            return CGSize(width: base, height: base / aspect)
-        } else {
-            return CGSize(width: base * aspect, height: base)
+        switch kind {
+        case .cutout:
+            let shorter = min(canvas.width, canvas.height)
+            let base = shorter * Self.baseFraction * scale
+            // `base` sizes the longer image dimension so wide and tall cutouts
+            // feel similarly prominent.
+            if cutoutAspect >= 1 {
+                return CGSize(width: base, height: base / cutoutAspect)
+            } else {
+                return CGSize(width: base * cutoutAspect, height: base)
+            }
+        case .text(let content):
+            return TextRendering.measure(content, in: canvas, scale: scale)
         }
     }
 
@@ -117,7 +185,7 @@ final class PlacedSticker: Identifiable {
     }
 }
 
-/// The full collage document: an ordered set of placed cutouts plus a
+/// The full collage document: an ordered set of placed elements plus a
 /// background. Owns the layering/z-order operations and the export math.
 @Observable
 final class Collage {
@@ -128,7 +196,7 @@ final class Collage {
     /// device on iPhone but stays authoritative for export dimensions.
     var canvasAspect: CGFloat = 1.0
 
-    private var nextZ: Int = 0
+    @ObservationIgnored private var nextZ: Int = 0
 
     /// Stickers sorted back-to-front for rendering.
     var ordered: [PlacedSticker] {
@@ -150,22 +218,35 @@ final class Collage {
         return s
     }
 
+    @discardableResult
+    func addText(_ content: TextContent,
+                 at position: CGPoint = CGPoint(x: 0.5, y: 0.5)) -> PlacedSticker {
+        let s = PlacedSticker(text: content, position: position, z: nextZ)
+        nextZ += 1
+        stickers.append(s)
+        return s
+    }
+
     func remove(_ sticker: PlacedSticker) {
         stickers.removeAll { $0.id == sticker.id }
     }
 
     @discardableResult
     func duplicate(_ sticker: PlacedSticker) -> PlacedSticker {
-        let copy = PlacedSticker(sourceID: sticker.sourceID,
-                                 image: sticker.image,
-                                 position: CGPoint(x: min(1, sticker.position.x + 0.06),
-                                                   y: min(1, sticker.position.y + 0.06)),
-                                 scale: sticker.scale,
-                                 rotation: sticker.rotation,
-                                 flipped: sticker.flipped,
-                                 style: sticker.style,
-                                 shadow: sticker.shadow,
-                                 z: nextZ)
+        let copy: PlacedSticker
+        let offset = CGPoint(x: min(1, sticker.position.x + 0.06),
+                             y: min(1, sticker.position.y + 0.06))
+        switch sticker.kind {
+        case .cutout(let img):
+            copy = PlacedSticker(sourceID: sticker.sourceID, image: img, position: offset,
+                                 scale: sticker.scale, rotation: sticker.rotation,
+                                 flipped: sticker.flipped, style: sticker.style,
+                                 shadow: sticker.shadow, z: nextZ)
+        case .text(let content):
+            copy = PlacedSticker(text: content, position: offset, scale: sticker.scale,
+                                 rotation: sticker.rotation, flipped: sticker.flipped,
+                                 shadow: sticker.shadow, z: nextZ)
+        }
         nextZ += 1
         stickers.append(copy)
         return copy
@@ -181,6 +262,22 @@ final class Collage {
         sticker.z = minZ - 1
     }
 
+    /// Move one step up the stack, swapping z with the element directly above.
+    func moveForward(_ sticker: PlacedSticker) {
+        let sorted = ordered
+        guard let i = sorted.firstIndex(where: { $0.id == sticker.id }), i < sorted.count - 1 else { return }
+        let above = sorted[i + 1]
+        let z = sticker.z; sticker.z = above.z; above.z = z
+    }
+
+    /// Move one step down the stack, swapping z with the element directly below.
+    func moveBackward(_ sticker: PlacedSticker) {
+        let sorted = ordered
+        guard let i = sorted.firstIndex(where: { $0.id == sticker.id }), i > 0 else { return }
+        let below = sorted[i - 1]
+        let z = sticker.z; sticker.z = below.z; below.z = z
+    }
+
     func clear() {
         stickers.removeAll()
         nextZ = 0
@@ -189,5 +286,46 @@ final class Collage {
     /// Raise `nextZ` above any imported z-values (used after loading).
     func normalizeZ() {
         nextZ = (stickers.map { $0.z }.max() ?? -1) + 1
+    }
+
+    // MARK: Snapshot (undo/redo)
+
+    /// Capture the full document state by value (images kept by reference — they
+    /// are immutable once placed), for the undo history.
+    func snapshot() -> CollageSnapshot {
+        CollageSnapshot(
+            elements: stickers.map { s in
+                CollageSnapshot.Element(
+                    id: s.id, sourceID: s.sourceID, kind: s.kind,
+                    position: s.position, scale: s.scale, rotation: s.rotation,
+                    flipped: s.flipped, style: s.style, shadow: s.shadow, z: s.z)
+            },
+            background: background,
+            backgroundImage: backgroundImage,
+            canvasAspect: canvasAspect,
+            nextZ: nextZ)
+    }
+
+    /// Restore the document to a previously captured snapshot, rebuilding fresh
+    /// element instances (callers re-map any selection by id).
+    func restore(_ snapshot: CollageSnapshot) {
+        stickers = snapshot.elements.map { e in
+            let s: PlacedSticker
+            switch e.kind {
+            case .cutout(let img):
+                s = PlacedSticker(id: e.id, sourceID: e.sourceID, image: img,
+                                  position: e.position, scale: e.scale, rotation: e.rotation,
+                                  flipped: e.flipped, style: e.style, shadow: e.shadow, z: e.z)
+            case .text(let content):
+                s = PlacedSticker(id: e.id, text: content, position: e.position,
+                                  scale: e.scale, rotation: e.rotation, flipped: e.flipped,
+                                  shadow: e.shadow, z: e.z)
+            }
+            return s
+        }
+        background = snapshot.background
+        backgroundImage = snapshot.backgroundImage
+        canvasAspect = snapshot.canvasAspect
+        nextZ = snapshot.nextZ
     }
 }

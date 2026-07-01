@@ -35,6 +35,33 @@
 "canvas.back" = "À l'arrière-plan";
 "canvas.flip" = "Retourner";
 "canvas.reset" = "Réinitialiser";
+"canvas.new" = "Nouveau collage";
+"canvas.new.confirm" = "Commencer un nouveau collage ?";
+
+/* Texte */
+"text.placeholder" = "Ton texte";
+"text.title" = "Texte";
+"text.label" = "Texte";
+"text.edit" = "Modifier";
+"text.font" = "Lettrage";
+"text.color" = "Couleur";
+"text.chip" = "Pastille de papier";
+"text.font.rounded" = "Ronde";
+"text.font.serif" = "Classique";
+"text.font.mono" = "Étiquette";
+"text.font.plain" = "Nette";
+
+/* Galerie (les Pages) */
+"gallery.title" = "Les Pages";
+"gallery.save" = "Enregistrer";
+"gallery.saved" = "Page enregistrée";
+"gallery.open" = "Galerie";
+"gallery.rename" = "Renommer";
+"gallery.duplicate" = "Dupliquer";
+"gallery.export" = "Exporter";
+"gallery.delete" = "Supprimer";
+"gallery.empty" = "Aucune page enregistrée.\nCompose un collage puis enregistre-le ici.";
+"gallery.untitled" = "Collage";
 
 /* Style d'autocollant */
 "sticker.style" = "Style";
