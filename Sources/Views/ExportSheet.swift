@@ -44,17 +44,29 @@ struct ExportSheet: View {
                 .padding(.horizontal, 24)
                 .onChange(of: transparent) { _, _ in regenerate() }
 
-                PillButton(titleKey: "export.save", systemImage: "square.and.arrow.up.fill",
-                           tint: Theme.accent) {
-                    exportNow()
-                }
-                .disabled(rendering || preview == nil)
+                actions
+                    .disabled(rendering || preview == nil)
 
                 Spacer(minLength: 8)
             }
             .padding(.top, 8)
         } onDone: { dismiss() }
         .onAppear { regenerate() }
+    }
+
+    @ViewBuilder
+    private var actions: some View {
+        #if os(macOS)
+        HStack(spacing: 12) {
+            PillButton(titleKey: "export.save", systemImage: "square.and.arrow.down.fill",
+                       tint: Theme.accent, filled: false) { saveNow() }
+            PillButton(titleKey: "export.share", systemImage: "square.and.arrow.up.fill",
+                       tint: Theme.accent) { shareNow() }
+        }
+        #else
+        PillButton(titleKey: "export.share", systemImage: "square.and.arrow.up.fill",
+                   tint: Theme.accent) { shareNow() }
+        #endif
     }
 
     private func regenerate() {
@@ -70,11 +82,19 @@ struct ExportSheet: View {
         }
     }
 
-    private func exportNow() {
-        guard let image = CollageRenderer.render(session.collage, transparentBackground: transparent) else { return }
-        Exporter.exportPNG(image, suggestedName: "collage-detourage")
+    private func saveNow() {
+        guard let image = flatten() else { return }
+        Exporter.save(image, suggestedName: "collage-detourage")
         Haptics.success()
-        session.flash(L.t("export.collage"))
-        dismiss()
+    }
+
+    private func shareNow() {
+        guard let image = flatten() else { return }
+        Exporter.share(image, suggestedName: "collage-detourage")
+        Haptics.success()
+    }
+
+    private func flatten() -> PlatformImage? {
+        preview ?? CollageRenderer.render(session.collage, transparentBackground: transparent)
     }
 }

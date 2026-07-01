@@ -58,7 +58,8 @@
 "gallery.open" = "Galerie";
 "gallery.rename" = "Renommer";
 "gallery.duplicate" = "Dupliquer";
-"gallery.export" = "Exporter";
+"gallery.share" = "Partager";
+"gallery.export" = "Enregistrer";
 "gallery.delete" = "Supprimer";
 "gallery.empty" = "Aucune page enregistrée.\nCompose un collage puis enregistre-le ici.";
 "gallery.untitled" = "Collage";
@@ -136,7 +137,8 @@
 "drawer.title" = "Tiroir à autocollants";
 "drawer.empty" = "Ton tiroir est vide.\nDécoupe un sujet pour commencer ta collection.";
 "drawer.use" = "Coller sur la toile";
-"drawer.export" = "Exporter l'autocollant";
+"drawer.share" = "Partager l'autocollant";
+"drawer.export" = "Enregistrer l'autocollant";
 "drawer.delete" = "Supprimer";
 "drawer.count" = "autocollants";
 

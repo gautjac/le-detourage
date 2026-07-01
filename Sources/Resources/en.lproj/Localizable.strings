@@ -58,7 +58,8 @@
 "gallery.open" = "Gallery";
 "gallery.rename" = "Rename";
 "gallery.duplicate" = "Duplicate";
-"gallery.export" = "Export";
+"gallery.share" = "Share";
+"gallery.export" = "Save";
 "gallery.delete" = "Delete";
 "gallery.empty" = "No saved pages yet.\nBuild a collage, then save it here.";
 "gallery.untitled" = "Collage";
@@ -136,7 +137,8 @@
 "drawer.title" = "Sticker drawer";
 "drawer.empty" = "Your drawer is empty.\nCut out a subject to start your collection.";
 "drawer.use" = "Paste onto canvas";
-"drawer.export" = "Export sticker";
+"drawer.share" = "Share sticker";
+"drawer.export" = "Save sticker";
 "drawer.delete" = "Delete";
 "drawer.count" = "stickers";
 
