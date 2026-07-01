@@ -1,8 +1,9 @@
 import SwiftUI
 
-/// A single placed cutout on the canvas: rendered with its optional white paper
-/// border and drop shadow, and interactive — drag to move, pinch to scale,
-/// rotate with two fingers (or the inspector on macOS). Tapping selects it.
+/// A single placed element on the canvas — a cutout (with its optional white
+/// paper border and drop shadow) or a text label. Interactive: drag to move,
+/// pinch to scale, rotate with two fingers (or the inspector on macOS). Tapping
+/// selects it; double-tapping a text label opens the editor.
 struct StickerLayer: View {
     @Bindable var sticker: PlacedSticker
     let canvasSize: CGSize
@@ -32,16 +33,33 @@ struct StickerLayer: View {
             .gesture(dragGesture(center: center))
             .simultaneousGesture(magnifyGesture)
             .simultaneousGesture(rotateGesture)
+            .simultaneousGesture(
+                // Double-tap a text label to edit it.
+                TapGesture(count: 2).onEnded {
+                    if sticker.isText { session.editText(sticker) }
+                }
+            )
             .onTapGesture {
                 Haptics.tap()
                 session.selection = sticker
-                session.collage.bringToFront(sticker)
             }
     }
 
     @ViewBuilder
     private func stickerBody(size: CGSize) -> some View {
-        let image = Image(platform: sticker.image)
+        switch sticker.kind {
+        case .cutout(let image):
+            cutoutBody(image: image, size: size)
+        case .text(let content):
+            textBody(content: content, size: size)
+        }
+    }
+
+    // MARK: Cutout body
+
+    @ViewBuilder
+    private func cutoutBody(image: PlatformImage, size: CGSize) -> some View {
+        let base = Image(platform: image)
             .resizable()
             .scaledToFit()
             .scaleEffect(x: sticker.flipped ? -1 : 1, y: 1)
@@ -55,18 +73,48 @@ struct StickerLayer: View {
                     .fill(Color.white)
                     .frame(width: size.width + ow * 2, height: size.height + ow * 2)
                     .mask(
-                        Image(platform: sticker.image)
+                        Image(platform: image)
                             .resizable().scaledToFit()
                             .scaleEffect(x: sticker.flipped ? -1 : 1, y: 1)
                             .frame(width: size.width + ow * 2, height: size.height + ow * 2)
                     )
             }
-            image.frame(width: size.width, height: size.height)
+            base.frame(width: size.width, height: size.height)
         }
         .frame(width: size.width, height: size.height)
         .shadow(color: sticker.shadow ? Theme.stickerShadow : .clear,
                 radius: 9, x: 0, y: 6)
     }
+
+    // MARK: Text body
+
+    @ViewBuilder
+    private func textBody(content: TextContent, size: CGSize) -> some View {
+        let fontSize = TextRendering.fontSize(in: canvasSize, scale: sticker.scale)
+        let pad = TextRendering.padding(chip: content.chip, fontSize: fontSize)
+
+        Text(content.displayString)
+            .font(.system(size: fontSize, weight: content.font.weight, design: content.font.design))
+            .foregroundStyle(content.color)
+            .multilineTextAlignment(.center)
+            .fixedSize()
+            .padding(.horizontal, pad.h)
+            .padding(.vertical, pad.v)
+            .background(
+                Group {
+                    if content.chip {
+                        RoundedRectangle(cornerRadius: TextRendering.chipCornerRadius(fontSize: fontSize),
+                                         style: .continuous)
+                            .fill(content.chipColor)
+                    }
+                }
+            )
+            .frame(width: size.width, height: size.height)
+            .scaleEffect(x: sticker.flipped ? -1 : 1, y: 1)
+            .shadow(color: sticker.shadow ? Theme.stickerShadow : .clear, radius: 8, x: 0, y: 5)
+    }
+
+    // MARK: Selection
 
     private func selectionOutline(size: CGSize, center: CGPoint) -> some View {
         let ow = sticker.style.outlineWidth
@@ -93,6 +141,7 @@ struct StickerLayer: View {
                 }
             }
             .onEnded { value in
+                session.checkpoint()
                 let newCenter = CGPoint(x: center.x + value.translation.width,
                                         y: center.y + value.translation.height)
                 sticker.position = CGPoint(
@@ -108,6 +157,7 @@ struct StickerLayer: View {
                 state = value.magnification
             }
             .onEnded { value in
+                session.checkpoint()
                 sticker.scale = (sticker.scale * value.magnification).clamped(0.15, 4.0)
             }
     }
@@ -118,6 +168,7 @@ struct StickerLayer: View {
                 state = value.rotation
             }
             .onEnded { value in
+                session.checkpoint()
                 sticker.rotation += CGFloat(value.rotation.radians)
             }
     }

@@ -5,10 +5,14 @@ import CoreGraphics
 import AppKit
 /// The platform's bitmap image type (AppKit on macOS).
 typealias PlatformImage = NSImage
+/// The platform's font type (AppKit on macOS).
+typealias PlatformFont = NSFont
 #else
 import UIKit
 /// The platform's bitmap image type (UIKit on iOS).
 typealias PlatformImage = UIImage
+/// The platform's font type (UIKit on iOS).
+typealias PlatformFont = UIFont
 #endif
 
 extension Image {

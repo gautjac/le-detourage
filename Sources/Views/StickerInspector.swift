@@ -1,69 +1,17 @@
 import SwiftUI
 
-/// The floating inspector for the selected cutout: style, shadow, layer order,
-/// flip, scale/rotate nudges (essential on macOS where two-finger gestures are
-/// awkward), duplicate and delete.
+/// The floating inspector for the selected element. Cutouts get style + shadow;
+/// text gets an Edit button + shadow. Both share the action row (layer order,
+/// flip, scale/rotate nudges — essential on macOS where two-finger gestures are
+/// awkward — duplicate, delete). Every action records an undo checkpoint first.
 struct StickerInspector: View {
     @Bindable var sticker: PlacedSticker
     @Environment(Session.self) private var session
 
     var body: some View {
         VStack(spacing: 12) {
-            // Style segment.
-            HStack(spacing: 8) {
-                ForEach(StickerStyle.allCases) { style in
-                    Button {
-                        Haptics.tap(); sticker.style = style
-                    } label: {
-                        Text(loc: style.titleKey)
-                            .font(Theme.title(13))
-                            .foregroundStyle(sticker.style == style ? .white : Theme.inkDim)
-                            .padding(.horizontal, 12).padding(.vertical, 8)
-                            .background(Capsule().fill(sticker.style == style ? Theme.grape : Theme.panel))
-                    }
-                    .buttonStyle(.plain)
-                }
-                Divider().frame(height: 22)
-                Toggle(isOn: $sticker.shadow) {
-                    Image(systemName: "shadow")
-                }
-                .toggleStyle(.button)
-                .tint(Theme.grape)
-                .font(.system(size: 15, weight: .semibold))
-            }
-
-            // Action row.
-            HStack(spacing: 8) {
-                inspectorButton("arrow.up.to.line", tint: Theme.teal) {
-                    session.collage.bringToFront(sticker)
-                }
-                inspectorButton("arrow.down.to.line", tint: Theme.teal) {
-                    session.collage.sendToBack(sticker)
-                }
-                inspectorButton("arrow.left.and.right.righttriangle.left.righttriangle.right", tint: Theme.sky) {
-                    sticker.flipped.toggle()
-                }
-                inspectorButton("minus.magnifyingglass", tint: Theme.ink) {
-                    sticker.scale = (sticker.scale * 0.88).clamped(0.15, 4.0)
-                }
-                inspectorButton("plus.magnifyingglass", tint: Theme.ink) {
-                    sticker.scale = (sticker.scale * 1.14).clamped(0.15, 4.0)
-                }
-                inspectorButton("rotate.left", tint: Theme.ink) {
-                    sticker.rotation -= .pi / 12
-                }
-                inspectorButton("rotate.right", tint: Theme.ink) {
-                    sticker.rotation += .pi / 12
-                }
-                inspectorButton("plus.square.on.square", tint: Theme.marigold) {
-                    let copy = session.collage.duplicate(sticker)
-                    session.selection = copy
-                }
-                inspectorButton("trash", tint: Theme.coral) {
-                    session.collage.remove(sticker)
-                    session.selection = nil
-                }
-            }
+            topRow
+            actionRow
         }
         .padding(14)
         .background(
@@ -75,10 +23,101 @@ struct StickerInspector: View {
         .padding(.horizontal, 16)
     }
 
+    // MARK: Top row — kind-specific
+
+    @ViewBuilder
+    private var topRow: some View {
+        HStack(spacing: 8) {
+            if sticker.isText {
+                Button {
+                    session.editText(sticker)
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "textformat")
+                        Text(loc: "text.edit")
+                    }
+                    .font(Theme.title(13))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 14).padding(.vertical, 8)
+                    .background(Capsule().fill(Theme.grape))
+                }
+                .buttonStyle(.plain)
+            } else {
+                ForEach(StickerStyle.allCases) { style in
+                    Button {
+                        edit { sticker.style = style }
+                    } label: {
+                        Text(loc: style.titleKey)
+                            .font(Theme.title(13))
+                            .foregroundStyle(sticker.style == style ? .white : Theme.inkDim)
+                            .padding(.horizontal, 12).padding(.vertical, 8)
+                            .background(Capsule().fill(sticker.style == style ? Theme.grape : Theme.panel))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            Divider().frame(height: 22)
+            Button {
+                edit { sticker.shadow.toggle() }
+            } label: {
+                Image(systemName: "shadow")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(sticker.shadow ? .white : Theme.inkDim)
+                    .frame(width: 38, height: 34)
+                    .background(RoundedRectangle(cornerRadius: 9, style: .continuous)
+                        .fill(sticker.shadow ? Theme.grape : Theme.panel))
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    // MARK: Action row — shared
+
+    private var actionRow: some View {
+        HStack(spacing: 8) {
+            inspectorButton("arrow.up.to.line", tint: Theme.teal) {
+                edit { session.collage.bringToFront(sticker) }
+            }
+            inspectorButton("arrow.down.to.line", tint: Theme.teal) {
+                edit { session.collage.sendToBack(sticker) }
+            }
+            inspectorButton("arrow.left.and.right.righttriangle.left.righttriangle.right", tint: Theme.sky) {
+                edit { sticker.flipped.toggle() }
+            }
+            inspectorButton("minus.magnifyingglass", tint: Theme.ink) {
+                edit { sticker.scale = (sticker.scale * 0.88).clamped(0.15, 4.0) }
+            }
+            inspectorButton("plus.magnifyingglass", tint: Theme.ink) {
+                edit { sticker.scale = (sticker.scale * 1.14).clamped(0.15, 4.0) }
+            }
+            inspectorButton("rotate.left", tint: Theme.ink) {
+                edit { sticker.rotation -= .pi / 12 }
+            }
+            inspectorButton("rotate.right", tint: Theme.ink) {
+                edit { sticker.rotation += .pi / 12 }
+            }
+            inspectorButton("plus.square.on.square", tint: Theme.marigold) {
+                session.checkpoint()
+                let copy = session.collage.duplicate(sticker)
+                session.selection = copy
+            }
+            inspectorButton("trash", tint: Theme.coral) {
+                session.checkpoint()
+                session.collage.remove(sticker)
+                session.selection = nil
+            }
+        }
+    }
+
+    /// Record a checkpoint, run a mutation, and give haptic feedback.
+    private func edit(_ block: () -> Void) {
+        session.checkpoint()
+        Haptics.tap()
+        block()
+    }
+
     private func inspectorButton(_ icon: String, tint: Color, action: @escaping () -> Void) -> some View {
-        Button {
-            Haptics.tap(); action()
-        } label: {
+        Button(action: action) {
             Image(systemName: icon)
                 .font(.system(size: 16, weight: .semibold))
                 .foregroundStyle(tint)

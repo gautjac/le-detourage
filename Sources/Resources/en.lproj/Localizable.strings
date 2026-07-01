@@ -35,6 +35,33 @@
 "canvas.back" = "Send to back";
 "canvas.flip" = "Flip";
 "canvas.reset" = "Reset";
+"canvas.new" = "New collage";
+"canvas.new.confirm" = "Start a new collage?";
+
+/* Text */
+"text.placeholder" = "Your text";
+"text.title" = "Text";
+"text.label" = "Text";
+"text.edit" = "Edit";
+"text.font" = "Lettering";
+"text.color" = "Color";
+"text.chip" = "Paper chip";
+"text.font.rounded" = "Round";
+"text.font.serif" = "Classic";
+"text.font.mono" = "Label";
+"text.font.plain" = "Clean";
+
+/* Gallery (Pages) */
+"gallery.title" = "Pages";
+"gallery.save" = "Save";
+"gallery.saved" = "Page saved";
+"gallery.open" = "Gallery";
+"gallery.rename" = "Rename";
+"gallery.duplicate" = "Duplicate";
+"gallery.export" = "Export";
+"gallery.delete" = "Delete";
+"gallery.empty" = "No saved pages yet.\nBuild a collage, then save it here.";
+"gallery.untitled" = "Collage";
 
 /* Sticker style */
 "sticker.style" = "Style";

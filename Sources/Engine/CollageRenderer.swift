@@ -15,15 +15,18 @@ enum CollageRenderer {
     ///   - collage: the document to flatten.
     ///   - transparentBackground: when true, the chosen background is skipped and
     ///     the canvas is left transparent (stickers only).
-    static func render(_ collage: Collage, transparentBackground: Bool) -> PlatformImage? {
+    ///   - longEdge: the longer-edge output resolution in pixels (defaults to the
+    ///     full 2K export; smaller values render gallery thumbnails).
+    static func render(_ collage: Collage, transparentBackground: Bool,
+                       longEdge: CGFloat = exportLongEdge) -> PlatformImage? {
         let aspect = max(0.2, collage.canvasAspect)
         let (pw, ph): (Int, Int)
         if aspect >= 1 {
-            pw = Int(exportLongEdge)
-            ph = Int(exportLongEdge / aspect)
+            pw = Int(longEdge)
+            ph = Int(longEdge / aspect)
         } else {
-            ph = Int(exportLongEdge)
-            pw = Int(exportLongEdge * aspect)
+            ph = Int(longEdge)
+            pw = Int(longEdge * aspect)
         }
         guard pw > 0, ph > 0 else { return nil }
 
@@ -94,8 +97,21 @@ enum CollageRenderer {
     }
 
     private static func drawSticker(_ s: PlacedSticker, in ctx: CGContext, canvas: CGSize) {
-        guard let cg = s.image.cgImageNormalized else { return }
         let size = s.renderSize(in: canvas)
+        guard size.width >= 1, size.height >= 1 else { return }
+
+        // Resolve the element to a bitmap: cutouts draw their lifted image; text
+        // is rasterized (chip + glyphs) so it flows through the identical
+        // shadow / rotation / flip compositing path below.
+        let cgSource: CGImage?
+        switch s.kind {
+        case .cutout(let img):
+            cgSource = img.cgImageNormalized
+        case .text(let content):
+            let fontSize = TextRendering.fontSize(in: canvas, scale: s.scale)
+            cgSource = TextRendering.image(content, size: size, fontSize: fontSize)?.cgImageNormalized
+        }
+        guard let cg = cgSource else { return }
         let center = s.center(in: canvas)
 
         ctx.saveGState()
