@@ -11,6 +11,7 @@ struct StickerInspector: View {
     var body: some View {
         VStack(spacing: 12) {
             topRow
+            arrangeRow
             actionRow
         }
         .padding(14)
@@ -87,10 +88,33 @@ struct StickerInspector: View {
         }
     }
 
+    // MARK: Arrange row — layer order
+    //
+    // Layer ordering lives here (not on the element frame) so it's always
+    // reachable — even when the element is zoomed in or extends past the page
+    // edge and its corners are off-screen. "…to.line" = all the way.
+
+    private var arrangeRow: some View {
+        HStack(spacing: 8) {
+            inspectorButton("arrow.down.to.line", tint: Theme.teal) {
+                edit { session.collage.sendToBack(sticker) }
+            }
+            inspectorButton("arrow.down", tint: Theme.teal) {
+                edit { session.collage.moveBackward(sticker) }
+            }
+            inspectorButton("arrow.up", tint: Theme.teal) {
+                edit { session.collage.moveForward(sticker) }
+            }
+            inspectorButton("arrow.up.to.line", tint: Theme.teal) {
+                edit { session.collage.bringToFront(sticker) }
+            }
+        }
+    }
+
     // MARK: Action row — shared
     //
-    // Scale, rotate and re-layer live on the on-canvas selection handles now;
-    // this row keeps the actions that aren't a direct spatial manipulation.
+    // Scale and rotate live on the on-canvas selection handles; this row keeps
+    // the actions that aren't a direct spatial manipulation.
 
     private var actionRow: some View {
         HStack(spacing: 8) {

@@ -168,7 +168,7 @@ struct StickerLayer: View {
         let containerH = fh + vMargin * 2
 
         // Corner + knob positions in the container's coordinate space.
-        let left = hMargin, right = hMargin + fw
+        let right = hMargin + fw
         let top = vMargin, bottom = vMargin + fh
         let midX = hMargin + fw / 2
         let knob = CGPoint(x: midX, y: top - stem)
@@ -204,24 +204,8 @@ struct StickerLayer: View {
                 .position(x: right, y: top)
                 .gesture(scaleHandleGesture(center: center))
 
-            // Layer handles: tap = step one layer, press-and-hold = all the way.
-            // Forward (top-left), backward (bottom-left).
-            handle(icon: "chevron.up", tint: Theme.grape, counter: counter)
-                .position(x: left, y: top)
-                .onTapGesture {
-                    session.checkpoint(); Haptics.tap(); session.collage.moveForward(sticker)
-                }
-                .onLongPressGesture(minimumDuration: 0.35) {
-                    session.checkpoint(); Haptics.success(); session.collage.bringToFront(sticker)
-                }
-            handle(icon: "chevron.down", tint: Theme.grape, counter: counter)
-                .position(x: left, y: bottom)
-                .onTapGesture {
-                    session.checkpoint(); Haptics.tap(); session.collage.moveBackward(sticker)
-                }
-                .onLongPressGesture(minimumDuration: 0.35) {
-                    session.checkpoint(); Haptics.success(); session.collage.sendToBack(sticker)
-                }
+            // Layer ordering lives in the always-visible inspector (reliable even
+            // when the element's corners are off-screen), not on the frame.
         }
         .frame(width: containerW, height: containerH)
         .rotationEffect(liveAngle)
