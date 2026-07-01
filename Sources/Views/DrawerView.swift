@@ -83,9 +83,14 @@ struct DrawerView: View {
             Label(L.t("drawer.use"), systemImage: "plus.rectangle.on.rectangle")
         }
         Button {
+            share(sticker)
+        } label: {
+            Label(L.t("drawer.share"), systemImage: "square.and.arrow.up")
+        }
+        Button {
             export(sticker)
         } label: {
-            Label(L.t("drawer.export"), systemImage: "square.and.arrow.up")
+            Label(L.t("drawer.export"), systemImage: "square.and.arrow.down")
         }
         Button(role: .destructive) {
             delete(sticker)
@@ -103,8 +108,13 @@ struct DrawerView: View {
 
     private func export(_ sticker: SavedSticker) {
         guard let img = PlatformImage(data: sticker.pngData) else { return }
-        Exporter.exportPNG(img, suggestedName: "autocollant-detourage")
+        Exporter.save(img, suggestedName: "autocollant-detourage")
         session.flash(L.t("export.sticker"))
+    }
+
+    private func share(_ sticker: SavedSticker) {
+        guard let img = PlatformImage(data: sticker.pngData) else { return }
+        Exporter.share(img, suggestedName: "autocollant-detourage")
     }
 
     private func delete(_ sticker: SavedSticker) {

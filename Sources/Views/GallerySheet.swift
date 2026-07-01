@@ -104,7 +104,8 @@ struct GallerySheet: View {
         Button { open(page) } label: { Label(L.t("gallery.open"), systemImage: "folder") }
         Button { beginRename(page) } label: { Label(L.t("gallery.rename"), systemImage: "pencil") }
         Button { duplicate(page) } label: { Label(L.t("gallery.duplicate"), systemImage: "plus.square.on.square") }
-        Button { export(page) } label: { Label(L.t("gallery.export"), systemImage: "square.and.arrow.up") }
+        Button { share(page) } label: { Label(L.t("gallery.share"), systemImage: "square.and.arrow.up") }
+        Button { export(page) } label: { Label(L.t("gallery.export"), systemImage: "square.and.arrow.down") }
         Divider()
         Button(role: .destructive) { delete(page) } label: { Label(L.t("gallery.delete"), systemImage: "trash") }
     }
@@ -142,11 +143,20 @@ struct GallerySheet: View {
     }
 
     private func export(_ page: SavedCollage) {
+        guard let image = flatten(page) else { return }
+        Exporter.save(image, suggestedName: "collage-detourage")
+        session.flash(L.t("export.collage"))
+    }
+
+    private func share(_ page: SavedCollage) {
+        guard let image = flatten(page) else { return }
+        Exporter.share(image, suggestedName: "collage-detourage")
+    }
+
+    private func flatten(_ page: SavedCollage) -> PlatformImage? {
         let collage = Collage()
         collage.load(document: page.document)
-        guard let image = CollageRenderer.render(collage, transparentBackground: false) else { return }
-        Exporter.exportPNG(image, suggestedName: "collage-detourage")
-        session.flash(L.t("export.collage"))
+        return CollageRenderer.render(collage, transparentBackground: false)
     }
 
     private func delete(_ page: SavedCollage) {
