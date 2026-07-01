@@ -101,9 +101,24 @@
 "emblem.ring" = "Ring";
 "emblem.tape" = "Washi tape";
 
-/* Doodle (drawing layer) */
+/* Doodle (drawing → element) */
 "draw.title" = "Doodle";
 "draw.done" = "Done";
+
+/* Canvas format */
+"format.title" = "Format";
+"format.square" = "Square";
+"format.square.sub" = "Post";
+"format.portrait" = "Portrait";
+"format.portrait.sub" = "Instagram";
+"format.story" = "Story";
+"format.story.sub" = "Story · Reel";
+"format.landscape" = "Landscape";
+"format.landscape.sub" = "YouTube";
+"format.wide" = "Banner";
+"format.wide.sub" = "Facebook";
+"format.pin" = "Pin";
+"format.pin.sub" = "Pinterest";
 
 /* Drawer */
 "drawer.title" = "Sticker drawer";

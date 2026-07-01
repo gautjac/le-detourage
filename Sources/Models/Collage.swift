@@ -33,6 +33,7 @@ enum ElementKind {
     case cutout(PlatformImage)
     case text(TextContent)
     case shape(Embellishment)
+    case sketch(Sketch)
 }
 
 /// The collage background choice.
@@ -149,6 +150,30 @@ final class PlacedSticker: Identifiable {
         self.cutoutAspect = 1
     }
 
+    /// Init for a **sketch** (freehand pencil) element.
+    init(id: UUID = UUID(),
+         sketch: Sketch,
+         position: CGPoint = CGPoint(x: 0.5, y: 0.5),
+         scale: CGFloat = 1,
+         rotation: CGFloat = 0,
+         flipped: Bool = false,
+         shadow: Bool = true,
+         z: Int = 0) {
+        self.id = id
+        self.sourceID = nil
+        self.kind = .sketch(sketch)
+        self.position = position
+        self.scale = scale
+        self.rotation = rotation
+        self.flipped = flipped
+        self.style = .none
+        self.filter = .none
+        self.outlineColorIndex = 0
+        self.shadow = shadow
+        self.z = z
+        self.cutoutAspect = sketch.aspect
+    }
+
     /// Init for an **embellishment** (shape) element.
     init(id: UUID = UUID(),
          shape: Embellishment,
@@ -177,11 +202,18 @@ final class PlacedSticker: Identifiable {
 
     var isText: Bool { if case .text = kind { return true }; return false }
     var isShape: Bool { if case .shape = kind { return true }; return false }
+    var isSketch: Bool { if case .sketch = kind { return true }; return false }
 
     /// The embellishment, or nil. Setting it replaces the kind.
     var embellishment: Embellishment? {
         get { if case .shape(let e) = kind { return e }; return nil }
         set { if let value = newValue { kind = .shape(value) } }
+    }
+
+    /// The sketch, or nil.
+    var sketch: Sketch? {
+        if case .sketch(let s) = kind { return s }
+        return nil
     }
 
     /// The cutout image, or nil for a text element.
@@ -223,10 +255,10 @@ final class PlacedSticker: Identifiable {
     /// The on-screen size (points) of this element for a given canvas size.
     func renderSize(in canvas: CGSize) -> CGSize {
         switch kind {
-        case .cutout, .shape:
-            // Cutouts and embellishments both size the longer dimension to a
-            // fraction of the shorter canvas edge (`cutoutAspect` holds a shape's
-            // aspect too), so wide and tall elements feel similarly prominent.
+        case .cutout, .shape, .sketch:
+            // Cutouts, embellishments and sketches all size the longer dimension
+            // to a fraction of the shorter canvas edge (`cutoutAspect` holds each
+            // one's aspect), so wide and tall elements feel similarly prominent.
             let shorter = min(canvas.width, canvas.height)
             let base = shorter * Self.baseFraction * scale
             if cutoutAspect >= 1 {
@@ -255,23 +287,8 @@ final class Collage {
     /// The canvas aspect ratio (width / height). Square by default; picks up the
     /// device on iPhone but stays authoritative for export dimensions.
     var canvasAspect: CGFloat = 1.0
-    /// The freehand doodle layer, authored in a fixed reference space
-    /// (`drawingReferenceSize`) so it scales to any window and to the export
-    /// canvas. Nil when nothing has been drawn.
-    var doodle: Doodle?
 
     @ObservationIgnored private var nextZ: Int = 0
-
-    /// The long edge of the canonical space the doodle layer is authored in.
-    static let drawingReferenceLongEdge: CGFloat = 2048
-
-    /// The doodle layer's reference size for this collage's aspect.
-    var drawingReferenceSize: CGSize {
-        let aspect = max(0.2, canvasAspect)
-        let long = Self.drawingReferenceLongEdge
-        return aspect >= 1 ? CGSize(width: long, height: long / aspect)
-                           : CGSize(width: long * aspect, height: long)
-    }
 
     /// Stickers sorted back-to-front for rendering.
     var ordered: [PlacedSticker] {
@@ -280,8 +297,8 @@ final class Collage {
 
     var isEmpty: Bool { stickers.isEmpty }
 
-    /// Whether there is anything to show/export — placed elements or a doodle.
-    var hasContent: Bool { !stickers.isEmpty || !(doodle?.isEmpty ?? true) }
+    /// Whether there is anything to show/export.
+    var hasContent: Bool { !stickers.isEmpty }
 
     // MARK: Mutations
 
@@ -315,6 +332,15 @@ final class Collage {
         return s
     }
 
+    @discardableResult
+    func addSketch(_ sketch: Sketch, at position: CGPoint = CGPoint(x: 0.5, y: 0.5),
+                   scale: CGFloat = 1) -> PlacedSticker {
+        let s = PlacedSticker(sketch: sketch, position: position, scale: scale, z: nextZ)
+        nextZ += 1
+        stickers.append(s)
+        return s
+    }
+
     func remove(_ sticker: PlacedSticker) {
         stickers.removeAll { $0.id == sticker.id }
     }
@@ -337,6 +363,10 @@ final class Collage {
                                  shadow: sticker.shadow, z: nextZ)
         case .shape(let embellishment):
             copy = PlacedSticker(shape: embellishment, position: offset, scale: sticker.scale,
+                                 rotation: sticker.rotation, flipped: sticker.flipped,
+                                 shadow: sticker.shadow, z: nextZ)
+        case .sketch(let sketchContent):
+            copy = PlacedSticker(sketch: sketchContent, position: offset, scale: sticker.scale,
                                  rotation: sticker.rotation, flipped: sticker.flipped,
                                  shadow: sticker.shadow, z: nextZ)
         }
@@ -373,7 +403,6 @@ final class Collage {
 
     func clear() {
         stickers.removeAll()
-        doodle = nil
         nextZ = 0
     }
 
@@ -398,7 +427,6 @@ final class Collage {
             background: background,
             backgroundImage: backgroundImage,
             canvasAspect: canvasAspect,
-            doodle: doodle,
             nextZ: nextZ)
     }
 
@@ -421,13 +449,16 @@ final class Collage {
                 s = PlacedSticker(id: e.id, shape: embellishment, position: e.position,
                                   scale: e.scale, rotation: e.rotation, flipped: e.flipped,
                                   shadow: e.shadow, z: e.z)
+            case .sketch(let sketchContent):
+                s = PlacedSticker(id: e.id, sketch: sketchContent, position: e.position,
+                                  scale: e.scale, rotation: e.rotation, flipped: e.flipped,
+                                  shadow: e.shadow, z: e.z)
             }
             return s
         }
         background = snapshot.background
         backgroundImage = snapshot.backgroundImage
         canvasAspect = snapshot.canvasAspect
-        doodle = snapshot.doodle
         nextZ = snapshot.nextZ
     }
 }

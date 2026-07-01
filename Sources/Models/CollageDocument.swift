@@ -25,7 +25,6 @@ struct CollageSnapshot {
     var background: CollageBackground
     var backgroundImage: PlatformImage?
     var canvasAspect: CGFloat
-    var doodle: Doodle?
     var nextZ: Int
 }
 
@@ -76,6 +75,7 @@ struct ElementDTO: Codable {
     var pngData: Data?
     var text: TextContent?
     var shape: Embellishment?
+    var sketch: Sketch?
     var position: CGPoint
     var scale: CGFloat
     var rotation: CGFloat
@@ -97,20 +97,17 @@ struct CollageDocument: Codable {
     var background: BackgroundDTO
     var backgroundImagePNG: Data?
     var canvasAspect: CGFloat
-    var doodle: Doodle?
 
     init(version: Int = 1,
          elements: [ElementDTO] = [],
          background: BackgroundDTO = .color(RGBAColor(Theme.page)),
          backgroundImagePNG: Data? = nil,
-         canvasAspect: CGFloat = 1.0,
-         doodle: Doodle? = nil) {
+         canvasAspect: CGFloat = 1.0) {
         self.version = version
         self.elements = elements
         self.background = background
         self.backgroundImagePNG = backgroundImagePNG
         self.canvasAspect = canvasAspect
-        self.doodle = doodle
     }
 }
 
@@ -123,6 +120,7 @@ extension Collage {
                 pngData: s.cutoutPNGData,
                 text: s.text,
                 shape: s.embellishment,
+                sketch: s.sketch,
                 position: s.position, scale: s.scale, rotation: s.rotation,
                 flipped: s.flipped, style: s.style, filter: s.filter,
                 outlineColorIndex: s.outlineColorIndex, shadow: s.shadow, z: s.z)
@@ -134,15 +132,19 @@ extension Collage {
                 if case .photo = background { return backgroundImage?.pngData }
                 return nil
             }(),
-            canvasAspect: canvasAspect,
-            doodle: doodle)
+            canvasAspect: canvasAspect)
     }
 
     /// Replace the live collage's contents with a decoded document.
     func load(document: CollageDocument) {
         var rebuilt: [PlacedSticker] = []
         for e in document.elements {
-            if let embellishment = e.shape {
+            if let sketchContent = e.sketch {
+                let s = PlacedSticker(id: e.id, sketch: sketchContent, position: e.position,
+                                      scale: e.scale, rotation: e.rotation,
+                                      flipped: e.flipped, shadow: e.shadow, z: e.z)
+                rebuilt.append(s)
+            } else if let embellishment = e.shape {
                 let s = PlacedSticker(id: e.id, shape: embellishment, position: e.position,
                                       scale: e.scale, rotation: e.rotation,
                                       flipped: e.flipped, shadow: e.shadow, z: e.z)
@@ -170,7 +172,6 @@ extension Collage {
             backgroundImage = nil
         }
         canvasAspect = document.canvasAspect
-        doodle = document.doodle
         normalizeZ()
     }
 }

@@ -62,7 +62,22 @@ struct StickerLayer: View {
             textBody(content: content, size: size)
         case .shape(let embellishment):
             shapeBody(embellishment, size: size)
+        case .sketch(let sketchContent):
+            sketchBody(sketchContent, size: size)
         }
+    }
+
+    // MARK: Sketch body
+
+    @ViewBuilder
+    private func sketchBody(_ sketch: Sketch, size: CGSize) -> some View {
+        let scale = sketch.size.width > 0 ? size.width / sketch.size.width : 1
+        Canvas { ctx, _ in
+            paint(sketch.strokes, in: ctx, scale: scale)
+        }
+        .frame(width: size.width, height: size.height)
+        .scaleEffect(x: sticker.flipped ? -1 : 1, y: 1)
+        .shadow(color: sticker.shadow ? Theme.stickerShadow : .clear, radius: 7, x: 0, y: 4)
     }
 
     // MARK: Embellishment body
