@@ -34,7 +34,10 @@ struct DoodleEditor: View {
             .contentShape(Rectangle())
             .gesture(drawGesture)
         }
-        .frame(width: pageSize.width, height: pageSize.height)
+        // Fill the window and center the page-sized canvas, so the floating
+        // toolbar can size to its own content instead of being squeezed to the
+        // (possibly narrow) page width.
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .bottom) { toolbar.padding(.bottom, 84) }
     }
 
@@ -133,17 +136,20 @@ struct DoodleEditor: View {
 
                 Button { Haptics.tap(); session.cancelDrawing() } label: {
                     Text(loc: "common.cancel").font(Theme.title(14)).foregroundStyle(Theme.inkDim)
+                        .lineLimit(1).fixedSize()
                         .padding(.horizontal, 12).padding(.vertical, 8)
                 }
                 .buttonStyle(.plain)
                 Button { Haptics.tap(); finish() } label: {
                     Text(loc: "draw.done").font(Theme.title(15)).foregroundStyle(.white)
+                        .lineLimit(1).fixedSize()
                         .padding(.horizontal, 16).padding(.vertical, 9)
                         .background(Capsule().fill(Theme.accent))
                 }
                 .buttonStyle(.plain)
                 .disabled(strokes.isEmpty)
             }
+            .fixedSize()
         }
         .padding(12)
         .background(RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Theme.card)
