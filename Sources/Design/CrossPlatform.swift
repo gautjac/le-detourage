@@ -7,12 +7,16 @@ import AppKit
 typealias PlatformImage = NSImage
 /// The platform's font type (AppKit on macOS).
 typealias PlatformFont = NSFont
+/// The platform's color type (AppKit on macOS).
+typealias PlatformColor = NSColor
 #else
 import UIKit
 /// The platform's bitmap image type (UIKit on iOS).
 typealias PlatformImage = UIImage
 /// The platform's font type (UIKit on iOS).
 typealias PlatformFont = UIFont
+/// The platform's color type (UIKit on iOS).
+typealias PlatformColor = UIColor
 #endif
 
 extension Image {

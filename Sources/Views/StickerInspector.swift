@@ -28,33 +28,13 @@ struct StickerInspector: View {
     @ViewBuilder
     private var topRow: some View {
         HStack(spacing: 8) {
-            if sticker.isText {
-                Button {
-                    session.editText(sticker)
-                } label: {
-                    HStack(spacing: 6) {
-                        Image(systemName: "textformat")
-                        Text(loc: "text.edit")
-                    }
-                    .font(Theme.title(13))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, 14).padding(.vertical, 8)
-                    .background(Capsule().fill(Theme.grape))
-                }
-                .buttonStyle(.plain)
-            } else {
-                ForEach(StickerStyle.allCases) { style in
-                    Button {
-                        edit { sticker.style = style }
-                    } label: {
-                        Text(loc: style.titleKey)
-                            .font(Theme.title(13))
-                            .foregroundStyle(sticker.style == style ? .white : Theme.inkDim)
-                            .padding(.horizontal, 12).padding(.vertical, 8)
-                            .background(Capsule().fill(sticker.style == style ? Theme.grape : Theme.panel))
-                    }
-                    .buttonStyle(.plain)
-                }
+            switch sticker.kind {
+            case .text:
+                pillButton("textformat", "text.edit") { session.editText(sticker) }
+            case .cutout:
+                pillButton("wand.and.stars", "style.effects") { session.editStyle(sticker) }
+            case .shape(let emblem):
+                shapeColorStrip(emblem)
             }
             Divider().frame(height: 22)
             Button {
@@ -68,6 +48,38 @@ struct StickerInspector: View {
                         .fill(sticker.shadow ? Theme.grape : Theme.panel))
             }
             .buttonStyle(.plain)
+        }
+    }
+
+    private func pillButton(_ icon: String, _ titleKey: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                Text(loc: titleKey)
+            }
+            .font(Theme.title(13))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 14).padding(.vertical, 8)
+            .background(Capsule().fill(Theme.grape))
+        }
+        .buttonStyle(.plain)
+    }
+
+    /// A compact color strip for recoloring an embellishment.
+    private func shapeColorStrip(_ emblem: Embellishment) -> some View {
+        HStack(spacing: 6) {
+            ForEach(Embellishment.colors.indices, id: \.self) { i in
+                Button {
+                    edit { sticker.embellishment = Embellishment(shape: emblem.shape, colorIndex: i) }
+                } label: {
+                    Circle()
+                        .fill(Embellishment.colors[i])
+                        .frame(width: 20, height: 20)
+                        .overlay(Circle().stroke(Theme.hairline, lineWidth: 1))
+                        .overlay(Circle().stroke(Theme.accent, lineWidth: emblem.colorIndex == i ? 2.5 : 0).padding(-2.5))
+                }
+                .buttonStyle(.plain)
+            }
         }
     }
 

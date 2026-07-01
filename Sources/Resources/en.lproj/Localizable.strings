@@ -71,6 +71,40 @@
 "sticker.outline.white" = "White outline";
 "sticker.outline.thick" = "Thick outline";
 
+/* Effects & die-cut */
+"style.effects" = "Effects";
+"style.title" = "Cutout style";
+"style.filter" = "Filter";
+"style.outline" = "Outline";
+"style.color" = "Outline color";
+"outline.none" = "None";
+"outline.thin" = "Thin";
+"outline.thick" = "Thick";
+"filter.none" = "Original";
+"filter.noir" = "Noir";
+"filter.chrome" = "Chrome";
+"filter.comic" = "Comic";
+"filter.vintage" = "Retro";
+"filter.posterize" = "Poster";
+
+/* Embellishments */
+"emblem.title" = "Embellishments";
+"emblem.color" = "Color";
+"emblem.heart" = "Heart";
+"emblem.star" = "Star";
+"emblem.sparkle" = "Sparkle";
+"emblem.burst" = "Burst";
+"emblem.banner" = "Banner";
+"emblem.speech" = "Speech";
+"emblem.arrow" = "Arrow";
+"emblem.squiggle" = "Squiggle";
+"emblem.ring" = "Ring";
+"emblem.tape" = "Washi tape";
+
+/* Doodle (drawing layer) */
+"draw.title" = "Doodle";
+"draw.done" = "Done";
+
 /* Drawer */
 "drawer.title" = "Sticker drawer";
 "drawer.empty" = "Your drawer is empty.\nCut out a subject to start your collection.";

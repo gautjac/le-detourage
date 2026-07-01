@@ -16,6 +16,8 @@ struct CollageSnapshot {
         let rotation: CGFloat
         let flipped: Bool
         let style: StickerStyle
+        let filter: CutoutFilter
+        let outlineColorIndex: Int
         let shadow: Bool
         let z: Int
     }
@@ -23,6 +25,7 @@ struct CollageSnapshot {
     var background: CollageBackground
     var backgroundImage: PlatformImage?
     var canvasAspect: CGFloat
+    var doodle: Doodle?
     var nextZ: Int
 }
 
@@ -72,11 +75,16 @@ struct ElementDTO: Codable {
     var sourceID: UUID?
     var pngData: Data?
     var text: TextContent?
+    var shape: Embellishment?
     var position: CGPoint
     var scale: CGFloat
     var rotation: CGFloat
     var flipped: Bool
     var style: StickerStyle
+    // Optional so documents written before filters/outline-color existed still
+    // decode (a lost autosave draft would silently drop the whole collage).
+    var filter: CutoutFilter?
+    var outlineColorIndex: Int?
     var shadow: Bool
     var z: Int
 }
@@ -89,17 +97,20 @@ struct CollageDocument: Codable {
     var background: BackgroundDTO
     var backgroundImagePNG: Data?
     var canvasAspect: CGFloat
+    var doodle: Doodle?
 
     init(version: Int = 1,
          elements: [ElementDTO] = [],
          background: BackgroundDTO = .color(RGBAColor(Theme.page)),
          backgroundImagePNG: Data? = nil,
-         canvasAspect: CGFloat = 1.0) {
+         canvasAspect: CGFloat = 1.0,
+         doodle: Doodle? = nil) {
         self.version = version
         self.elements = elements
         self.background = background
         self.backgroundImagePNG = backgroundImagePNG
         self.canvasAspect = canvasAspect
+        self.doodle = doodle
     }
 }
 
@@ -111,8 +122,10 @@ extension Collage {
                 id: s.id, sourceID: s.sourceID,
                 pngData: s.cutoutPNGData,
                 text: s.text,
+                shape: s.embellishment,
                 position: s.position, scale: s.scale, rotation: s.rotation,
-                flipped: s.flipped, style: s.style, shadow: s.shadow, z: s.z)
+                flipped: s.flipped, style: s.style, filter: s.filter,
+                outlineColorIndex: s.outlineColorIndex, shadow: s.shadow, z: s.z)
         }
         return CollageDocument(
             elements: elements,
@@ -121,14 +134,20 @@ extension Collage {
                 if case .photo = background { return backgroundImage?.pngData }
                 return nil
             }(),
-            canvasAspect: canvasAspect)
+            canvasAspect: canvasAspect,
+            doodle: doodle)
     }
 
     /// Replace the live collage's contents with a decoded document.
     func load(document: CollageDocument) {
         var rebuilt: [PlacedSticker] = []
         for e in document.elements {
-            if let content = e.text {
+            if let embellishment = e.shape {
+                let s = PlacedSticker(id: e.id, shape: embellishment, position: e.position,
+                                      scale: e.scale, rotation: e.rotation,
+                                      flipped: e.flipped, shadow: e.shadow, z: e.z)
+                rebuilt.append(s)
+            } else if let content = e.text {
                 let s = PlacedSticker(id: e.id, text: content, position: e.position,
                                       scale: e.scale, rotation: e.rotation,
                                       flipped: e.flipped, shadow: e.shadow, z: e.z)
@@ -136,7 +155,10 @@ extension Collage {
             } else if let data = e.pngData, let img = PlatformImage(data: data) {
                 let s = PlacedSticker(id: e.id, sourceID: e.sourceID, image: img,
                                       position: e.position, scale: e.scale, rotation: e.rotation,
-                                      flipped: e.flipped, style: e.style, shadow: e.shadow, z: e.z)
+                                      flipped: e.flipped, style: e.style,
+                                      filter: e.filter ?? .none,
+                                      outlineColorIndex: e.outlineColorIndex ?? 0,
+                                      shadow: e.shadow, z: e.z)
                 rebuilt.append(s)
             }
         }
@@ -148,6 +170,7 @@ extension Collage {
             backgroundImage = nil
         }
         canvasAspect = document.canvasAspect
+        doodle = document.doodle
         normalizeZ()
     }
 }
