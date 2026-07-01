@@ -204,16 +204,23 @@ struct StickerLayer: View {
                 .position(x: right, y: top)
                 .gesture(scaleHandleGesture(center: center))
 
-            // Layer handles (tap): forward (top-left), backward (bottom-left).
+            // Layer handles: tap = step one layer, press-and-hold = all the way.
+            // Forward (top-left), backward (bottom-left).
             handle(icon: "chevron.up", tint: Theme.grape, counter: counter)
                 .position(x: left, y: top)
                 .onTapGesture {
                     session.checkpoint(); Haptics.tap(); session.collage.moveForward(sticker)
                 }
+                .onLongPressGesture(minimumDuration: 0.35) {
+                    session.checkpoint(); Haptics.success(); session.collage.bringToFront(sticker)
+                }
             handle(icon: "chevron.down", tint: Theme.grape, counter: counter)
                 .position(x: left, y: bottom)
                 .onTapGesture {
                     session.checkpoint(); Haptics.tap(); session.collage.moveBackward(sticker)
+                }
+                .onLongPressGesture(minimumDuration: 0.35) {
+                    session.checkpoint(); Haptics.success(); session.collage.sendToBack(sticker)
                 }
         }
         .frame(width: containerW, height: containerH)
@@ -283,7 +290,8 @@ struct StickerLayer: View {
                 sticker.position = CGPoint(
                     x: (newCenter.x / max(1, canvasSize.width)).clamped(-0.1, 1.1),
                     y: (newCenter.y / max(1, canvasSize.height)).clamped(-0.1, 1.1))
-                session.collage.bringToFront(sticker)
+                // Moving an element leaves its layer order untouched — use the
+                // ⌃/⌄ handles to reorder deliberately instead.
             }
     }
 
