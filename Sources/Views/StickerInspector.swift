@@ -72,29 +72,14 @@ struct StickerInspector: View {
     }
 
     // MARK: Action row — shared
+    //
+    // Scale, rotate and re-layer live on the on-canvas selection handles now;
+    // this row keeps the actions that aren't a direct spatial manipulation.
 
     private var actionRow: some View {
         HStack(spacing: 8) {
-            inspectorButton("arrow.up.to.line", tint: Theme.teal) {
-                edit { session.collage.bringToFront(sticker) }
-            }
-            inspectorButton("arrow.down.to.line", tint: Theme.teal) {
-                edit { session.collage.sendToBack(sticker) }
-            }
             inspectorButton("arrow.left.and.right.righttriangle.left.righttriangle.right", tint: Theme.sky) {
                 edit { sticker.flipped.toggle() }
-            }
-            inspectorButton("minus.magnifyingglass", tint: Theme.ink) {
-                edit { sticker.scale = (sticker.scale * 0.88).clamped(0.15, 4.0) }
-            }
-            inspectorButton("plus.magnifyingglass", tint: Theme.ink) {
-                edit { sticker.scale = (sticker.scale * 1.14).clamped(0.15, 4.0) }
-            }
-            inspectorButton("rotate.left", tint: Theme.ink) {
-                edit { sticker.rotation -= .pi / 12 }
-            }
-            inspectorButton("rotate.right", tint: Theme.ink) {
-                edit { sticker.rotation += .pi / 12 }
             }
             inspectorButton("plus.square.on.square", tint: Theme.marigold) {
                 session.checkpoint()

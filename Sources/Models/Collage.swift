@@ -262,6 +262,22 @@ final class Collage {
         sticker.z = minZ - 1
     }
 
+    /// Move one step up the stack, swapping z with the element directly above.
+    func moveForward(_ sticker: PlacedSticker) {
+        let sorted = ordered
+        guard let i = sorted.firstIndex(where: { $0.id == sticker.id }), i < sorted.count - 1 else { return }
+        let above = sorted[i + 1]
+        let z = sticker.z; sticker.z = above.z; above.z = z
+    }
+
+    /// Move one step down the stack, swapping z with the element directly below.
+    func moveBackward(_ sticker: PlacedSticker) {
+        let sorted = ordered
+        guard let i = sorted.firstIndex(where: { $0.id == sticker.id }), i > 0 else { return }
+        let below = sorted[i - 1]
+        let z = sticker.z; sticker.z = below.z; below.z = z
+    }
+
     func clear() {
         stickers.removeAll()
         nextZ = 0

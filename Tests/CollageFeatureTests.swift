@@ -186,6 +186,30 @@ final class CollageFeatureTests: XCTestCase {
         XCTAssertFalse(history.canRedo)
     }
 
+    // MARK: Step-wise layering (handles)
+
+    func testMoveForwardAndBackwardStepByOne() {
+        let collage = Collage()
+        let a = collage.add(image: dummy())
+        let b = collage.add(image: dummy())
+        let c = collage.add(image: dummy())
+        XCTAssertEqual(collage.ordered.map(\.id), [a.id, b.id, c.id])
+
+        collage.moveForward(a)      // a ↔ b
+        XCTAssertEqual(collage.ordered.map(\.id), [b.id, a.id, c.id])
+
+        collage.moveBackward(c)     // c ↔ a
+        XCTAssertEqual(collage.ordered.map(\.id), [b.id, c.id, a.id])
+
+        // The top can't move further forward; the bottom can't move further back.
+        let top = collage.ordered.last!
+        collage.moveForward(top)
+        XCTAssertEqual(collage.ordered.last?.id, top.id)
+        let bottom = collage.ordered.first!
+        collage.moveBackward(bottom)
+        XCTAssertEqual(collage.ordered.first?.id, bottom.id)
+    }
+
     // MARK: Thumbnails
 
     func testThumbnailHonorsLongEdge() {

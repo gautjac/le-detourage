@@ -163,6 +163,7 @@ struct CollageCanvasView: View {
                 }
             }
             .frame(width: pageSize.width, height: pageSize.height)
+            .coordinateSpace(.named("page"))
             .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
             .shadow(color: Theme.stickerShadow, radius: 16, y: 8)
             .overlay(
