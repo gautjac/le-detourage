@@ -13,6 +13,7 @@ struct DoodleEditor: View {
     @State private var current: [CGPoint] = []
     @State private var colorIndex = 0
     @State private var widthIndex = 1
+    @State private var brush: Brush = .marker
     @State private var eraser = false
 
     private let widths: [CGFloat] = [4, 9, 18]
@@ -23,7 +24,8 @@ struct DoodleEditor: View {
             Canvas { ctx, _ in
                 paint(strokes, in: ctx, scale: 1)
                 if current.count > 1 {
-                    paint([SketchStroke(points: current, colorIndex: colorIndex, width: widths[widthIndex])],
+                    paint([SketchStroke(points: current, colorIndex: colorIndex,
+                                        width: widths[widthIndex], brush: brush)],
                           in: ctx, scale: 1)
                 }
             }
@@ -50,7 +52,7 @@ struct DoodleEditor: View {
             .onEnded { _ in
                 if !eraser, current.count > 1 {
                     strokes.append(SketchStroke(points: current, colorIndex: colorIndex,
-                                                width: widths[widthIndex]))
+                                                width: widths[widthIndex], brush: brush))
                 }
                 current = []
             }
@@ -79,6 +81,26 @@ struct DoodleEditor: View {
 
     private var toolbar: some View {
         VStack(spacing: 10) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(Brush.allCases) { b in
+                        Button {
+                            Haptics.tap(); eraser = false; brush = b
+                        } label: {
+                            BrushSwatch(brush: b, color: Sketch.color(colorIndex))
+                                .frame(width: 46, height: 28)
+                                .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Theme.panel))
+                                .overlay(RoundedRectangle(cornerRadius: 9)
+                                    .stroke((brush == b && !eraser) ? Theme.accent : Theme.hairline,
+                                            lineWidth: (brush == b && !eraser) ? 2.5 : 1))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 2).padding(.vertical, 2)
+            }
+            .frame(maxWidth: 330)
+
             HStack(spacing: 7) {
                 ForEach(Sketch.colors.indices, id: \.self) { i in
                     Button {
@@ -139,5 +161,21 @@ struct DoodleEditor: View {
                 .background(Circle().fill(active ? Theme.grape : Theme.panel))
         }
         .buttonStyle(.plain)
+    }
+}
+
+/// A self-illustrating brush chip: a short sample stroke rendered with the brush,
+/// so the picker previews exactly what the brush looks like.
+struct BrushSwatch: View {
+    let brush: Brush
+    let color: Color
+
+    var body: some View {
+        Canvas { ctx, size in
+            let pts = stride(from: 0.12, through: 0.88, by: 0.06).map { t -> CGPoint in
+                CGPoint(x: size.width * t, y: size.height * (0.5 + 0.34 * sin(t * .pi * 2)))
+            }
+            renderBrush(brushOps(brush: brush, points: pts, width: 5, color: color), in: ctx, scale: 1)
+        }
     }
 }

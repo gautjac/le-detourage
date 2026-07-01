@@ -105,6 +105,18 @@
 "draw.title" = "Gribouiller";
 "draw.done" = "Terminé";
 
+/* Textures de pinceau */
+"brush.marker" = "Feutre";
+"brush.highlighter" = "Surligneur";
+"brush.calligraphy" = "Calligraphie";
+"brush.pencil" = "Crayon";
+"brush.crayon" = "Cire";
+"brush.chalk" = "Craie";
+"brush.spray" = "Aérosol";
+"brush.dotted" = "Pointillé";
+"brush.dashed" = "Tirets";
+"brush.neon" = "Néon";
+
 /* Format de la toile */
 "format.title" = "Format";
 "format.square" = "Carré";

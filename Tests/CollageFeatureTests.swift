@@ -372,6 +372,59 @@ final class CollageFeatureTests: XCTestCase {
         XCTAssertEqual(el.rotation, 0.25, accuracy: 0.0001)
     }
 
+    // MARK: Brush textures
+
+    func testBrushCatalogHasTen() {
+        XCTAssertEqual(Brush.allCases.count, 10)
+    }
+
+    func testEveryBrushProducesOps() {
+        let pts = [CGPoint(x: 0, y: 0), CGPoint(x: 50, y: 20), CGPoint(x: 90, y: 0)]
+        for brush in Brush.allCases {
+            let ops = brushOps(brush: brush, points: pts, width: 8, color: .red)
+            XCTAssertFalse(ops.isEmpty, "\(brush) produced no ops")
+        }
+    }
+
+    func testSeededRNGIsDeterministic() {
+        var a = SeededRNG(seed: 123), b = SeededRNG(seed: 123)
+        XCTAssertEqual(a.unit(), b.unit(), accuracy: 0.0)
+        XCTAssertEqual(a.unit(), b.unit(), accuracy: 0.0)
+    }
+
+    func testTexturedBrushIsDeterministic() {
+        // The same stroke must expand to the same jittered dabs every time, so
+        // the live preview and the export match.
+        let pts = [CGPoint(x: 0, y: 0), CGPoint(x: 50, y: 20), CGPoint(x: 90, y: 0)]
+        let a = brushOps(brush: .crayon, points: pts, width: 8, color: .red)
+        let b = brushOps(brush: .crayon, points: pts, width: 8, color: .red)
+        XCTAssertEqual(a.count, b.count)
+        XCTAssertEqual(firstDotX(a), firstDotX(b))
+    }
+
+    func testStrokeBrushRoundTrips() throws {
+        let stroke = SketchStroke(points: [CGPoint(x: 0, y: 0), CGPoint(x: 1, y: 1)],
+                                  colorIndex: 3, width: 5, brush: .neon)
+        let decoded = try JSONDecoder().decode(SketchStroke.self, from: JSONEncoder().encode(stroke))
+        XCTAssertEqual(decoded.brush, .neon)
+    }
+
+    func testStrokeDecodesWithoutBrushField() throws {
+        // Sketches saved before brushes existed default to the marker.
+        let stroke = SketchStroke(points: [CGPoint(x: 0, y: 0), CGPoint(x: 1, y: 1)],
+                                  colorIndex: 0, width: 5, brush: .neon)
+        var obj = try JSONSerialization.jsonObject(with: JSONEncoder().encode(stroke)) as! [String: Any]
+        obj.removeValue(forKey: "brush")
+        let stripped = try JSONSerialization.data(withJSONObject: obj)
+        let decoded = try JSONDecoder().decode(SketchStroke.self, from: stripped)
+        XCTAssertEqual(decoded.brush, .marker)
+    }
+
+    private func firstDotX(_ ops: [BrushOp]) -> CGFloat {
+        for op in ops { if case let .dot(center, _, _, _) = op { return center.x } }
+        return .nan
+    }
+
     // MARK: Canvas formats
 
     func testCanvasFormatMatching() {

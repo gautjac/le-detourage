@@ -105,6 +105,18 @@
 "draw.title" = "Doodle";
 "draw.done" = "Done";
 
+/* Brush textures */
+"brush.marker" = "Marker";
+"brush.highlighter" = "Highlighter";
+"brush.calligraphy" = "Calligraphy";
+"brush.pencil" = "Pencil";
+"brush.crayon" = "Crayon";
+"brush.chalk" = "Chalk";
+"brush.spray" = "Spray";
+"brush.dotted" = "Dotted";
+"brush.dashed" = "Dashed";
+"brush.neon" = "Neon";
+
 /* Canvas format */
 "format.title" = "Format";
 "format.square" = "Square";
