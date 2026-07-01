@@ -71,6 +71,40 @@
 "sticker.outline.white" = "Contour blanc";
 "sticker.outline.thick" = "Contour épais";
 
+/* Effets et découpe */
+"style.effects" = "Effets";
+"style.title" = "Style du découpage";
+"style.filter" = "Filtre";
+"style.outline" = "Contour";
+"style.color" = "Couleur du contour";
+"outline.none" = "Aucun";
+"outline.thin" = "Fin";
+"outline.thick" = "Épais";
+"filter.none" = "Original";
+"filter.noir" = "Noir";
+"filter.chrome" = "Chrome";
+"filter.comic" = "BD";
+"filter.vintage" = "Rétro";
+"filter.posterize" = "Postérisé";
+
+/* Fioritures (embellissements) */
+"emblem.title" = "Fioritures";
+"emblem.color" = "Couleur";
+"emblem.heart" = "Cœur";
+"emblem.star" = "Étoile";
+"emblem.sparkle" = "Étincelle";
+"emblem.burst" = "Éclat";
+"emblem.banner" = "Banderole";
+"emblem.speech" = "Bulle";
+"emblem.arrow" = "Flèche";
+"emblem.squiggle" = "Gribouillis";
+"emblem.ring" = "Cercle";
+"emblem.tape" = "Ruban washi";
+
+/* Gribouillage (calque de dessin) */
+"draw.title" = "Gribouiller";
+"draw.done" = "Terminé";
+
 /* Tiroir */
 "drawer.title" = "Tiroir à autocollants";
 "drawer.empty" = "Ton tiroir est vide.\nDécoupe un sujet pour commencer ta collection.";

@@ -10,6 +10,7 @@ struct CollageCanvasView: View {
     @State private var showBackground = false
     @State private var showExport = false
     @State private var showGallery = false
+    @State private var showEmblems = false
     @State private var confirmClear = false
     @State private var confirmNew = false
 
@@ -29,8 +30,14 @@ struct CollageCanvasView: View {
         .sheet(isPresented: $showGallery) {
             GallerySheet().environment(session)
         }
+        .sheet(isPresented: $showEmblems) {
+            EmbellishmentPicker().environment(session)
+        }
         .sheet(item: Bindable(session).editingText) { sticker in
             TextEditorSheet(sticker: sticker).environment(session)
+        }
+        .sheet(item: Bindable(session).editingStyle) { sticker in
+            CutoutStyleSheet(sticker: sticker).environment(session)
         }
         .confirmationDialog(L.t("canvas.clear.confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
             Button(L.t("canvas.clear"), role: .destructive) {
@@ -63,6 +70,8 @@ struct CollageCanvasView: View {
                 .keyboardShortcut("z", modifiers: [.command, .shift])
 
             toolButton("textformat", tint: Theme.grape) { session.addText() }
+            toolButton("sparkles", tint: Theme.marigold) { showEmblems = true }
+            toolButton("scribble", tint: Theme.leaf) { session.startDrawing() }
 
             Menu {
                 Button { showBackground = true } label: {
@@ -73,7 +82,7 @@ struct CollageCanvasView: View {
                 } label: {
                     Label(L.t("gallery.save"), systemImage: "square.and.arrow.down")
                 }
-                .disabled(session.collage.isEmpty)
+                .disabled(!session.collage.hasContent)
                 Button { showGallery = true } label: {
                     Label(L.t("gallery.open"), systemImage: "photo.stack")
                 }
@@ -84,7 +93,7 @@ struct CollageCanvasView: View {
                     Label(L.t("canvas.new"), systemImage: "doc.badge.plus")
                 }
                 Button(role: .destructive) {
-                    if !session.collage.isEmpty { confirmClear = true }
+                    if session.collage.hasContent { confirmClear = true }
                 } label: {
                     Label(L.t("canvas.clear"), systemImage: "trash")
                 }
@@ -96,7 +105,7 @@ struct CollageCanvasView: View {
 
             Button {
                 Haptics.tap()
-                if !session.collage.isEmpty { showExport = true }
+                if session.collage.hasContent { showExport = true }
             } label: {
                 HStack(spacing: 6) {
                     Image(systemName: "square.and.arrow.up.fill")
@@ -105,10 +114,10 @@ struct CollageCanvasView: View {
                 .font(Theme.title(14))
                 .foregroundStyle(.white)
                 .padding(.horizontal, 14).padding(.vertical, 10)
-                .background(Capsule().fill(session.collage.isEmpty ? Theme.inkFaint : Theme.accent))
+                .background(Capsule().fill(session.collage.hasContent ? Theme.accent : Theme.inkFaint))
             }
             .buttonStyle(.plain)
-            .disabled(session.collage.isEmpty)
+            .disabled(!session.collage.hasContent)
         }
         .padding(.horizontal, 18)
         .padding(.top, 12)
@@ -158,7 +167,15 @@ struct CollageCanvasView: View {
                         .environment(session)
                 }
 
-                if session.collage.isEmpty {
+                // The committed doodle layer sits above the elements (hidden
+                // while the editor is live, which shows its own strokes).
+                if let doodle = session.collage.doodle, !doodle.isEmpty, !session.isDrawing {
+                    DoodleLayer(doodle: doodle,
+                                referenceSize: session.collage.drawingReferenceSize,
+                                pageSize: pageSize)
+                }
+
+                if !session.collage.hasContent {
                     emptyOverlay
                 }
             }
@@ -172,8 +189,13 @@ struct CollageCanvasView: View {
             )
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay {
+            if session.isDrawing {
+                DoodleEditor(pageSize: pageSize).environment(session)
+            }
+        }
         .overlay(alignment: .bottom) {
-            if let sel = session.selection {
+            if let sel = session.selection, !session.isDrawing {
                 StickerInspector(sticker: sel).environment(session)
                     // Clear the floating Studio/Drawer tab bar (same clearance the
                     // iOS add-button uses) so the action row isn't hidden behind it.

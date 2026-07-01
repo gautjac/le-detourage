@@ -12,15 +12,20 @@
 		05309191E74DFE30900C543C /* Collage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 107C61804F5EF5153C6CC0D4 /* Collage.swift */; };
 		0DEAFBB428935FF7B28E6838 /* TextEditorSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = A241C48A8A8F485261BD2564 /* TextEditorSheet.swift */; };
 		11D7B7A1F43EA35AEC5F890C /* ExportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3760CDDDE0DAE85611DBC7F /* ExportSheet.swift */; };
+		131AFE70307AA509DE251567 /* Doodle.swift in Sources */ = {isa = PBXBuildFile; fileRef = E093B379DD6B25A524A718C2 /* Doodle.swift */; };
 		16967CB2B1AED00B9EAFAC04 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0F3CB5ECD0D7CF7021CA2F8 /* Components.swift */; };
 		1870A3421AA0F5791EF10F77 /* DrawerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 109FCF50B2EDA6DAD635F196 /* DrawerView.swift */; };
+		258BBD4CA3CE877C04798972 /* EmbellishmentPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD95EB9F9134F232C472E768 /* EmbellishmentPicker.swift */; };
+		32949D9D47B9DA2080C0E66C /* CutoutStyleSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4712F554C09812BBFFB87AE7 /* CutoutStyleSheet.swift */; };
 		34356D355D58A1F87FFBCED5 /* CutoutStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8D4464E4F065B8F4F2CB8A /* CutoutStage.swift */; };
 		3A29C38A0651B4463D0CE6D2 /* CollageHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D37F04326A2446DB1D5A28 /* CollageHistory.swift */; };
 		42B786E28B2D00D70E1EBCA9 /* BackgroundPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90957FE1DDE6AD46149E44E5 /* BackgroundPickerSheet.swift */; };
 		435D5B165706C4805D1C1D57 /* TextContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86F62B8F75BABF0038F4AFFF /* TextContent.swift */; };
 		43F25DC9827EE30FF20268EE /* TextRendering.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B7A1834756D8949B5D182D7 /* TextRendering.swift */; };
 		46E96372071C91DACE3BFADC /* CollageRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7BFFF22DCDF89F324B193C0 /* CollageRenderer.swift */; };
+		48DC6AD6B9FDC98B8F62DF1A /* Embellishment.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2FFCDD1F25ABA118B5102CC /* Embellishment.swift */; };
 		4A953376D45AB479A42E7CBB /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D1F5B08652620E252FCABC /* Theme.swift */; };
+		4B790C463EC36CFCB6A260C8 /* DoodleCanvas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8109D753A97A12A71F087ADC /* DoodleCanvas.swift */; };
 		4E7EE01A9BBDDDF3E68D3B02 /* SubjectLiftView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD05BF5480A62CE26E0CE9B2 /* SubjectLiftView.swift */; };
 		52617BF93563CF3CC9572B10 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 37439E5B534A9B6121D55A27 /* Localizable.strings */; };
 		56750BE3CCC789513D8E8A43 /* SubjectMasker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D12F82B9B2514C36E1E3DA1A /* SubjectMasker.swift */; };
@@ -37,6 +42,7 @@
 		C2D240510B4620FC6F28EC45 /* Loc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F16EBF7B464B0451BD9A2E /* Loc.swift */; };
 		C4EB726D55F4D2412F00B79F /* AtelierView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B74BB6FED8617EAE3FB8F0C1 /* AtelierView.swift */; };
 		D1BDA781E45748BFD900EFF0 /* CollageDocument.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BECD975AA70627F87AD9124 /* CollageDocument.swift */; };
+		E3219DBB06FB1D67E6274ED0 /* CutoutStyler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3817163ED80607A0B1DA809D /* CutoutStyler.swift */; };
 		ED4A936B1DA2EDF926B02264 /* StickerInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69F5C681523A7C13F7714993 /* StickerInspector.swift */; };
 		EEE99B58A021E78778687244 /* StickerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F89ADE4A2658D2F9D24AB3 /* StickerStore.swift */; };
 		F426B606ABD09ECA521C411D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CD9EE311BD5B87EB5A9754F7 /* Assets.xcassets */; };
@@ -64,13 +70,16 @@
 		27F16EBF7B464B0451BD9A2E /* Loc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Loc.swift; sourceTree = "<group>"; };
 		2B7A1834756D8949B5D182D7 /* TextRendering.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextRendering.swift; sourceTree = "<group>"; };
 		32D86CB6B6DE93F0AA76522E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		3817163ED80607A0B1DA809D /* CutoutStyler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutoutStyler.swift; sourceTree = "<group>"; };
 		45A0CE1CE1E18159838F6522 /* SavedCollage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCollage.swift; sourceTree = "<group>"; };
+		4712F554C09812BBFFB87AE7 /* CutoutStyleSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutoutStyleSheet.swift; sourceTree = "<group>"; };
 		53BD4E952DB33D85AD160CB7 /* CollageCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageCanvasView.swift; sourceTree = "<group>"; };
 		65D37F04326A2446DB1D5A28 /* CollageHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageHistory.swift; sourceTree = "<group>"; };
 		67A7EC18E06D341F03E0596E /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		69F5C681523A7C13F7714993 /* StickerInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerInspector.swift; sourceTree = "<group>"; };
 		75F89ADE4A2658D2F9D24AB3 /* StickerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerStore.swift; sourceTree = "<group>"; };
 		7BECD975AA70627F87AD9124 /* CollageDocument.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageDocument.swift; sourceTree = "<group>"; };
+		8109D753A97A12A71F087ADC /* DoodleCanvas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DoodleCanvas.swift; sourceTree = "<group>"; };
 		85ED9FE1EF95A998ABB79549 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		86F62B8F75BABF0038F4AFFF /* TextContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextContent.swift; sourceTree = "<group>"; };
 		886495CA5544EAE37D06348E /* LeDetourageTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LeDetourageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -81,6 +90,7 @@
 		AA3CB268535A6D8F469F86A8 /* LeDetourageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeDetourageTests.swift; sourceTree = "<group>"; };
 		AC1F0938F90E5ECF9FA957A6 /* GallerySheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GallerySheet.swift; sourceTree = "<group>"; };
 		AC8D4464E4F065B8F4F2CB8A /* CutoutStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutoutStage.swift; sourceTree = "<group>"; };
+		AD95EB9F9134F232C472E768 /* EmbellishmentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbellishmentPicker.swift; sourceTree = "<group>"; };
 		B74BB6FED8617EAE3FB8F0C1 /* AtelierView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtelierView.swift; sourceTree = "<group>"; };
 		BD05BF5480A62CE26E0CE9B2 /* SubjectLiftView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectLiftView.swift; sourceTree = "<group>"; };
 		BD15D70F9936423CB061D184 /* CollageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageStore.swift; sourceTree = "<group>"; };
@@ -91,6 +101,8 @@
 		D12F82B9B2514C36E1E3DA1A /* SubjectMasker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectMasker.swift; sourceTree = "<group>"; };
 		D8D1F5B08652620E252FCABC /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		DDD191069C7F56DDD4F40856 /* CollageFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageFeatureTests.swift; sourceTree = "<group>"; };
+		E093B379DD6B25A524A718C2 /* Doodle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Doodle.swift; sourceTree = "<group>"; };
+		E2FFCDD1F25ABA118B5102CC /* Embellishment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Embellishment.swift; sourceTree = "<group>"; };
 		EE3F3088EDF7D2000FF4803A /* CrossPlatform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossPlatform.swift; sourceTree = "<group>"; };
 		F3760CDDDE0DAE85611DBC7F /* ExportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportSheet.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -133,7 +145,10 @@
 				53BD4E952DB33D85AD160CB7 /* CollageCanvasView.swift */,
 				D0F3CB5ECD0D7CF7021CA2F8 /* Components.swift */,
 				AC8D4464E4F065B8F4F2CB8A /* CutoutStage.swift */,
+				4712F554C09812BBFFB87AE7 /* CutoutStyleSheet.swift */,
+				8109D753A97A12A71F087ADC /* DoodleCanvas.swift */,
 				109FCF50B2EDA6DAD635F196 /* DrawerView.swift */,
+				AD95EB9F9134F232C472E768 /* EmbellishmentPicker.swift */,
 				F3760CDDDE0DAE85611DBC7F /* ExportSheet.swift */,
 				AC1F0938F90E5ECF9FA957A6 /* GallerySheet.swift */,
 				85ED9FE1EF95A998ABB79549 /* RootView.swift */,
@@ -190,6 +205,8 @@
 				107C61804F5EF5153C6CC0D4 /* Collage.swift */,
 				7BECD975AA70627F87AD9124 /* CollageDocument.swift */,
 				65D37F04326A2446DB1D5A28 /* CollageHistory.swift */,
+				E093B379DD6B25A524A718C2 /* Doodle.swift */,
+				E2FFCDD1F25ABA118B5102CC /* Embellishment.swift */,
 				27F16EBF7B464B0451BD9A2E /* Loc.swift */,
 				45A0CE1CE1E18159838F6522 /* SavedCollage.swift */,
 				034A9E3CEF3E980D95F80738 /* Session.swift */,
@@ -213,6 +230,7 @@
 			children = (
 				C7BFFF22DCDF89F324B193C0 /* CollageRenderer.swift */,
 				BD15D70F9936423CB061D184 /* CollageStore.swift */,
+				3817163ED80607A0B1DA809D /* CutoutStyler.swift */,
 				1A27AB488667FD626B8AA6DC /* Exporter.swift */,
 				A9D0C9FBABF1D027A3FC7AD0 /* SampleImage.swift */,
 				2B7A1834756D8949B5D182D7 /* TextRendering.swift */,
@@ -336,7 +354,13 @@
 				16967CB2B1AED00B9EAFAC04 /* Components.swift in Sources */,
 				A9684436D68C9CD8047097BB /* CrossPlatform.swift in Sources */,
 				34356D355D58A1F87FFBCED5 /* CutoutStage.swift in Sources */,
+				32949D9D47B9DA2080C0E66C /* CutoutStyleSheet.swift in Sources */,
+				E3219DBB06FB1D67E6274ED0 /* CutoutStyler.swift in Sources */,
+				131AFE70307AA509DE251567 /* Doodle.swift in Sources */,
+				4B790C463EC36CFCB6A260C8 /* DoodleCanvas.swift in Sources */,
 				1870A3421AA0F5791EF10F77 /* DrawerView.swift in Sources */,
+				48DC6AD6B9FDC98B8F62DF1A /* Embellishment.swift in Sources */,
+				258BBD4CA3CE877C04798972 /* EmbellishmentPicker.swift in Sources */,
 				11D7B7A1F43EA35AEC5F890C /* ExportSheet.swift in Sources */,
 				0256327EDDF86B50623B3B8A /* Exporter.swift in Sources */,
 				8B47906B390A5877AFB49BAD /* GallerySheet.swift in Sources */,

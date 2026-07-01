@@ -60,34 +60,51 @@ struct StickerLayer: View {
             cutoutBody(image: image, size: size)
         case .text(let content):
             textBody(content: content, size: size)
+        case .shape(let embellishment):
+            shapeBody(embellishment, size: size)
         }
+    }
+
+    // MARK: Embellishment body
+
+    @ViewBuilder
+    private func shapeBody(_ emblem: Embellishment, size: CGSize) -> some View {
+        let path = emblem.shape.renderPath(in: size)
+        Group {
+            switch emblem.shape.draw {
+            case .fill:
+                path.fill(emblem.color.opacity(emblem.fillOpacity))
+            case .stroke:
+                path.stroke(emblem.color,
+                            style: StrokeStyle(lineWidth: emblem.shape.strokeWidth(in: size),
+                                               lineCap: .round, lineJoin: .round))
+            }
+        }
+        .frame(width: size.width, height: size.height)
+        .scaleEffect(x: sticker.flipped ? -1 : 1, y: 1)
+        .shadow(color: sticker.shadow ? Theme.stickerShadow : .clear, radius: 7, x: 0, y: 4)
     }
 
     // MARK: Cutout body
 
     @ViewBuilder
     private func cutoutBody(image: PlatformImage, size: CGSize) -> some View {
-        let base = Image(platform: image)
-            .resizable()
-            .scaledToFit()
-            .scaleEffect(x: sticker.flipped ? -1 : 1, y: 1)
+        let styled = sticker.styled
+        let subject = styled?.subject ?? image
+        let flip: CGFloat = sticker.flipped ? -1 : 1
 
         ZStack {
-            if sticker.style != .none {
-                // White paper border: an enlarged white silhouette behind the
-                // cutout, produced by masking a white rect with the cutout alpha.
-                let ow = sticker.style.outlineWidth
-                Rectangle()
-                    .fill(Color.white)
-                    .frame(width: size.width + ow * 2, height: size.height + ow * 2)
-                    .mask(
-                        Image(platform: image)
-                            .resizable().scaledToFit()
-                            .scaleEffect(x: sticker.flipped ? -1 : 1, y: 1)
-                            .frame(width: size.width + ow * 2, height: size.height + ow * 2)
-                    )
+            // A true die-cut contour outline sits behind the subject.
+            if let outline = styled?.outline, let ratio = styled?.outlineRatio {
+                Image(platform: outline)
+                    .resizable()
+                    .frame(width: size.width * ratio.width, height: size.height * ratio.height)
+                    .scaleEffect(x: flip, y: 1)
             }
-            base.frame(width: size.width, height: size.height)
+            Image(platform: subject)
+                .resizable().scaledToFit()
+                .frame(width: size.width, height: size.height)
+                .scaleEffect(x: flip, y: 1)
         }
         .frame(width: size.width, height: size.height)
         .shadow(color: sticker.shadow ? Theme.stickerShadow : .clear,

@@ -186,6 +186,182 @@ final class CollageFeatureTests: XCTestCase {
         XCTAssertFalse(history.canRedo)
     }
 
+    // MARK: Cutout styling (filters + die-cut outline)
+
+    func testFilterPreservesSubjectSize() {
+        let img = PlatformImage.from(cgImage: solidCutout(width: 120, height: 80))
+        let styled = CutoutStyler.style(img, filter: .noir, style: .none, outlineColorIndex: 0)
+        XCTAssertNil(styled.outline)                       // no outline for .none
+        XCTAssertEqual(styled.subject.pixelSize.width, 120, accuracy: 2)
+        XCTAssertEqual(styled.subject.pixelSize.height, 80, accuracy: 2)
+    }
+
+    func testDieCutOutlineIsLargerThanSubject() {
+        let img = PlatformImage.from(cgImage: solidCutout(width: 120, height: 120))
+        let styled = CutoutStyler.style(img, filter: .none, style: .thick, outlineColorIndex: 2)
+        let outline = try! XCTUnwrap(styled.outline)
+        XCTAssertGreaterThan(outline.pixelSize.width, styled.subject.pixelSize.width)
+        XCTAssertGreaterThan(styled.outlineRatio.width, 1)
+        XCTAssertGreaterThan(styled.outlineRatio.height, 1)
+    }
+
+    func testStyledCacheInvalidatesWhenStyleChanges() {
+        let s = PlacedSticker(image: PlatformImage.from(cgImage: solidCutout(width: 100, height: 100)),
+                              style: .none)
+        XCTAssertNil(s.styled?.outline)
+        s.style = .thick
+        XCTAssertNotNil(s.styled?.outline)   // recomputed with an outline
+    }
+
+    func testDocumentRoundTripPreservesFilterAndOutlineColor() throws {
+        let collage = Collage()
+        let c = collage.add(image: dummy())
+        c.filter = .comic
+        c.style = .thick
+        c.outlineColorIndex = 4
+        let data = try JSONEncoder().encode(collage.document)
+        let decoded = try JSONDecoder().decode(CollageDocument.self, from: data)
+        let restored = Collage()
+        restored.load(document: decoded)
+        let el = try XCTUnwrap(restored.stickers.first)
+        XCTAssertEqual(el.filter, .comic)
+        XCTAssertEqual(el.style, .thick)
+        XCTAssertEqual(el.outlineColorIndex, 4)
+    }
+
+    /// A document written before filters/outline-color existed must still decode
+    /// (otherwise an old autosave draft would be silently dropped on launch).
+    func testDocumentDecodesWhenFilterFieldsMissing() throws {
+        let collage = Collage()
+        let c = collage.add(image: dummy())
+        c.filter = .comic
+        c.outlineColorIndex = 4
+        let data = try JSONEncoder().encode(collage.document)
+
+        var obj = try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        var elements = obj["elements"] as! [[String: Any]]
+        elements[0].removeValue(forKey: "filter")
+        elements[0].removeValue(forKey: "outlineColorIndex")
+        obj["elements"] = elements
+        let stripped = try JSONSerialization.data(withJSONObject: obj)
+
+        let decoded = try JSONDecoder().decode(CollageDocument.self, from: stripped)
+        let restored = Collage()
+        restored.load(document: decoded)
+        XCTAssertEqual(restored.stickers.count, 1)
+        XCTAssertEqual(restored.stickers[0].filter, .none)        // safely defaulted
+        XCTAssertEqual(restored.stickers[0].outlineColorIndex, 0)
+    }
+
+    // MARK: Embellishments
+
+    func testAddShapeAppendsEmbellishment() {
+        let collage = Collage()
+        let s = collage.addShape(Embellishment(shape: .star, colorIndex: 2))
+        XCTAssertTrue(s.isShape)
+        XCTAssertNil(s.image)
+        XCTAssertNil(s.text)
+        XCTAssertEqual(s.embellishment?.shape, .star)
+        XCTAssertEqual(s.embellishment?.colorIndex, 2)
+    }
+
+    func testEveryEmblemRastersToImage() {
+        for shape in EmblemShape.allCases {
+            let emblem = Embellishment(shape: shape, colorIndex: 0)
+            let img = emblem.image(size: CGSize(width: 100, height: 100))
+            XCTAssertNotNil(img, "\(shape) failed to render")
+        }
+    }
+
+    func testWideEmblemRenderSizeIsWide() {
+        let collage = Collage()
+        let banner = collage.addShape(Embellishment(shape: .banner))
+        let size = banner.renderSize(in: CGSize(width: 1000, height: 1000))
+        XCTAssertGreaterThan(size.width, size.height)   // banner aspect > 1
+    }
+
+    func testEmblemDocumentRoundTrip() throws {
+        let collage = Collage()
+        let s = collage.addShape(Embellishment(shape: .squiggle, colorIndex: 5))
+        s.rotation = 0.3
+        let data = try JSONEncoder().encode(collage.document)
+        let decoded = try JSONDecoder().decode(CollageDocument.self, from: data)
+        let restored = Collage()
+        restored.load(document: decoded)
+        let el = try XCTUnwrap(restored.stickers.first)
+        XCTAssertTrue(el.isShape)
+        XCTAssertEqual(el.embellishment?.shape, .squiggle)
+        XCTAssertEqual(el.embellishment?.colorIndex, 5)
+        XCTAssertEqual(el.rotation, 0.3, accuracy: 0.0001)
+    }
+
+    func testMixedDocumentRoundTrip() throws {
+        // A collage with all three kinds survives a round-trip intact.
+        let collage = Collage()
+        collage.add(image: dummy())
+        collage.addText(TextContent(string: "Hi"))
+        collage.addShape(Embellishment(shape: .heart))
+        let data = try JSONEncoder().encode(collage.document)
+        let restored = Collage()
+        restored.load(document: try JSONDecoder().decode(CollageDocument.self, from: data))
+        XCTAssertEqual(restored.stickers.count, 3)
+        XCTAssertEqual(restored.stickers.filter { $0.isShape }.count, 1)
+        XCTAssertEqual(restored.stickers.filter { $0.isText }.count, 1)
+        XCTAssertEqual(restored.stickers.filter { $0.image != nil }.count, 1)
+    }
+
+    // MARK: Doodle layer
+
+    func testDrawingReferenceSizeMatchesAspect() {
+        let collage = Collage()
+        collage.canvasAspect = 1.5
+        let ref = collage.drawingReferenceSize
+        XCTAssertEqual(ref.width / ref.height, 1.5, accuracy: 0.001)
+        XCTAssertEqual(max(ref.width, ref.height), Collage.drawingReferenceLongEdge, accuracy: 0.5)
+    }
+
+    private func sampleDoodle() -> Doodle {
+        Doodle(strokes: [
+            DoodleStroke(points: [CGPoint(x: 10, y: 10), CGPoint(x: 200, y: 220)],
+                         colorIndex: 2, width: 12),
+        ])
+    }
+
+    func testDoodleRoundTripsThroughDocument() throws {
+        let collage = Collage()
+        collage.add(image: dummy())
+        collage.doodle = sampleDoodle()
+        let data = try JSONEncoder().encode(collage.document)
+        let restored = Collage()
+        restored.load(document: try JSONDecoder().decode(CollageDocument.self, from: data))
+        XCTAssertEqual(restored.doodle, sampleDoodle())
+    }
+
+    func testDoodleRoundTripsThroughSnapshot() {
+        let collage = Collage()
+        collage.doodle = sampleDoodle()
+        let snap = collage.snapshot()
+        collage.doodle = nil
+        collage.restore(snap)
+        XCTAssertEqual(collage.doodle, sampleDoodle())
+    }
+
+    func testHasContentTracksDoodleOnly() {
+        let collage = Collage()
+        XCTAssertFalse(collage.hasContent)
+        collage.doodle = sampleDoodle()
+        XCTAssertTrue(collage.hasContent)     // a doodle alone is content
+        collage.clear()
+        XCTAssertFalse(collage.hasContent)    // clear wipes the doodle too
+        XCTAssertNil(collage.doodle)
+    }
+
+    func testEmptyDoodleIsNotContent() {
+        let collage = Collage()
+        collage.doodle = Doodle(strokes: [])
+        XCTAssertFalse(collage.hasContent)    // an empty doodle doesn't count
+    }
+
     // MARK: Step-wise layering (handles)
 
     func testMoveForwardAndBackwardStepByOne() {

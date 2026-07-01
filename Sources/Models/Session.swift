@@ -45,6 +45,12 @@ final class Session {
     /// cancel can clean it up.
     var editingTextIsNew = false
 
+    /// The cutout currently being styled (drives the filter/outline sheet).
+    var editingStyle: PlacedSticker?
+
+    /// Whether the freehand doodle editor is active.
+    var isDrawing = false
+
     init() {
         restore()
     }
@@ -128,6 +134,39 @@ final class Session {
         Haptics.success()
     }
 
+    // MARK: Doodle layer
+
+    /// Enter the freehand doodle editor (checkpoint-before so the whole doodling
+    /// session is a single undo step).
+    func startDrawing() {
+        checkpoint()
+        selection = nil
+        isDrawing = true
+    }
+
+    /// Commit the doodle layer and leave the editor.
+    func finishDrawing(_ doodle: Doodle?) {
+        collage.doodle = (doodle?.isEmpty ?? true) ? nil : doodle
+        isDrawing = false
+        scheduleAutosave()
+    }
+
+    /// Leave the editor without changing the doodle, dropping the checkpoint.
+    func cancelDrawing() {
+        history.discardLast()
+        isDrawing = false
+    }
+
+    // MARK: Embellishments
+
+    /// Add a decorative embellishment (shape) and select it.
+    func addEmbellishment(_ shape: EmblemShape, colorIndex: Int) {
+        checkpoint()
+        let placed = collage.addShape(Embellishment(shape: shape, colorIndex: colorIndex))
+        selection = placed
+        Haptics.success()
+    }
+
     /// Open the editor for an existing text element.
     func editText(_ sticker: PlacedSticker) {
         guard sticker.isText else { return }
@@ -135,6 +174,25 @@ final class Session {
         selection = sticker
         editingText = sticker
         editingTextIsNew = false
+    }
+
+    // MARK: Cutout styling
+
+    /// Open the filter/outline sheet for a cutout (checkpoint-before so the whole
+    /// styling session is a single undo step).
+    func editStyle(_ sticker: PlacedSticker) {
+        guard !sticker.isText else { return }
+        checkpoint()
+        selection = sticker
+        editingStyle = sticker
+    }
+
+    /// Finish styling. On cancel the sheet has already reverted the values, so
+    /// drop the no-op checkpoint.
+    func finishEditingStyle(cancelled: Bool) {
+        defer { editingStyle = nil }
+        if cancelled { history.discardLast() }
+        scheduleAutosave()
     }
 
     /// Finish editing text. If a brand-new label was left empty, remove it and

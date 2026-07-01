@@ -53,6 +53,9 @@ enum CollageRenderer {
             drawSticker(sticker, in: ctx, canvas: canvas)
         }
 
+        // The freehand doodle layer flattens on top of everything.
+        collage.doodle?.draw(in: ctx, targetSize: canvas, referenceSize: collage.drawingReferenceSize)
+
         guard let cg = ctx.makeImage() else { return nil }
         return PlatformImage.from(cgImage: cg)
     }
@@ -100,18 +103,28 @@ enum CollageRenderer {
         let size = s.renderSize(in: canvas)
         guard size.width >= 1, size.height >= 1 else { return }
 
-        // Resolve the element to a bitmap: cutouts draw their lifted image; text
-        // is rasterized (chip + glyphs) so it flows through the identical
-        // shadow / rotation / flip compositing path below.
-        let cgSource: CGImage?
+        // Resolve the element to bitmaps. Cutouts contribute a filtered subject
+        // plus an optional die-cut contour outline; text is rasterized (chip +
+        // glyphs). Everything then flows through the same shadow / rotation /
+        // flip compositing below, so preview and export match.
+        let subjectCG: CGImage?
+        var outline: (cg: CGImage, size: CGSize)?
         switch s.kind {
         case .cutout(let img):
-            cgSource = img.cgImageNormalized
+            let styled = s.styled
+            subjectCG = (styled?.subject ?? img).cgImageNormalized
+            if let outlineImg = styled?.outline, let ratio = styled?.outlineRatio,
+               let outlineCG = outlineImg.cgImageNormalized {
+                outline = (outlineCG, CGSize(width: size.width * ratio.width,
+                                             height: size.height * ratio.height))
+            }
         case .text(let content):
             let fontSize = TextRendering.fontSize(in: canvas, scale: s.scale)
-            cgSource = TextRendering.image(content, size: size, fontSize: fontSize)?.cgImageNormalized
+            subjectCG = TextRendering.image(content, size: size, fontSize: fontSize)?.cgImageNormalized
+        case .shape(let embellishment):
+            subjectCG = embellishment.image(size: size)?.cgImageNormalized
         }
-        guard let cg = cgSource else { return }
+        guard let subject = subjectCG else { return }
         let center = s.center(in: canvas)
 
         ctx.saveGState()
@@ -119,47 +132,34 @@ enum CollageRenderer {
         ctx.rotate(by: s.rotation)
         if s.flipped { ctx.scaleBy(x: -1, y: 1) }
 
-        let rect = CGRect(x: -size.width / 2, y: -size.height / 2,
-                          width: size.width, height: size.height)
-
         if s.shadow {
             ctx.setShadow(offset: CGSize(width: 0, height: -min(canvas.width, canvas.height) * 0.012),
                           blur: min(canvas.width, canvas.height) * 0.02,
                           color: CGColor(red: 0.15, green: 0.10, blue: 0.08, alpha: 0.35))
         }
 
-        // A white paper border is faked by drawing an enlarged, alpha-derived
-        // white silhouette behind the cutout. We approximate it by drawing the
-        // cutout scaled up in solid white first, then the cutout on top.
-        if s.style != .none {
-            let ow = s.style.outlineWidth * (min(canvas.width, canvas.height) / 900)
-            let grow = 1 + (ow * 2) / min(size.width, size.height)
-            let gw = size.width * grow, gh = size.height * grow
-            let growRect = CGRect(x: -gw / 2, y: -gh / 2, width: gw, height: gh)
-            // Draw the cutout as a white matte: use the cutout as a mask.
-            ctx.saveGState()
-            // Local y-flip so the CGImage draws upright.
-            ctx.translateBy(x: 0, y: growRect.midY * 2)
-            ctx.scaleBy(x: 1, y: -1)
-            let drawRect = CGRect(x: growRect.origin.x, y: -growRect.origin.y - gh,
-                                  width: gw, height: gh)
-            ctx.clip(to: drawRect, mask: cg)
-            ctx.setFillColor(CGColor(red: 1, green: 1, blue: 1, alpha: 1))
-            ctx.fill(drawRect)
-            ctx.restoreGState()
-            // Shadow only under the border; clear it for the cutout itself.
+        // The die-cut outline sits behind and carries the shadow; clear the
+        // shadow before the subject so it isn't drawn twice.
+        if let outline {
+            drawCentered(outline.cg, size: outline.size, in: ctx)
             ctx.setShadow(offset: .zero, blur: 0, color: nil)
         }
+        drawCentered(subject, size: size, in: ctx)
 
-        // The cutout itself (draw upright with a local flip).
+        ctx.restoreGState()
+    }
+
+    /// Draw a CGImage centered on the current origin, undoing the context's
+    /// global y-flip locally so the bitmap renders upright.
+    private static func drawCentered(_ cg: CGImage, size: CGSize, in ctx: CGContext) {
         ctx.saveGState()
+        let rect = CGRect(x: -size.width / 2, y: -size.height / 2,
+                          width: size.width, height: size.height)
         ctx.translateBy(x: 0, y: rect.midY * 2)
         ctx.scaleBy(x: 1, y: -1)
         let upright = CGRect(x: rect.origin.x, y: -rect.origin.y - size.height,
                              width: size.width, height: size.height)
         ctx.draw(cg, in: upright)
-        ctx.restoreGState()
-
         ctx.restoreGState()
     }
 }

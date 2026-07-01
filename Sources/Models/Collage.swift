@@ -32,6 +32,7 @@ enum StickerStyle: String, CaseIterable, Identifiable, Codable {
 enum ElementKind {
     case cutout(PlatformImage)
     case text(TextContent)
+    case shape(Embellishment)
 }
 
 /// The collage background choice.
@@ -70,6 +71,10 @@ final class PlacedSticker: Identifiable {
     var flipped: Bool
     /// Decorative sticker border (cutouts only; text uses its own chip).
     var style: StickerStyle
+    /// Photo effect applied to a cutout (cutouts only).
+    var filter: CutoutFilter
+    /// Die-cut outline color, an index into `CutoutStyler.outlineColors`.
+    var outlineColorIndex: Int
     /// Drop shadow on/off.
     var shadow: Bool
     /// Draw order — higher is on top.
@@ -80,6 +85,10 @@ final class PlacedSticker: Identifiable {
     /// Lazily-encoded cutout PNG bytes, cached so autosave doesn't re-encode an
     /// unchanged cutout on every keystroke.
     @ObservationIgnored private var cachedCutoutPNG: Data?
+    /// Cached styled render (filtered subject + die-cut outline), keyed by the
+    /// style inputs so it's only recomputed when they change.
+    @ObservationIgnored private var styledKeyCache: String?
+    @ObservationIgnored private var styledCache: StyledCutout?
 
     /// Base on-canvas footprint as a fraction of the canvas's shorter edge,
     /// before `scale` is applied. Keeps a freshly dropped cutout a comfortable
@@ -96,6 +105,8 @@ final class PlacedSticker: Identifiable {
          rotation: CGFloat = 0,
          flipped: Bool = false,
          style: StickerStyle = .thin,
+         filter: CutoutFilter = .none,
+         outlineColorIndex: Int = 0,
          shadow: Bool = true,
          z: Int = 0) {
         self.id = id
@@ -106,6 +117,8 @@ final class PlacedSticker: Identifiable {
         self.rotation = rotation
         self.flipped = flipped
         self.style = style
+        self.filter = filter
+        self.outlineColorIndex = outlineColorIndex
         self.shadow = shadow
         self.z = z
         let px = image.pixelSize
@@ -129,14 +142,47 @@ final class PlacedSticker: Identifiable {
         self.rotation = rotation
         self.flipped = flipped
         self.style = .none
+        self.filter = .none
+        self.outlineColorIndex = 0
         self.shadow = shadow
         self.z = z
         self.cutoutAspect = 1
     }
 
+    /// Init for an **embellishment** (shape) element.
+    init(id: UUID = UUID(),
+         shape: Embellishment,
+         position: CGPoint = CGPoint(x: 0.5, y: 0.5),
+         scale: CGFloat = 1,
+         rotation: CGFloat = 0,
+         flipped: Bool = false,
+         shadow: Bool = true,
+         z: Int = 0) {
+        self.id = id
+        self.sourceID = nil
+        self.kind = .shape(shape)
+        self.position = position
+        self.scale = scale
+        self.rotation = rotation
+        self.flipped = flipped
+        self.style = .none
+        self.filter = .none
+        self.outlineColorIndex = 0
+        self.shadow = shadow
+        self.z = z
+        self.cutoutAspect = shape.shape.aspect
+    }
+
     // MARK: Kind accessors
 
     var isText: Bool { if case .text = kind { return true }; return false }
+    var isShape: Bool { if case .shape = kind { return true }; return false }
+
+    /// The embellishment, or nil. Setting it replaces the kind.
+    var embellishment: Embellishment? {
+        get { if case .shape(let e) = kind { return e }; return nil }
+        set { if let value = newValue { kind = .shape(value) } }
+    }
 
     /// The cutout image, or nil for a text element.
     var image: PlatformImage? {
@@ -148,6 +194,19 @@ final class PlacedSticker: Identifiable {
     var text: TextContent? {
         get { if case .text(let t) = kind { return t }; return nil }
         set { if let value = newValue { kind = .text(value) } }
+    }
+
+    /// The styled render of a cutout (filtered subject + die-cut outline),
+    /// computed on demand and cached until the style inputs change. Nil for text.
+    var styled: StyledCutout? {
+        guard case .cutout(let image) = kind else { return nil }
+        let key = "\(filter.rawValue)|\(style.rawValue)|\(outlineColorIndex)"
+        if key != styledKeyCache || styledCache == nil {
+            styledCache = CutoutStyler.style(image, filter: filter, style: style,
+                                             outlineColorIndex: outlineColorIndex)
+            styledKeyCache = key
+        }
+        return styledCache
     }
 
     /// The cutout's encoded PNG bytes (cached), or nil for text.
@@ -164,11 +223,12 @@ final class PlacedSticker: Identifiable {
     /// The on-screen size (points) of this element for a given canvas size.
     func renderSize(in canvas: CGSize) -> CGSize {
         switch kind {
-        case .cutout:
+        case .cutout, .shape:
+            // Cutouts and embellishments both size the longer dimension to a
+            // fraction of the shorter canvas edge (`cutoutAspect` holds a shape's
+            // aspect too), so wide and tall elements feel similarly prominent.
             let shorter = min(canvas.width, canvas.height)
             let base = shorter * Self.baseFraction * scale
-            // `base` sizes the longer image dimension so wide and tall cutouts
-            // feel similarly prominent.
             if cutoutAspect >= 1 {
                 return CGSize(width: base, height: base / cutoutAspect)
             } else {
@@ -195,8 +255,23 @@ final class Collage {
     /// The canvas aspect ratio (width / height). Square by default; picks up the
     /// device on iPhone but stays authoritative for export dimensions.
     var canvasAspect: CGFloat = 1.0
+    /// The freehand doodle layer, authored in a fixed reference space
+    /// (`drawingReferenceSize`) so it scales to any window and to the export
+    /// canvas. Nil when nothing has been drawn.
+    var doodle: Doodle?
 
     @ObservationIgnored private var nextZ: Int = 0
+
+    /// The long edge of the canonical space the doodle layer is authored in.
+    static let drawingReferenceLongEdge: CGFloat = 2048
+
+    /// The doodle layer's reference size for this collage's aspect.
+    var drawingReferenceSize: CGSize {
+        let aspect = max(0.2, canvasAspect)
+        let long = Self.drawingReferenceLongEdge
+        return aspect >= 1 ? CGSize(width: long, height: long / aspect)
+                           : CGSize(width: long * aspect, height: long)
+    }
 
     /// Stickers sorted back-to-front for rendering.
     var ordered: [PlacedSticker] {
@@ -204,6 +279,9 @@ final class Collage {
     }
 
     var isEmpty: Bool { stickers.isEmpty }
+
+    /// Whether there is anything to show/export — placed elements or a doodle.
+    var hasContent: Bool { !stickers.isEmpty || !(doodle?.isEmpty ?? true) }
 
     // MARK: Mutations
 
@@ -227,6 +305,16 @@ final class Collage {
         return s
     }
 
+    @discardableResult
+    func addShape(_ embellishment: Embellishment,
+                  at position: CGPoint = CGPoint(x: 0.5, y: 0.5)) -> PlacedSticker {
+        let s = PlacedSticker(shape: embellishment, position: position, z: nextZ)
+        nextZ += 1
+        s.rotation = CGFloat.random(in: -0.14...0.14)
+        stickers.append(s)
+        return s
+    }
+
     func remove(_ sticker: PlacedSticker) {
         stickers.removeAll { $0.id == sticker.id }
     }
@@ -241,9 +329,14 @@ final class Collage {
             copy = PlacedSticker(sourceID: sticker.sourceID, image: img, position: offset,
                                  scale: sticker.scale, rotation: sticker.rotation,
                                  flipped: sticker.flipped, style: sticker.style,
+                                 filter: sticker.filter, outlineColorIndex: sticker.outlineColorIndex,
                                  shadow: sticker.shadow, z: nextZ)
         case .text(let content):
             copy = PlacedSticker(text: content, position: offset, scale: sticker.scale,
+                                 rotation: sticker.rotation, flipped: sticker.flipped,
+                                 shadow: sticker.shadow, z: nextZ)
+        case .shape(let embellishment):
+            copy = PlacedSticker(shape: embellishment, position: offset, scale: sticker.scale,
                                  rotation: sticker.rotation, flipped: sticker.flipped,
                                  shadow: sticker.shadow, z: nextZ)
         }
@@ -280,6 +373,7 @@ final class Collage {
 
     func clear() {
         stickers.removeAll()
+        doodle = nil
         nextZ = 0
     }
 
@@ -298,11 +392,13 @@ final class Collage {
                 CollageSnapshot.Element(
                     id: s.id, sourceID: s.sourceID, kind: s.kind,
                     position: s.position, scale: s.scale, rotation: s.rotation,
-                    flipped: s.flipped, style: s.style, shadow: s.shadow, z: s.z)
+                    flipped: s.flipped, style: s.style, filter: s.filter,
+                    outlineColorIndex: s.outlineColorIndex, shadow: s.shadow, z: s.z)
             },
             background: background,
             backgroundImage: backgroundImage,
             canvasAspect: canvasAspect,
+            doodle: doodle,
             nextZ: nextZ)
     }
 
@@ -315,9 +411,14 @@ final class Collage {
             case .cutout(let img):
                 s = PlacedSticker(id: e.id, sourceID: e.sourceID, image: img,
                                   position: e.position, scale: e.scale, rotation: e.rotation,
-                                  flipped: e.flipped, style: e.style, shadow: e.shadow, z: e.z)
+                                  flipped: e.flipped, style: e.style, filter: e.filter,
+                                  outlineColorIndex: e.outlineColorIndex, shadow: e.shadow, z: e.z)
             case .text(let content):
                 s = PlacedSticker(id: e.id, text: content, position: e.position,
+                                  scale: e.scale, rotation: e.rotation, flipped: e.flipped,
+                                  shadow: e.shadow, z: e.z)
+            case .shape(let embellishment):
+                s = PlacedSticker(id: e.id, shape: embellishment, position: e.position,
                                   scale: e.scale, rotation: e.rotation, flipped: e.flipped,
                                   shadow: e.shadow, z: e.z)
             }
@@ -326,6 +427,7 @@ final class Collage {
         background = snapshot.background
         backgroundImage = snapshot.backgroundImage
         canvasAspect = snapshot.canvasAspect
+        doodle = snapshot.doodle
         nextZ = snapshot.nextZ
     }
 }
