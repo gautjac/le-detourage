@@ -53,9 +53,6 @@ enum CollageRenderer {
             drawSticker(sticker, in: ctx, canvas: canvas)
         }
 
-        // The freehand doodle layer flattens on top of everything.
-        collage.doodle?.draw(in: ctx, targetSize: canvas, referenceSize: collage.drawingReferenceSize)
-
         guard let cg = ctx.makeImage() else { return nil }
         return PlatformImage.from(cgImage: cg)
     }
@@ -123,6 +120,8 @@ enum CollageRenderer {
             subjectCG = TextRendering.image(content, size: size, fontSize: fontSize)?.cgImageNormalized
         case .shape(let embellishment):
             subjectCG = embellishment.image(size: size)?.cgImageNormalized
+        case .sketch(let sketchContent):
+            subjectCG = sketchContent.image(size: size)?.cgImageNormalized
         }
         guard let subject = subjectCG else { return }
         let center = s.center(in: canvas)

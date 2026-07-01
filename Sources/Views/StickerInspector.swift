@@ -31,12 +31,16 @@ struct StickerInspector: View {
             switch sticker.kind {
             case .text:
                 pillButton("textformat", "text.edit") { session.editText(sticker) }
+                Divider().frame(height: 22)
             case .cutout:
                 pillButton("wand.and.stars", "style.effects") { session.editStyle(sticker) }
+                Divider().frame(height: 22)
             case .shape(let emblem):
                 shapeColorStrip(emblem)
+                Divider().frame(height: 22)
+            case .sketch:
+                EmptyView()   // sketches carry their own per-stroke colors
             }
-            Divider().frame(height: 22)
             Button {
                 edit { sticker.shadow.toggle() }
             } label: {

@@ -101,9 +101,24 @@
 "emblem.ring" = "Cercle";
 "emblem.tape" = "Ruban washi";
 
-/* Gribouillage (calque de dessin) */
+/* Gribouillage (dessin → élément) */
 "draw.title" = "Gribouiller";
 "draw.done" = "Terminé";
+
+/* Format de la toile */
+"format.title" = "Format";
+"format.square" = "Carré";
+"format.square.sub" = "Publication";
+"format.portrait" = "Portrait";
+"format.portrait.sub" = "Instagram";
+"format.story" = "Story";
+"format.story.sub" = "Story · Reel";
+"format.landscape" = "Paysage";
+"format.landscape.sub" = "YouTube";
+"format.wide" = "Bandeau";
+"format.wide.sub" = "Facebook";
+"format.pin" = "Épingle";
+"format.pin.sub" = "Pinterest";
 
 /* Tiroir */
 "drawer.title" = "Tiroir à autocollants";

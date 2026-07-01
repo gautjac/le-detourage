@@ -1,45 +1,15 @@
 import SwiftUI
 
-/// The committed doodle layer, drawn over the collage when not editing. Scales
-/// the reference-space strokes to the current page size.
-struct DoodleLayer: View {
-    let doodle: Doodle
-    let referenceSize: CGSize
-    let pageSize: CGSize
-
-    var body: some View {
-        Canvas { ctx, size in
-            paint(doodle.strokes, in: ctx,
-                  scale: referenceSize.width > 1 ? size.width / referenceSize.width : 1)
-        }
-        .frame(width: pageSize.width, height: pageSize.height)
-        .allowsHitTesting(false)
-    }
-}
-
-/// Draw scaled strokes into a SwiftUI graphics context (shared by the layer and
-/// the live editor).
-func paint(_ strokes: [DoodleStroke], in ctx: GraphicsContext, scale: CGFloat) {
-    for stroke in strokes where stroke.points.count > 1 {
-        var path = Path()
-        path.addLines(stroke.points.map { CGPoint(x: $0.x * scale, y: $0.y * scale) })
-        ctx.stroke(path, with: .color(Doodle.color(stroke.colorIndex)),
-                   style: StrokeStyle(lineWidth: max(0.5, stroke.width * scale),
-                                      lineCap: .round, lineJoin: .round))
-    }
-}
-
-/// The full-page freehand editor: a drawing surface over the collage plus a
-/// floating tool palette. Strokes are captured in page space and converted to
-/// the collage's reference space on the way out, so they scale everywhere.
-/// Works identically on macOS and iOS (Apple Pencil draws through the same drag
-/// gesture on iPad).
+/// The full-page freehand editor. Strokes are captured in page space; on Done
+/// they're bundled into a single `Sketch` element placed exactly where they were
+/// drawn — so the drawing becomes a normal, transformable canvas element (move /
+/// scale / rotate / layer via the selection handles). Works identically on macOS
+/// and iOS (Apple Pencil draws through the same drag gesture on iPad).
 struct DoodleEditor: View {
     let pageSize: CGSize
     @Environment(Session.self) private var session
 
-    // Working strokes and the in-progress stroke, all in page-space points.
-    @State private var strokes: [DoodleStroke] = []
+    @State private var strokes: [SketchStroke] = []
     @State private var current: [CGPoint] = []
     @State private var colorIndex = 0
     @State private var widthIndex = 1
@@ -53,18 +23,17 @@ struct DoodleEditor: View {
             Canvas { ctx, _ in
                 paint(strokes, in: ctx, scale: 1)
                 if current.count > 1 {
-                    paint([DoodleStroke(points: current, colorIndex: colorIndex, width: widths[widthIndex])],
+                    paint([SketchStroke(points: current, colorIndex: colorIndex, width: widths[widthIndex])],
                           in: ctx, scale: 1)
                 }
             }
             .frame(width: pageSize.width, height: pageSize.height)
-            .background(Color.white.opacity(0.001))   // ensure the whole page is hit-testable
+            .background(Color.white.opacity(0.001))   // make the whole page hit-testable
             .contentShape(Rectangle())
             .gesture(drawGesture)
         }
         .frame(width: pageSize.width, height: pageSize.height)
         .overlay(alignment: .bottom) { toolbar.padding(.bottom, 84) }
-        .onAppear(perform: loadStrokes)
     }
 
     // MARK: Drawing
@@ -80,7 +49,7 @@ struct DoodleEditor: View {
             }
             .onEnded { _ in
                 if !eraser, current.count > 1 {
-                    strokes.append(DoodleStroke(points: current, colorIndex: colorIndex,
+                    strokes.append(SketchStroke(points: current, colorIndex: colorIndex,
                                                 width: widths[widthIndex]))
                 }
                 current = []
@@ -93,25 +62,17 @@ struct DoodleEditor: View {
         }
     }
 
-    // MARK: Reference-space conversion
-
-    private func loadStrokes() {
-        let ref = session.collage.drawingReferenceSize
-        let s = ref.width > 1 ? pageSize.width / ref.width : 1
-        strokes = (session.collage.doodle?.strokes ?? []).map { stroke in
-            DoodleStroke(points: stroke.points.map { CGPoint(x: $0.x * s, y: $0.y * s) },
-                         colorIndex: stroke.colorIndex, width: stroke.width * s)
-        }
-    }
-
     private func finish() {
-        let ref = session.collage.drawingReferenceSize
-        let s = pageSize.width > 1 ? ref.width / pageSize.width : 1
-        let refStrokes = strokes.map { stroke in
-            DoodleStroke(points: stroke.points.map { CGPoint(x: $0.x * s, y: $0.y * s) },
-                         colorIndex: stroke.colorIndex, width: stroke.width * s)
+        guard let built = Sketch.build(fromPageStrokes: strokes) else {
+            session.cancelDrawing()
+            return
         }
-        session.finishDrawing(Doodle(strokes: refStrokes))
+        let pageShorter = min(pageSize.width, pageSize.height)
+        let boxLong = max(built.box.width, built.box.height)
+        let scale = boxLong / max(1, pageShorter * PlacedSticker.baseFraction)
+        let position = CGPoint(x: built.center.x / pageSize.width,
+                               y: built.center.y / pageSize.height)
+        session.placeSketch(built.sketch, position: position, scale: scale)
     }
 
     // MARK: Tool palette
@@ -119,11 +80,11 @@ struct DoodleEditor: View {
     private var toolbar: some View {
         VStack(spacing: 10) {
             HStack(spacing: 7) {
-                ForEach(Doodle.colors.indices, id: \.self) { i in
+                ForEach(Sketch.colors.indices, id: \.self) { i in
                     Button {
                         Haptics.tap(); eraser = false; colorIndex = i
                     } label: {
-                        Circle().fill(Doodle.colors[i]).frame(width: 24, height: 24)
+                        Circle().fill(Sketch.colors[i]).frame(width: 24, height: 24)
                             .overlay(Circle().stroke(Theme.hairline, lineWidth: 1))
                             .overlay(Circle().stroke(Theme.accent, lineWidth: (!eraser && colorIndex == i) ? 3 : 0).padding(-3))
                     }
@@ -159,6 +120,7 @@ struct DoodleEditor: View {
                         .background(Capsule().fill(Theme.accent))
                 }
                 .buttonStyle(.plain)
+                .disabled(strokes.isEmpty)
             }
         }
         .padding(12)

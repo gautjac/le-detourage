@@ -110,6 +110,17 @@ final class Session {
         Haptics.tap()
     }
 
+    // MARK: Canvas format
+
+    /// Change the work-area aspect (undoable). Elements keep their normalized
+    /// positions and reflow to the new shape.
+    func setCanvasAspect(_ aspect: CGFloat) {
+        guard abs(collage.canvasAspect - aspect) > 0.0001 else { return }
+        checkpoint()
+        collage.canvasAspect = aspect
+        Haptics.tap()
+    }
+
     // MARK: Placing
 
     /// Add a lifted cutout to the collage, select it, and switch to the studio.
@@ -144,11 +155,14 @@ final class Session {
         isDrawing = true
     }
 
-    /// Commit the doodle layer and leave the editor.
-    func finishDrawing(_ doodle: Doodle?) {
-        collage.doodle = (doodle?.isEmpty ?? true) ? nil : doodle
+    /// Commit a freehand pencil drawing as a single transformable element placed
+    /// exactly where it was drawn, then leave the editor and select it.
+    func placeSketch(_ sketch: Sketch, position: CGPoint, scale: CGFloat) {
+        let placed = collage.addSketch(sketch, at: position, scale: scale)
+        selection = placed
         isDrawing = false
         scheduleAutosave()
+        Haptics.success()
     }
 
     /// Leave the editor without changing the doodle, dropping the checkpoint.

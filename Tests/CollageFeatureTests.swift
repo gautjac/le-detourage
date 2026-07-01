@@ -310,56 +310,85 @@ final class CollageFeatureTests: XCTestCase {
         XCTAssertEqual(restored.stickers.filter { $0.image != nil }.count, 1)
     }
 
-    // MARK: Doodle layer
+    // MARK: Sketch elements (freehand pencil → transformable element)
 
-    func testDrawingReferenceSizeMatchesAspect() {
-        let collage = Collage()
-        collage.canvasAspect = 1.5
-        let ref = collage.drawingReferenceSize
-        XCTAssertEqual(ref.width / ref.height, 1.5, accuracy: 0.001)
-        XCTAssertEqual(max(ref.width, ref.height), Collage.drawingReferenceLongEdge, accuracy: 0.5)
+    private func sampleSketch() -> Sketch {
+        Sketch(strokes: [SketchStroke(points: [CGPoint(x: 0, y: 0), CGPoint(x: 100, y: 80)],
+                                      colorIndex: 2, width: 6)],
+               size: CGSize(width: 120, height: 100))
     }
 
-    private func sampleDoodle() -> Doodle {
-        Doodle(strokes: [
-            DoodleStroke(points: [CGPoint(x: 10, y: 10), CGPoint(x: 200, y: 220)],
-                         colorIndex: 2, width: 12),
-        ])
+    func testAddSketchIsAnElement() {
+        let collage = Collage()
+        let s = collage.addSketch(sampleSketch(), scale: 1.4)
+        XCTAssertTrue(s.isSketch)
+        XCTAssertNil(s.image)
+        XCTAssertNil(s.embellishment)
+        XCTAssertEqual(s.sketch, sampleSketch())
+        XCTAssertTrue(collage.hasContent)
     }
 
-    func testDoodleRoundTripsThroughDocument() throws {
+    func testSketchElementRenderSizeUsesAspect() {
         let collage = Collage()
-        collage.add(image: dummy())
-        collage.doodle = sampleDoodle()
+        let s = collage.addSketch(sampleSketch())   // 120x100 → aspect 1.2 (wide)
+        let size = s.renderSize(in: CGSize(width: 1000, height: 1000))
+        XCTAssertGreaterThan(size.width, size.height)
+    }
+
+    func testSketchBuildTightlyBoundsPageStrokes() {
+        let page = [SketchStroke(points: [CGPoint(x: 100, y: 100), CGPoint(x: 180, y: 140)],
+                                 colorIndex: 0, width: 8)]
+        let built = try! XCTUnwrap(Sketch.build(fromPageStrokes: page))
+        // pad = width/2 + 2 = 6 on every side.
+        XCTAssertEqual(built.box.width, 80 + 12, accuracy: 1)
+        XCTAssertEqual(built.box.height, 40 + 12, accuracy: 1)
+        XCTAssertEqual(built.center.x, 140, accuracy: 1)
+        XCTAssertEqual(built.center.y, 120, accuracy: 1)
+        // Strokes are re-based into local space (min corner → the pad offset).
+        XCTAssertEqual(built.sketch.strokes[0].points[0].x, 6, accuracy: 1)
+        XCTAssertEqual(built.sketch.strokes[0].points[0].y, 6, accuracy: 1)
+    }
+
+    func testSketchBuildReturnsNilForNothing() {
+        XCTAssertNil(Sketch.build(fromPageStrokes: []))
+    }
+
+    func testSketchRastersToImage() {
+        let img = sampleSketch().image(size: CGSize(width: 120, height: 100))
+        XCTAssertNotNil(img)
+    }
+
+    func testSketchRoundTripsThroughDocument() throws {
+        let collage = Collage()
+        let s = collage.addSketch(sampleSketch(), at: CGPoint(x: 0.3, y: 0.6), scale: 1.4)
+        s.rotation = 0.25
         let data = try JSONEncoder().encode(collage.document)
         let restored = Collage()
         restored.load(document: try JSONDecoder().decode(CollageDocument.self, from: data))
-        XCTAssertEqual(restored.doodle, sampleDoodle())
+        let el = try XCTUnwrap(restored.stickers.first)
+        XCTAssertTrue(el.isSketch)
+        XCTAssertEqual(el.sketch, sampleSketch())
+        XCTAssertEqual(el.scale, 1.4, accuracy: 0.0001)
+        XCTAssertEqual(el.rotation, 0.25, accuracy: 0.0001)
     }
 
-    func testDoodleRoundTripsThroughSnapshot() {
-        let collage = Collage()
-        collage.doodle = sampleDoodle()
-        let snap = collage.snapshot()
-        collage.doodle = nil
-        collage.restore(snap)
-        XCTAssertEqual(collage.doodle, sampleDoodle())
+    // MARK: Canvas formats
+
+    func testCanvasFormatMatching() {
+        XCTAssertEqual(CanvasFormat.matching(1.0)?.id, "square")
+        XCTAssertEqual(CanvasFormat.matching(9.0 / 16.0)?.id, "story")
+        XCTAssertEqual(CanvasFormat.matching(16.0 / 9.0)?.id, "landscape")
+        XCTAssertNil(CanvasFormat.matching(3.14))
     }
 
-    func testHasContentTracksDoodleOnly() {
-        let collage = Collage()
-        XCTAssertFalse(collage.hasContent)
-        collage.doodle = sampleDoodle()
-        XCTAssertTrue(collage.hasContent)     // a doodle alone is content
-        collage.clear()
-        XCTAssertFalse(collage.hasContent)    // clear wipes the doodle too
-        XCTAssertNil(collage.doodle)
-    }
-
-    func testEmptyDoodleIsNotContent() {
-        let collage = Collage()
-        collage.doodle = Doodle(strokes: [])
-        XCTAssertFalse(collage.hasContent)    // an empty doodle doesn't count
+    @MainActor
+    func testSetCanvasAspectIsUndoable() {
+        let session = Session()
+        session.collage.canvasAspect = 1
+        session.setCanvasAspect(1.5)
+        XCTAssertEqual(session.collage.canvasAspect, 1.5, accuracy: 0.0001)
+        session.undo()
+        XCTAssertEqual(session.collage.canvasAspect, 1, accuracy: 0.0001)
     }
 
     // MARK: Step-wise layering (handles)

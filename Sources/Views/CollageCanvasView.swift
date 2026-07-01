@@ -11,6 +11,7 @@ struct CollageCanvasView: View {
     @State private var showExport = false
     @State private var showGallery = false
     @State private var showEmblems = false
+    @State private var showFormat = false
     @State private var confirmClear = false
     @State private var confirmNew = false
 
@@ -32,6 +33,9 @@ struct CollageCanvasView: View {
         }
         .sheet(isPresented: $showEmblems) {
             EmbellishmentPicker().environment(session)
+        }
+        .sheet(isPresented: $showFormat) {
+            CanvasFormatSheet().environment(session)
         }
         .sheet(item: Bindable(session).editingText) { sticker in
             TextEditorSheet(sticker: sticker).environment(session)
@@ -74,6 +78,9 @@ struct CollageCanvasView: View {
             toolButton("scribble", tint: Theme.leaf) { session.startDrawing() }
 
             Menu {
+                Button { showFormat = true } label: {
+                    Label(L.t("format.title"), systemImage: "aspectratio")
+                }
                 Button { showBackground = true } label: {
                     Label(L.t("canvas.background"), systemImage: "paintpalette")
                 }
@@ -167,14 +174,6 @@ struct CollageCanvasView: View {
                         .environment(session)
                 }
 
-                // The committed doodle layer sits above the elements (hidden
-                // while the editor is live, which shows its own strokes).
-                if let doodle = session.collage.doodle, !doodle.isEmpty, !session.isDrawing {
-                    DoodleLayer(doodle: doodle,
-                                referenceSize: session.collage.drawingReferenceSize,
-                                pageSize: pageSize)
-                }
-
                 if !session.collage.hasContent {
                     emptyOverlay
                 }
@@ -204,13 +203,7 @@ struct CollageCanvasView: View {
             }
         }
         .animation(.spring(duration: 0.3), value: session.selection?.id)
-        .onAppear {
-            // Match the canvas aspect to the available area the first time so the
-            // page fills the space nicely.
-            if session.collage.isEmpty {
-                session.collage.canvasAspect = clampAspect(avail.width / max(1, avail.height))
-            }
-        }
+        .animation(.spring(duration: 0.3), value: session.collage.canvasAspect)
     }
 
     @ViewBuilder
@@ -256,10 +249,6 @@ struct CollageCanvasView: View {
             w = h * aspect
         }
         return CGSize(width: w, height: h)
-    }
-
-    private func clampAspect(_ a: CGFloat) -> CGFloat {
-        min(1.6, max(0.6, a))
     }
 }
 
