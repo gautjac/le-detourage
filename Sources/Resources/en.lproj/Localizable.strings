@@ -1,0 +1,75 @@
+/* Le Détourage — English */
+
+"app.name" = "Le Détourage";
+"app.tagline" = "Lift the subject. Paste it anywhere.";
+
+/* Tabs */
+"tab.atelier" = "Studio";
+"tab.tiroir" = "Drawer";
+
+/* Studio / import */
+"import.photo" = "Import a photo";
+"import.sample" = "Sample photo";
+"import.hint" = "Load a photo, then tap the subject to cut it out.";
+"lift.title" = "Cutout";
+"lift.instruction" = "Tap a subject in the photo to lift it.";
+"lift.instruction.mac" = "Click a subject in the photo to lift it.";
+"lift.button" = "Lift the subject";
+"lift.auto" = "Auto-cut the subject";
+"lift.working" = "Cutting out…";
+"lift.none" = "No subject found. Try another photo.";
+"lift.added" = "Subject added to the collage";
+"lift.saved" = "Sticker saved to the drawer";
+
+/* Collage canvas */
+"canvas.title" = "Collage";
+"canvas.empty" = "Your collage is empty.\nCut out a subject or grab one from the drawer.";
+"canvas.background" = "Background";
+"canvas.add" = "Add";
+"canvas.clear" = "Clear";
+"canvas.clear.confirm" = "Clear the collage?";
+"canvas.export" = "Export";
+"canvas.duplicate" = "Duplicate";
+"canvas.delete" = "Delete";
+"canvas.front" = "Bring to front";
+"canvas.back" = "Send to back";
+"canvas.flip" = "Flip";
+"canvas.reset" = "Reset";
+
+/* Sticker style */
+"sticker.style" = "Style";
+"sticker.outline" = "Outline";
+"sticker.shadow" = "Shadow";
+"sticker.none" = "None";
+"sticker.outline.white" = "White outline";
+"sticker.outline.thick" = "Thick outline";
+
+/* Drawer */
+"drawer.title" = "Sticker drawer";
+"drawer.empty" = "Your drawer is empty.\nCut out a subject to start your collection.";
+"drawer.use" = "Paste onto canvas";
+"drawer.export" = "Export sticker";
+"drawer.delete" = "Delete";
+"drawer.count" = "stickers";
+
+/* Background */
+"bg.color" = "Color";
+"bg.gradient" = "Gradient";
+"bg.photo" = "Photo";
+"bg.transparent" = "Transparent";
+
+/* Export */
+"export.title" = "Export";
+"export.png" = "PNG";
+"export.transparent" = "Transparent background";
+"export.save" = "Save";
+"export.share" = "Share";
+"export.done" = "Exported";
+"export.collage" = "Collage exported";
+"export.sticker" = "Sticker exported";
+
+/* Misc */
+"common.cancel" = "Cancel";
+"common.done" = "Done";
+"common.ok" = "OK";
+"common.back" = "Back";

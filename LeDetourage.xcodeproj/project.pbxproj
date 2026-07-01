@@ -1,0 +1,602 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		024739C60D374FD9C737E636 /* StickerLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22FA4CE9F1B701F23EEB2096 /* StickerLayer.swift */; };
+		0256327EDDF86B50623B3B8A /* Exporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A27AB488667FD626B8AA6DC /* Exporter.swift */; };
+		05309191E74DFE30900C543C /* Collage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 107C61804F5EF5153C6CC0D4 /* Collage.swift */; };
+		11D7B7A1F43EA35AEC5F890C /* ExportSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3760CDDDE0DAE85611DBC7F /* ExportSheet.swift */; };
+		16967CB2B1AED00B9EAFAC04 /* Components.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0F3CB5ECD0D7CF7021CA2F8 /* Components.swift */; };
+		1870A3421AA0F5791EF10F77 /* DrawerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 109FCF50B2EDA6DAD635F196 /* DrawerView.swift */; };
+		34356D355D58A1F87FFBCED5 /* CutoutStage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC8D4464E4F065B8F4F2CB8A /* CutoutStage.swift */; };
+		42B786E28B2D00D70E1EBCA9 /* BackgroundPickerSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90957FE1DDE6AD46149E44E5 /* BackgroundPickerSheet.swift */; };
+		46E96372071C91DACE3BFADC /* CollageRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7BFFF22DCDF89F324B193C0 /* CollageRenderer.swift */; };
+		4A953376D45AB479A42E7CBB /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D1F5B08652620E252FCABC /* Theme.swift */; };
+		4E7EE01A9BBDDDF3E68D3B02 /* SubjectLiftView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD05BF5480A62CE26E0CE9B2 /* SubjectLiftView.swift */; };
+		52617BF93563CF3CC9572B10 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 37439E5B534A9B6121D55A27 /* Localizable.strings */; };
+		56750BE3CCC789513D8E8A43 /* SubjectMasker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D12F82B9B2514C36E1E3DA1A /* SubjectMasker.swift */; };
+		6F1D3C3BA2F3EC2E69DCE334 /* LeDetourageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3CB268535A6D8F469F86A8 /* LeDetourageTests.swift */; };
+		7495738D613B1D5D8228D314 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85ED9FE1EF95A998ABB79549 /* RootView.swift */; };
+		8C22E3095F1D887F2E599E38 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034A9E3CEF3E980D95F80738 /* Session.swift */; };
+		922CB810FE4EC4C63458E84C /* LeDetourageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF432E8DFDC59AF5421A4EB /* LeDetourageApp.swift */; };
+		A9684436D68C9CD8047097BB /* CrossPlatform.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3F3088EDF7D2000FF4803A /* CrossPlatform.swift */; };
+		AE30552F9206C7B2829E1AD3 /* CollageCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BD4E952DB33D85AD160CB7 /* CollageCanvasView.swift */; };
+		AE4565955B4461A320CAE9D9 /* SampleImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D0C9FBABF1D027A3FC7AD0 /* SampleImage.swift */; };
+		C2D240510B4620FC6F28EC45 /* Loc.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27F16EBF7B464B0451BD9A2E /* Loc.swift */; };
+		C4EB726D55F4D2412F00B79F /* AtelierView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B74BB6FED8617EAE3FB8F0C1 /* AtelierView.swift */; };
+		ED4A936B1DA2EDF926B02264 /* StickerInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69F5C681523A7C13F7714993 /* StickerInspector.swift */; };
+		EEE99B58A021E78778687244 /* StickerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75F89ADE4A2658D2F9D24AB3 /* StickerStore.swift */; };
+		F426B606ABD09ECA521C411D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CD9EE311BD5B87EB5A9754F7 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		5D91154EA10A901A20F4E957 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4776DFDA3CE979C9234C9EF7 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 91D0DFCBC35399C26F166B66;
+			remoteInfo = LeDetourage;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		034A9E3CEF3E980D95F80738 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
+		0A2D1AD4C9FFF4554222593D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		107C61804F5EF5153C6CC0D4 /* Collage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collage.swift; sourceTree = "<group>"; };
+		109FCF50B2EDA6DAD635F196 /* DrawerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawerView.swift; sourceTree = "<group>"; };
+		1A27AB488667FD626B8AA6DC /* Exporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exporter.swift; sourceTree = "<group>"; };
+		1ED6F67D4747B295AB0C8C4B /* macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = macOS.entitlements; sourceTree = "<group>"; };
+		22FA4CE9F1B701F23EEB2096 /* StickerLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerLayer.swift; sourceTree = "<group>"; };
+		27F16EBF7B464B0451BD9A2E /* Loc.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Loc.swift; sourceTree = "<group>"; };
+		32D86CB6B6DE93F0AA76522E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		53BD4E952DB33D85AD160CB7 /* CollageCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageCanvasView.swift; sourceTree = "<group>"; };
+		67A7EC18E06D341F03E0596E /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		69F5C681523A7C13F7714993 /* StickerInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerInspector.swift; sourceTree = "<group>"; };
+		75F89ADE4A2658D2F9D24AB3 /* StickerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerStore.swift; sourceTree = "<group>"; };
+		85ED9FE1EF95A998ABB79549 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		886495CA5544EAE37D06348E /* LeDetourageTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = LeDetourageTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		90957FE1DDE6AD46149E44E5 /* BackgroundPickerSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundPickerSheet.swift; sourceTree = "<group>"; };
+		A9D0C9FBABF1D027A3FC7AD0 /* SampleImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleImage.swift; sourceTree = "<group>"; };
+		A9F9C736E301466CE84D459A /* LeDetourage.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = LeDetourage.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA3CB268535A6D8F469F86A8 /* LeDetourageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeDetourageTests.swift; sourceTree = "<group>"; };
+		AC8D4464E4F065B8F4F2CB8A /* CutoutStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutoutStage.swift; sourceTree = "<group>"; };
+		B74BB6FED8617EAE3FB8F0C1 /* AtelierView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtelierView.swift; sourceTree = "<group>"; };
+		BD05BF5480A62CE26E0CE9B2 /* SubjectLiftView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectLiftView.swift; sourceTree = "<group>"; };
+		C7BFFF22DCDF89F324B193C0 /* CollageRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageRenderer.swift; sourceTree = "<group>"; };
+		CCF432E8DFDC59AF5421A4EB /* LeDetourageApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeDetourageApp.swift; sourceTree = "<group>"; };
+		CD9EE311BD5B87EB5A9754F7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D0F3CB5ECD0D7CF7021CA2F8 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		D12F82B9B2514C36E1E3DA1A /* SubjectMasker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectMasker.swift; sourceTree = "<group>"; };
+		D8D1F5B08652620E252FCABC /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		EE3F3088EDF7D2000FF4803A /* CrossPlatform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossPlatform.swift; sourceTree = "<group>"; };
+		F3760CDDDE0DAE85611DBC7F /* ExportSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportSheet.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		03BBB0F94A49F928C5BA6C80 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				CD9EE311BD5B87EB5A9754F7 /* Assets.xcassets */,
+				32D86CB6B6DE93F0AA76522E /* Info.plist */,
+				1ED6F67D4747B295AB0C8C4B /* macOS.entitlements */,
+				37439E5B534A9B6121D55A27 /* Localizable.strings */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		0ACB0E393B1D8A87A818F9CB /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				EE3F3088EDF7D2000FF4803A /* CrossPlatform.swift */,
+				D8D1F5B08652620E252FCABC /* Theme.swift */,
+			);
+			path = Design;
+			sourceTree = "<group>";
+		};
+		2CBDE5C00FB6420798D19817 /* Tests */ = {
+			isa = PBXGroup;
+			children = (
+				AA3CB268535A6D8F469F86A8 /* LeDetourageTests.swift */,
+			);
+			path = Tests;
+			sourceTree = "<group>";
+		};
+		367EFE17C3B69CA0CA777946 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				B74BB6FED8617EAE3FB8F0C1 /* AtelierView.swift */,
+				90957FE1DDE6AD46149E44E5 /* BackgroundPickerSheet.swift */,
+				53BD4E952DB33D85AD160CB7 /* CollageCanvasView.swift */,
+				D0F3CB5ECD0D7CF7021CA2F8 /* Components.swift */,
+				AC8D4464E4F065B8F4F2CB8A /* CutoutStage.swift */,
+				109FCF50B2EDA6DAD635F196 /* DrawerView.swift */,
+				F3760CDDDE0DAE85611DBC7F /* ExportSheet.swift */,
+				85ED9FE1EF95A998ABB79549 /* RootView.swift */,
+				69F5C681523A7C13F7714993 /* StickerInspector.swift */,
+				22FA4CE9F1B701F23EEB2096 /* StickerLayer.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		3A5814AD654324D9427F3B67 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				CCF432E8DFDC59AF5421A4EB /* LeDetourageApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		3C5CC5D4B513DC29D32FC4AC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A9F9C736E301466CE84D459A /* LeDetourage.app */,
+				886495CA5544EAE37D06348E /* LeDetourageTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		4464974E6E304A37E136B3AE /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				3A5814AD654324D9427F3B67 /* App */,
+				0ACB0E393B1D8A87A818F9CB /* Design */,
+				DAAAD7216FF827016DC3C34A /* Engine */,
+				9E79ED978597236482C193CE /* Models */,
+				03BBB0F94A49F928C5BA6C80 /* Resources */,
+				367EFE17C3B69CA0CA777946 /* Views */,
+				84F8A04B399AB9DB96207BD1 /* Vision */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		84F8A04B399AB9DB96207BD1 /* Vision */ = {
+			isa = PBXGroup;
+			children = (
+				BD05BF5480A62CE26E0CE9B2 /* SubjectLiftView.swift */,
+				D12F82B9B2514C36E1E3DA1A /* SubjectMasker.swift */,
+			);
+			path = Vision;
+			sourceTree = "<group>";
+		};
+		9E79ED978597236482C193CE /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				107C61804F5EF5153C6CC0D4 /* Collage.swift */,
+				27F16EBF7B464B0451BD9A2E /* Loc.swift */,
+				034A9E3CEF3E980D95F80738 /* Session.swift */,
+				75F89ADE4A2658D2F9D24AB3 /* StickerStore.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		BA65EE69FA2EA0BFAD536A84 = {
+			isa = PBXGroup;
+			children = (
+				4464974E6E304A37E136B3AE /* Sources */,
+				2CBDE5C00FB6420798D19817 /* Tests */,
+				3C5CC5D4B513DC29D32FC4AC /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		DAAAD7216FF827016DC3C34A /* Engine */ = {
+			isa = PBXGroup;
+			children = (
+				C7BFFF22DCDF89F324B193C0 /* CollageRenderer.swift */,
+				1A27AB488667FD626B8AA6DC /* Exporter.swift */,
+				A9D0C9FBABF1D027A3FC7AD0 /* SampleImage.swift */,
+			);
+			path = Engine;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		665F8A2E641A2324DDE16425 /* LeDetourageTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 865307F8A4498EFA0771A4A4 /* Build configuration list for PBXNativeTarget "LeDetourageTests" */;
+			buildPhases = (
+				6FB2754564F1F208A1855F87 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				51F2B10618A50E5FBD285742 /* PBXTargetDependency */,
+			);
+			name = LeDetourageTests;
+			packageProductDependencies = (
+			);
+			productName = LeDetourageTests;
+			productReference = 886495CA5544EAE37D06348E /* LeDetourageTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		91D0DFCBC35399C26F166B66 /* LeDetourage */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 229943DD2053C8B0297B110D /* Build configuration list for PBXNativeTarget "LeDetourage" */;
+			buildPhases = (
+				C98D855A6C69893579E06226 /* Sources */,
+				05E856673B7EC5A64EB22273 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LeDetourage;
+			packageProductDependencies = (
+			);
+			productName = LeDetourage;
+			productReference = A9F9C736E301466CE84D459A /* LeDetourage.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4776DFDA3CE979C9234C9EF7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					665F8A2E641A2324DDE16425 = {
+						DevelopmentTeam = 9WZ66DZ69J;
+						ProvisioningStyle = Automatic;
+					};
+					91D0DFCBC35399C26F166B66 = {
+						DevelopmentTeam = 9WZ66DZ69J;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = A9E2B270CC01FD41F3B95401 /* Build configuration list for PBXProject "LeDetourage" */;
+			developmentRegion = fr;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+				fr,
+			);
+			mainGroup = BA65EE69FA2EA0BFAD536A84;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 3C5CC5D4B513DC29D32FC4AC /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				91D0DFCBC35399C26F166B66 /* LeDetourage */,
+				665F8A2E641A2324DDE16425 /* LeDetourageTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		05E856673B7EC5A64EB22273 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F426B606ABD09ECA521C411D /* Assets.xcassets in Resources */,
+				52617BF93563CF3CC9572B10 /* Localizable.strings in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		6FB2754564F1F208A1855F87 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6F1D3C3BA2F3EC2E69DCE334 /* LeDetourageTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C98D855A6C69893579E06226 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C4EB726D55F4D2412F00B79F /* AtelierView.swift in Sources */,
+				42B786E28B2D00D70E1EBCA9 /* BackgroundPickerSheet.swift in Sources */,
+				05309191E74DFE30900C543C /* Collage.swift in Sources */,
+				AE30552F9206C7B2829E1AD3 /* CollageCanvasView.swift in Sources */,
+				46E96372071C91DACE3BFADC /* CollageRenderer.swift in Sources */,
+				16967CB2B1AED00B9EAFAC04 /* Components.swift in Sources */,
+				A9684436D68C9CD8047097BB /* CrossPlatform.swift in Sources */,
+				34356D355D58A1F87FFBCED5 /* CutoutStage.swift in Sources */,
+				1870A3421AA0F5791EF10F77 /* DrawerView.swift in Sources */,
+				11D7B7A1F43EA35AEC5F890C /* ExportSheet.swift in Sources */,
+				0256327EDDF86B50623B3B8A /* Exporter.swift in Sources */,
+				922CB810FE4EC4C63458E84C /* LeDetourageApp.swift in Sources */,
+				C2D240510B4620FC6F28EC45 /* Loc.swift in Sources */,
+				7495738D613B1D5D8228D314 /* RootView.swift in Sources */,
+				AE4565955B4461A320CAE9D9 /* SampleImage.swift in Sources */,
+				8C22E3095F1D887F2E599E38 /* Session.swift in Sources */,
+				ED4A936B1DA2EDF926B02264 /* StickerInspector.swift in Sources */,
+				024739C60D374FD9C737E636 /* StickerLayer.swift in Sources */,
+				EEE99B58A021E78778687244 /* StickerStore.swift in Sources */,
+				4E7EE01A9BBDDDF3E68D3B02 /* SubjectLiftView.swift in Sources */,
+				56750BE3CCC789513D8E8A43 /* SubjectMasker.swift in Sources */,
+				4A953376D45AB479A42E7CBB /* Theme.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		51F2B10618A50E5FBD285742 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 91D0DFCBC35399C26F166B66 /* LeDetourage */;
+			targetProxy = 5D91154EA10A901A20F4E957 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		37439E5B534A9B6121D55A27 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				0A2D1AD4C9FFF4554222593D /* en */,
+				67A7EC18E06D341F03E0596E /* fr */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		4727E9261A4606E25E8A82D4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jac.LeDetourage.tests;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LeDetourage.app/LeDetourage";
+				"TEST_HOST[sdk=macosx*]" = "$(BUILT_PRODUCTS_DIR)/LeDetourage.app/Contents/MacOS/LeDetourage";
+			};
+			name = Release;
+		};
+		6192E5BEE7FF3ED3C0AC47C6 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = Sources/Resources/macOS.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = Sources/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jac.LeDetourage;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		63C54151E0F28CBCED910823 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jac.LeDetourage.tests;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LeDetourage.app/LeDetourage";
+				"TEST_HOST[sdk=macosx*]" = "$(BUILT_PRODUCTS_DIR)/LeDetourage.app/Contents/MacOS/LeDetourage";
+			};
+			name = Debug;
+		};
+		A5ED899C1A898809E0F6BFBC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 9WZ66DZ69J;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		E4603EE097850EB1E3A83E64 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 9WZ66DZ69J;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		ECFE6F6BABEBF192E62CEF5E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = Sources/Resources/macOS.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_PREVIEWS = YES;
+				INFOPLIST_FILE = Sources/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.jac.LeDetourage;
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		229943DD2053C8B0297B110D /* Build configuration list for PBXNativeTarget "LeDetourage" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ECFE6F6BABEBF192E62CEF5E /* Debug */,
+				6192E5BEE7FF3ED3C0AC47C6 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		865307F8A4498EFA0771A4A4 /* Build configuration list for PBXNativeTarget "LeDetourageTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				63C54151E0F28CBCED910823 /* Debug */,
+				4727E9261A4606E25E8A82D4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A9E2B270CC01FD41F3B95401 /* Build configuration list for PBXProject "LeDetourage" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E4603EE097850EB1E3A83E64 /* Debug */,
+				A5ED899C1A898809E0F6BFBC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4776DFDA3CE979C9234C9EF7 /* Project object */;
+}

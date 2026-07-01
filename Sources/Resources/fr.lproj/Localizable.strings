@@ -1,0 +1,75 @@
+/* Le Détourage — français (langue de référence) */
+
+"app.name" = "Le Détourage";
+"app.tagline" = "Découpe le sujet. Colle-le où tu veux.";
+
+/* Onglets */
+"tab.atelier" = "Atelier";
+"tab.tiroir" = "Tiroir";
+
+/* Atelier / import */
+"import.photo" = "Importer une photo";
+"import.sample" = "Photo d'exemple";
+"import.hint" = "Charge une photo, puis touche le sujet pour le découper.";
+"lift.title" = "Découpage";
+"lift.instruction" = "Touche un sujet dans la photo pour le lever.";
+"lift.instruction.mac" = "Clique un sujet dans la photo pour le lever.";
+"lift.button" = "Lever le sujet";
+"lift.auto" = "Détourer automatiquement";
+"lift.working" = "Détourage en cours…";
+"lift.none" = "Aucun sujet trouvé. Essaie une autre photo.";
+"lift.added" = "Sujet ajouté au collage";
+"lift.saved" = "Autocollant enregistré au tiroir";
+
+/* Toile de collage */
+"canvas.title" = "Collage";
+"canvas.empty" = "Ton collage est vide.\nDécoupe un sujet ou pioche dans le tiroir.";
+"canvas.background" = "Fond";
+"canvas.add" = "Ajouter";
+"canvas.clear" = "Vider";
+"canvas.clear.confirm" = "Vider le collage ?";
+"canvas.export" = "Exporter";
+"canvas.duplicate" = "Dupliquer";
+"canvas.delete" = "Supprimer";
+"canvas.front" = "Au premier plan";
+"canvas.back" = "À l'arrière-plan";
+"canvas.flip" = "Retourner";
+"canvas.reset" = "Réinitialiser";
+
+/* Style d'autocollant */
+"sticker.style" = "Style";
+"sticker.outline" = "Contour";
+"sticker.shadow" = "Ombre";
+"sticker.none" = "Aucun";
+"sticker.outline.white" = "Contour blanc";
+"sticker.outline.thick" = "Contour épais";
+
+/* Tiroir */
+"drawer.title" = "Tiroir à autocollants";
+"drawer.empty" = "Ton tiroir est vide.\nDécoupe un sujet pour commencer ta collection.";
+"drawer.use" = "Coller sur la toile";
+"drawer.export" = "Exporter l'autocollant";
+"drawer.delete" = "Supprimer";
+"drawer.count" = "autocollants";
+
+/* Fond */
+"bg.color" = "Couleur";
+"bg.gradient" = "Dégradé";
+"bg.photo" = "Photo";
+"bg.transparent" = "Transparent";
+
+/* Export */
+"export.title" = "Exporter";
+"export.png" = "PNG";
+"export.transparent" = "Fond transparent";
+"export.save" = "Enregistrer";
+"export.share" = "Partager";
+"export.done" = "Exporté";
+"export.collage" = "Collage exporté";
+"export.sticker" = "Autocollant exporté";
+
+/* Divers */
+"common.cancel" = "Annuler";
+"common.done" = "Terminé";
+"common.ok" = "OK";
+"common.back" = "Retour";

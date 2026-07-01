@@ -1,0 +1,108 @@
+name: LeDetourage
+options:
+  bundleIdPrefix: com.jac
+  deploymentTarget:
+    iOS: "26.0"
+    macOS: "26.0"
+  createIntermediateGroups: true
+  developmentLanguage: fr
+
+# Bilingual FR + EN. fr is the development/fallback language.
+knownRegions:
+  - fr
+  - en
+  - Base
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: "9WZ66DZ69J"
+    CODE_SIGN_STYLE: Automatic
+    GENERATE_INFOPLIST_FILE: NO
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+
+targets:
+  LeDetourage:
+    type: application
+    # One multiplatform target → a single universal app that runs natively on
+    # both iOS (iPhone/iPad) and macOS (AppKit-backed SwiftUI, NOT Catalyst).
+    supportedDestinations: [iOS, macOS]
+    deploymentTarget:
+      iOS: "26.0"
+      macOS: "26.0"
+    sources:
+      - path: Sources
+    info:
+      path: Sources/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: Le Détourage
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+        CFBundleLocalizations:
+          - fr
+          - en
+        LSApplicationCategoryType: public.app-category.graphics-design
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        NSPhotoLibraryUsageDescription: "Le Détourage importe une photo depuis votre photothèque pour en découper le sujet et le coller dans un collage. Les images restent sur l'appareil."
+        NSPhotoLibraryAddUsageDescription: "Le Détourage enregistre vos collages et vos autocollants découpés dans votre photothèque."
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        "UISupportedInterfaceOrientations~ipad":
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jac.LeDetourage
+        # iPhone + iPad on iOS; macOS ignores this key.
+        TARGETED_DEVICE_FAMILY: "1,2"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_PREVIEWS: YES
+        # macOS-only: App Sandbox + user-selected file read/write for import &
+        # export. iOS draws photo access from the usage strings above and must
+        # NOT carry the sandbox entitlement, so this is scoped to the macOS SDK.
+        "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": Sources/Resources/macOS.entitlements
+        # Native macOS app, not "Designed for iPad" running on Apple Silicon.
+        SUPPORTS_MACCATALYST: NO
+
+  LeDetourageTests:
+    type: bundle.unit-test
+    # Pure-logic tests: the sticker model math (transform composition, layering,
+    # hit order), the collage document, the export bounds, the fallback mask
+    # bounding-box crop. Multiplatform so they run on the Mac with no simulator.
+    supportedDestinations: [iOS, macOS]
+    deploymentTarget:
+      iOS: "26.0"
+      macOS: "26.0"
+    sources:
+      - path: Tests
+    dependencies:
+      - target: LeDetourage
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jac.LeDetourage.tests
+        GENERATE_INFOPLIST_FILE: YES
+        "TEST_HOST[sdk=macosx*]": "$(BUILT_PRODUCTS_DIR)/LeDetourage.app/Contents/MacOS/LeDetourage"
+
+schemes:
+  LeDetourage:
+    build:
+      targets:
+        LeDetourage: all
+        LeDetourageTests: [test]
+    run:
+      config: Debug
+    test:
+      targets:
+        - LeDetourageTests
+    archive:
+      config: Release
