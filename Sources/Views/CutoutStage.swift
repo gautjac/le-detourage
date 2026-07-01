@@ -161,21 +161,16 @@ struct CutoutStage: View {
         }
     }
 
-    /// The toolbar "lift the subject" action. Prefer VisionKit's detected
-    /// subjects; fall back to the Vision foreground-instance mask so every photo
-    /// yields a cutout.
+    /// The toolbar "auto-cut the subject" action. Uses the reliable, on-device
+    /// Vision foreground-instance mask, which runs off the main thread and always
+    /// resolves. (VisionKit's interactive press-and-lift — its async `subjects` /
+    /// `image(for:)` that could suspend indefinitely on device — stays reserved
+    /// for tapping a subject directly, so the button can never hang.)
     private func autoLift(_ image: PlatformImage) async {
         working = true
         session.isLifting = true
         defer { working = false; session.isLifting = false }
 
-        if #available(iOS 17.0, macOS 14.0, *),
-           let vkImage = await lift.liftAllSubjects?() {
-            let tight = SubjectMasker.trimTransparentMargins(vkImage)
-            onLift(tight)
-            return
-        }
-        // Fallback: Vision foreground-instance mask.
         do {
             let cutout = try await SubjectMasker.lift(from: image)
             onLift(cutout)
