@@ -51,6 +51,9 @@ final class Session {
     /// Whether the freehand doodle editor is active.
     var isDrawing = false
 
+    /// Alignment guide lines to draw while an element is being dragged.
+    var activeGuides: [AlignmentGuide] = []
+
     init() {
         restore()
     }

@@ -177,6 +177,12 @@ struct CollageCanvasView: View {
                 if !session.collage.hasContent {
                     emptyOverlay
                 }
+
+                // Alignment guides while dragging.
+                if !session.activeGuides.isEmpty {
+                    GuidesOverlay(guides: session.activeGuides, pageSize: pageSize)
+                        .allowsHitTesting(false)
+                }
             }
             .frame(width: pageSize.width, height: pageSize.height)
             .coordinateSpace(.named("page"))
@@ -247,6 +253,31 @@ struct CollageCanvasView: View {
             w = h * aspect
         }
         return CGSize(width: w, height: h)
+    }
+}
+
+/// Draws the active alignment guides (dashed accent lines) over the page.
+struct GuidesOverlay: View {
+    let guides: [AlignmentGuide]
+    let pageSize: CGSize
+
+    var body: some View {
+        Canvas { ctx, size in
+            for guide in guides {
+                var path = Path()
+                switch guide.axis {
+                case .vertical:
+                    path.move(to: CGPoint(x: guide.position, y: 0))
+                    path.addLine(to: CGPoint(x: guide.position, y: size.height))
+                case .horizontal:
+                    path.move(to: CGPoint(x: 0, y: guide.position))
+                    path.addLine(to: CGPoint(x: size.width, y: guide.position))
+                }
+                ctx.stroke(path, with: .color(Theme.accent.opacity(0.9)),
+                           style: StrokeStyle(lineWidth: 1, dash: [5, 4]))
+            }
+        }
+        .frame(width: pageSize.width, height: pageSize.height)
     }
 }
 

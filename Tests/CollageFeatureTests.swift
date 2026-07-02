@@ -425,6 +425,44 @@ final class CollageFeatureTests: XCTestCase {
         return .nan
     }
 
+    // MARK: Snapping
+
+    func testSnapsToCanvasCenter() {
+        let canvas = CGSize(width: 1000, height: 1000)
+        let size = CGSize(width: 100, height: 100)
+        // 503 is within 8pt of the center (500) → snaps.
+        let r = Snapping.snap(center: CGPoint(x: 503, y: 700), size: size, canvas: canvas, others: [])
+        XCTAssertEqual(r.center.x, 500, accuracy: 0.001)
+        XCTAssertTrue(r.guides.contains(AlignmentGuide(axis: .vertical, position: 500)))
+    }
+
+    func testSnapsFlushToCanvasEdge() {
+        let canvas = CGSize(width: 1000, height: 1000)
+        let size = CGSize(width: 200, height: 200)
+        // Center near x=100 → element left edge near 0 → flush-left snap (center→100).
+        let r = Snapping.snap(center: CGPoint(x: 104, y: 500), size: size, canvas: canvas, others: [])
+        XCTAssertEqual(r.center.x, 100, accuracy: 0.001)    // half of width
+        XCTAssertTrue(r.guides.contains(AlignmentGuide(axis: .vertical, position: 0)))
+    }
+
+    func testSnapsToNeighborCenter() {
+        let canvas = CGSize(width: 1000, height: 1000)
+        let size = CGSize(width: 80, height: 80)
+        let neighbor = Snapping.Neighbor(center: CGPoint(x: 300, y: 620), size: CGSize(width: 80, height: 80))
+        let r = Snapping.snap(center: CGPoint(x: 305, y: 616), size: size, canvas: canvas, others: [neighbor])
+        XCTAssertEqual(r.center.x, 300, accuracy: 0.001)
+        XCTAssertEqual(r.center.y, 620, accuracy: 0.001)
+    }
+
+    func testNoSnapWhenFar() {
+        let canvas = CGSize(width: 1000, height: 1000)
+        let size = CGSize(width: 100, height: 100)
+        let r = Snapping.snap(center: CGPoint(x: 320, y: 660), size: size, canvas: canvas, others: [])
+        XCTAssertEqual(r.center.x, 320, accuracy: 0.001)
+        XCTAssertEqual(r.center.y, 660, accuracy: 0.001)
+        XCTAssertTrue(r.guides.isEmpty)
+    }
+
     // MARK: Canvas formats
 
     func testCanvasFormatMatching() {

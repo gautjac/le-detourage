@@ -35,6 +35,7 @@
 		8B47906B390A5877AFB49BAD /* GallerySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1F0938F90E5ECF9FA957A6 /* GallerySheet.swift */; };
 		8C22E3095F1D887F2E599E38 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034A9E3CEF3E980D95F80738 /* Session.swift */; };
 		922CB810FE4EC4C63458E84C /* LeDetourageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF432E8DFDC59AF5421A4EB /* LeDetourageApp.swift */; };
+		A8C6341E129A200E909867C3 /* Snapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1724442F900083E95443461 /* Snapping.swift */; };
 		A9684436D68C9CD8047097BB /* CrossPlatform.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3F3088EDF7D2000FF4803A /* CrossPlatform.swift */; };
 		AE30552F9206C7B2829E1AD3 /* CollageCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BD4E952DB33D85AD160CB7 /* CollageCanvasView.swift */; };
 		AE4565955B4461A320CAE9D9 /* SampleImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9D0C9FBABF1D027A3FC7AD0 /* SampleImage.swift */; };
@@ -103,6 +104,7 @@
 		CD9EE311BD5B87EB5A9754F7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D0F3CB5ECD0D7CF7021CA2F8 /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
 		D12F82B9B2514C36E1E3DA1A /* SubjectMasker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectMasker.swift; sourceTree = "<group>"; };
+		D1724442F900083E95443461 /* Snapping.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Snapping.swift; sourceTree = "<group>"; };
 		D8D1F5B08652620E252FCABC /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
 		DAE1730456EE19A00076CC0A /* Sketch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sketch.swift; sourceTree = "<group>"; };
 		DDD191069C7F56DDD4F40856 /* CollageFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageFeatureTests.swift; sourceTree = "<group>"; };
@@ -216,6 +218,7 @@
 				45A0CE1CE1E18159838F6522 /* SavedCollage.swift */,
 				034A9E3CEF3E980D95F80738 /* Session.swift */,
 				DAE1730456EE19A00076CC0A /* Sketch.swift */,
+				D1724442F900083E95443461 /* Snapping.swift */,
 				75F89ADE4A2658D2F9D24AB3 /* StickerStore.swift */,
 				86F62B8F75BABF0038F4AFFF /* TextContent.swift */,
 			);
@@ -378,6 +381,7 @@
 				7C9491DB541A33F9500D9831 /* SavedCollage.swift in Sources */,
 				8C22E3095F1D887F2E599E38 /* Session.swift in Sources */,
 				E3E62F1E3A0ABE365136545B /* Sketch.swift in Sources */,
+				A8C6341E129A200E909867C3 /* Snapping.swift in Sources */,
 				ED4A936B1DA2EDF926B02264 /* StickerInspector.swift in Sources */,
 				024739C60D374FD9C737E636 /* StickerLayer.swift in Sources */,
 				EEE99B58A021E78778687244 /* StickerStore.swift in Sources */,

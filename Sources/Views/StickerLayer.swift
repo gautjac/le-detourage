@@ -12,9 +12,11 @@ struct StickerLayer: View {
     @Environment(Session.self) private var session
 
     // In-flight two-finger gesture deltas layered on the committed transform.
-    @GestureState private var dragOffset: CGSize = .zero
     @GestureState private var pinch: CGFloat = 1
     @GestureState private var twist: Angle = .zero
+    // Live drag translation (a @State, not @GestureState, so snapping can adjust
+    // it); zero when not dragging.
+    @State private var dragOffset: CGSize = .zero
 
     // Handle-drag start references (nil when idle).
     @State private var scaleStart: (scale: CGFloat, dist: CGFloat)?
@@ -34,7 +36,7 @@ struct StickerLayer: View {
                 .rotationEffect(liveAngle)
                 .scaleEffect(pinch)
                 .position(x: center.x + dragOffset.width, y: center.y + dragOffset.height)
-                .gesture(dragGesture(center: center))
+                .gesture(dragGesture(center: center, size: size))
                 .simultaneousGesture(magnifyGesture)
                 .simultaneousGesture(rotateGesture)
                 .simultaneousGesture(
@@ -257,26 +259,40 @@ struct StickerLayer: View {
 
     // MARK: Body gestures
 
-    private func dragGesture(center: CGPoint) -> some Gesture {
+    private func dragGesture(center: CGPoint, size: CGSize) -> some Gesture {
         DragGesture()
-            .updating($dragOffset) { value, state, _ in
-                state = value.translation
-            }
-            .onChanged { _ in
+            .onChanged { value in
                 if session.selection?.id != sticker.id {
                     session.selection = sticker
                 }
+                let raw = CGPoint(x: center.x + value.translation.width,
+                                  y: center.y + value.translation.height)
+                let result = snapResult(for: raw, size: size)
+                dragOffset = CGSize(width: result.center.x - center.x,
+                                    height: result.center.y - center.y)
+                session.activeGuides = result.guides
             }
-            .onEnded { value in
+            .onEnded { _ in
                 session.checkpoint()
-                let newCenter = CGPoint(x: center.x + value.translation.width,
-                                        y: center.y + value.translation.height)
+                let snapped = CGPoint(x: center.x + dragOffset.width,
+                                      y: center.y + dragOffset.height)
                 sticker.position = CGPoint(
-                    x: (newCenter.x / max(1, canvasSize.width)).clamped(-0.1, 1.1),
-                    y: (newCenter.y / max(1, canvasSize.height)).clamped(-0.1, 1.1))
+                    x: (snapped.x / max(1, canvasSize.width)).clamped(-0.1, 1.1),
+                    y: (snapped.y / max(1, canvasSize.height)).clamped(-0.1, 1.1))
+                dragOffset = .zero
+                session.activeGuides = []
                 // Moving an element leaves its layer order untouched — use the
-                // ⌃/⌄ handles to reorder deliberately instead.
+                // inspector's arrange row to reorder deliberately.
             }
+    }
+
+    /// Snap a proposed center against the canvas and the other elements.
+    private func snapResult(for raw: CGPoint, size: CGSize) -> Snapping.Result {
+        let others = session.collage.stickers
+            .filter { $0.id != sticker.id }
+            .map { Snapping.Neighbor(center: $0.center(in: canvasSize),
+                                     size: $0.renderSize(in: canvasSize)) }
+        return Snapping.snap(center: raw, size: size, canvas: canvasSize, others: others)
     }
 
     private var magnifyGesture: some Gesture {
