@@ -11,6 +11,7 @@
 "import.photo" = "Importer une photo";
 "import.photos" = "Depuis Photos…";
 "import.files" = "Depuis un fichier…";
+"import.failed" = "Impossible de charger cette image";
 "import.sample" = "Photo d'exemple";
 "import.hint" = "Charge une photo, puis touche le sujet pour le découper.";
 "lift.title" = "Découpage";

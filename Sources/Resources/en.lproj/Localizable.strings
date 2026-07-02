@@ -11,6 +11,7 @@
 "import.photo" = "Import a photo";
 "import.photos" = "From Photos…";
 "import.files" = "From a file…";
+"import.failed" = "Couldn't load that image";
 "import.sample" = "Sample photo";
 "import.hint" = "Load a photo, then tap the subject to cut it out.";
 "lift.title" = "Cutout";

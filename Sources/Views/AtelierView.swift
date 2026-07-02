@@ -36,6 +36,7 @@ struct AtelierView: View {
                             })
                             .background(Theme.page)
                         }
+                        .environment(session)
                     }
             }
         }
