@@ -10,6 +10,14 @@ enum CollageRenderer {
     /// The exported longer-edge resolution in pixels.
     static let exportLongEdge: CGFloat = 2048
 
+    /// A per-element wobble applied to a single animation frame.
+    struct FrameTransform {
+        var dx: CGFloat = 0        // normalized position delta
+        var dy: CGFloat = 0
+        var dRot: CGFloat = 0      // radians
+        var scale: CGFloat = 1     // pulse multiplier
+    }
+
     /// Render the collage to a PNG-backed `PlatformImage`.
     /// - Parameters:
     ///   - collage: the document to flatten.
@@ -18,7 +26,8 @@ enum CollageRenderer {
     ///   - longEdge: the longer-edge output resolution in pixels (defaults to the
     ///     full 2K export; smaller values render gallery thumbnails).
     static func render(_ collage: Collage, transparentBackground: Bool,
-                       longEdge: CGFloat = exportLongEdge) -> PlatformImage? {
+                       longEdge: CGFloat = exportLongEdge,
+                       transformProvider: ((Int) -> FrameTransform)? = nil) -> PlatformImage? {
         let aspect = max(0.2, collage.canvasAspect)
         let (pw, ph): (Int, Int)
         if aspect >= 1 {
@@ -49,8 +58,8 @@ enum CollageRenderer {
                            in: ctx, canvas: canvas)
         }
 
-        for sticker in collage.ordered {
-            drawSticker(sticker, in: ctx, canvas: canvas)
+        for (i, sticker) in collage.ordered.enumerated() {
+            drawSticker(sticker, in: ctx, canvas: canvas, transform: transformProvider?(i))
         }
 
         guard let cg = ctx.makeImage() else { return nil }
@@ -96,9 +105,13 @@ enum CollageRenderer {
         }
     }
 
-    private static func drawSticker(_ s: PlacedSticker, in ctx: CGContext, canvas: CGSize) {
+    private static func drawSticker(_ s: PlacedSticker, in ctx: CGContext, canvas: CGSize,
+                                    transform: FrameTransform? = nil) {
         let size = s.renderSize(in: canvas)
         guard size.width >= 1, size.height >= 1 else { return }
+        // Animation wobble (identity when nil): images are generated at the base
+        // size and only the draw size / center / rotation are nudged.
+        let pulse = transform?.scale ?? 1
 
         // Resolve the element to bitmaps. Cutouts contribute a filtered subject
         // plus an optional die-cut contour outline; text is rasterized (chip +
@@ -124,11 +137,15 @@ enum CollageRenderer {
             subjectCG = sketchContent.image(size: size)?.cgImageNormalized
         }
         guard let subject = subjectCG else { return }
-        let center = s.center(in: canvas)
+        var center = s.center(in: canvas)
+        if let t = transform {
+            center.x += t.dx * canvas.width
+            center.y += t.dy * canvas.height
+        }
 
         ctx.saveGState()
         ctx.translateBy(x: center.x, y: center.y)
-        ctx.rotate(by: s.rotation)
+        ctx.rotate(by: s.rotation + (transform?.dRot ?? 0))
         if s.flipped { ctx.scaleBy(x: -1, y: 1) }
 
         if s.shadow {
@@ -140,10 +157,11 @@ enum CollageRenderer {
         // The die-cut outline sits behind and carries the shadow; clear the
         // shadow before the subject so it isn't drawn twice.
         if let outline {
-            drawCentered(outline.cg, size: outline.size, in: ctx)
+            drawCentered(outline.cg, size: CGSize(width: outline.size.width * pulse,
+                                                  height: outline.size.height * pulse), in: ctx)
             ctx.setShadow(offset: .zero, blur: 0, color: nil)
         }
-        drawCentered(subject, size: size, in: ctx)
+        drawCentered(subject, size: CGSize(width: size.width * pulse, height: size.height * pulse), in: ctx)
 
         ctx.restoreGState()
     }

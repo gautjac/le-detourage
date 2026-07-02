@@ -425,6 +425,182 @@ final class CollageFeatureTests: XCTestCase {
         return .nan
     }
 
+    // MARK: Snapping
+
+    func testSnapsToCanvasCenter() {
+        let canvas = CGSize(width: 1000, height: 1000)
+        let size = CGSize(width: 100, height: 100)
+        // 503 is within 8pt of the center (500) → snaps.
+        let r = Snapping.snap(center: CGPoint(x: 503, y: 700), size: size, canvas: canvas, others: [])
+        XCTAssertEqual(r.center.x, 500, accuracy: 0.001)
+        XCTAssertTrue(r.guides.contains(AlignmentGuide(axis: .vertical, position: 500)))
+    }
+
+    func testSnapsFlushToCanvasEdge() {
+        let canvas = CGSize(width: 1000, height: 1000)
+        let size = CGSize(width: 200, height: 200)
+        // Center near x=100 → element left edge near 0 → flush-left snap (center→100).
+        let r = Snapping.snap(center: CGPoint(x: 104, y: 500), size: size, canvas: canvas, others: [])
+        XCTAssertEqual(r.center.x, 100, accuracy: 0.001)    // half of width
+        XCTAssertTrue(r.guides.contains(AlignmentGuide(axis: .vertical, position: 0)))
+    }
+
+    func testSnapsToNeighborCenter() {
+        let canvas = CGSize(width: 1000, height: 1000)
+        let size = CGSize(width: 80, height: 80)
+        let neighbor = Snapping.Neighbor(center: CGPoint(x: 300, y: 620), size: CGSize(width: 80, height: 80))
+        let r = Snapping.snap(center: CGPoint(x: 305, y: 616), size: size, canvas: canvas, others: [neighbor])
+        XCTAssertEqual(r.center.x, 300, accuracy: 0.001)
+        XCTAssertEqual(r.center.y, 620, accuracy: 0.001)
+    }
+
+    func testNoSnapWhenFar() {
+        let canvas = CGSize(width: 1000, height: 1000)
+        let size = CGSize(width: 100, height: 100)
+        let r = Snapping.snap(center: CGPoint(x: 320, y: 660), size: size, canvas: canvas, others: [])
+        XCTAssertEqual(r.center.x, 320, accuracy: 0.001)
+        XCTAssertEqual(r.center.y, 660, accuracy: 0.001)
+        XCTAssertTrue(r.guides.isEmpty)
+    }
+
+    // MARK: Cutout cleanup
+
+    private func opaqueImage(_ w: Int, _ h: Int) -> PlatformImage {
+        let space = CGColorSpaceCreateDeviceRGB()
+        let ctx = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8,
+                            bytesPerRow: w * 4, space: space,
+                            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        ctx.setFillColor(CGColor(red: 0, green: 0.5, blue: 1, alpha: 1))
+        ctx.fill(CGRect(x: 0, y: 0, width: w, height: h))
+        return PlatformImage.from(cgImage: ctx.makeImage()!)
+    }
+
+    private func transparentPixelCount(_ image: PlatformImage) -> Int {
+        let cg = image.cgImageNormalized!
+        let w = cg.width, h = cg.height
+        var px = [UInt8](repeating: 0, count: w * h * 4)
+        let space = CGColorSpaceCreateDeviceRGB()
+        let ctx = CGContext(data: &px, width: w, height: h, bitsPerComponent: 8,
+                            bytesPerRow: w * 4, space: space,
+                            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        ctx.draw(cg, in: CGRect(x: 0, y: 0, width: w, height: h))
+        return stride(from: 3, to: px.count, by: 4).reduce(0) { px[$1] < 10 ? $0 + 1 : $0 }
+    }
+
+    func testEraseClearsSomePixels() {
+        let img = opaqueImage(100, 100)
+        XCTAssertEqual(transparentPixelCount(img), 0)
+        let erased = CutoutCleanup.erase(img, points: [CGPoint(x: 50, y: 50)], radiusPx: 14)!
+        XCTAssertEqual(erased.pixelSize.width, 100, accuracy: 1)
+        let cleared = transparentPixelCount(erased)
+        XCTAssertGreaterThan(cleared, 0)           // erased a hole
+        XCTAssertLessThan(cleared, 100 * 100)      // but not everything
+    }
+
+    func testFeatherKeepsSize() {
+        let f = CutoutCleanup.feather(opaqueImage(80, 60))!
+        XCTAssertEqual(f.pixelSize.width, 80, accuracy: 1)
+        XCTAssertEqual(f.pixelSize.height, 60, accuracy: 1)
+    }
+
+    func testReplaceCutoutSwapsImage() {
+        let sticker = PlacedSticker(image: opaqueImage(50, 50), style: .thick)
+        let newImage = opaqueImage(50, 50)
+        sticker.replaceCutout(newImage)
+        XCTAssertTrue(sticker.image === newImage)
+        XCTAssertNotNil(sticker.styled?.outline)   // still a styled cutout after swap
+    }
+
+    // MARK: Animated export
+
+    func testAnimatorLoopsSeamlessly() {
+        let a = CollageAnimator(amount: 1)
+        // t=0 and t=1 are the same point on the loop → identical transforms.
+        let f0 = a.transform(index: 2, t: 0)
+        let f1 = a.transform(index: 2, t: 1)
+        XCTAssertEqual(f0.dRot, f1.dRot, accuracy: 0.0001)
+        XCTAssertEqual(f0.scale, f1.scale, accuracy: 0.0001)
+    }
+
+    func testAnimatorAmountZeroIsIdentity() {
+        let a = CollageAnimator(amount: 0)
+        let f = a.transform(index: 1, t: 0.3)
+        XCTAssertEqual(f.dx, 0, accuracy: 0.0001)
+        XCTAssertEqual(f.dy, 0, accuracy: 0.0001)
+        XCTAssertEqual(f.dRot, 0, accuracy: 0.0001)
+        XCTAssertEqual(f.scale, 1, accuracy: 0.0001)
+    }
+
+    @MainActor
+    func testMakesAnimatedGIFData() {
+        let collage = Collage(); collage.canvasAspect = 1
+        collage.add(image: dummy())
+        collage.addText(TextContent(string: "Hi"))
+        let data = AnimatedExporter.makeGIF(for: collage, amount: 0.7, transparentBackground: false)
+        XCTAssertNotNil(data)
+        // GIF magic header.
+        XCTAssertEqual(Array(data!.prefix(3)), Array("GIF".utf8))
+    }
+
+    // MARK: Multi-select / group ops
+
+    func testGroupAlignCenterH() {
+        let c = Collage(); c.canvasAspect = 1
+        let a = c.add(image: dummy()); a.position = CGPoint(x: 0.2, y: 0.5)
+        let b = c.add(image: dummy()); b.position = CGPoint(x: 0.8, y: 0.5)
+        c.align([a.id, b.id], .centerH)
+        XCTAssertEqual(a.position.x, b.position.x, accuracy: 0.0001)
+    }
+
+    func testGroupScaleAroundCentroid() {
+        let c = Collage(); c.canvasAspect = 1
+        let a = c.add(image: dummy()); a.position = CGPoint(x: 0.4, y: 0.5); a.scale = 1
+        let b = c.add(image: dummy()); b.position = CGPoint(x: 0.6, y: 0.5); b.scale = 1
+        c.scaleSelected([a.id, b.id], by: 2)
+        XCTAssertEqual(a.position.x, 0.3, accuracy: 0.0001)   // centroid 0.5, doubled offset
+        XCTAssertEqual(b.position.x, 0.7, accuracy: 0.0001)
+        XCTAssertEqual(a.scale, 2, accuracy: 0.0001)
+    }
+
+    func testDuplicateSelectedReturnsFreshIDs() {
+        let c = Collage()
+        let a = c.add(image: dummy()); let b = c.add(image: dummy())
+        let copies = c.duplicateSelected([a.id, b.id])
+        XCTAssertEqual(copies.count, 2)
+        XCTAssertEqual(c.stickers.count, 4)
+        XCTAssertFalse(copies.contains(a.id))
+    }
+
+    func testRemoveSelected() {
+        let c = Collage()
+        let a = c.add(image: dummy()); let b = c.add(image: dummy()); c.add(image: dummy())
+        c.removeSelected([a.id, b.id])
+        XCTAssertEqual(c.stickers.count, 1)
+    }
+
+    func testAddElementFromDTO() {
+        let c = Collage()
+        let a = c.add(image: dummy()); a.filter = .noir
+        let dto = c.document.elements.first!
+        let c2 = Collage()
+        let added = c2.addElement(from: dto)
+        XCTAssertNotNil(added)
+        XCTAssertEqual(c2.stickers.count, 1)
+        XCTAssertEqual(added?.filter, .noir)
+    }
+
+    @MainActor
+    func testSelectionSetterSyncsWithSet() {
+        let session = Session()
+        let a = session.collage.add(image: dummy())
+        session.selection = a
+        XCTAssertEqual(session.selectedIDs, [a.id])
+        XCTAssertEqual(session.selection?.id, a.id)
+        session.selectedIDs = [a.id, UUID()]
+        XCTAssertNil(session.selection)      // multiple selected → no single selection
+        XCTAssertTrue(session.isMultiSelect)
+    }
+
     // MARK: Canvas formats
 
     func testCanvasFormatMatching() {

@@ -18,7 +18,7 @@ enum Exporter {
     static func save(_ image: PlatformImage, suggestedName: String) {
         guard let data = image.pngData else { return }
         #if os(iOS)
-        presentShareSheet(data: data, suggestedName: suggestedName)
+        presentShareSheet(data: data, suggestedName: suggestedName, ext: "png")
         #else
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.png]
@@ -35,7 +35,13 @@ enum Exporter {
     @MainActor
     static func share(_ image: PlatformImage, suggestedName: String) {
         guard let data = image.pngData else { return }
-        presentShareSheet(data: data, suggestedName: suggestedName)
+        presentShareSheet(data: data, suggestedName: suggestedName, ext: "png")
+    }
+
+    /// Share arbitrary file data (e.g. a GIF) via the system share sheet.
+    @MainActor
+    static func shareFile(_ data: Data, suggestedName: String, ext: String) {
+        presentShareSheet(data: data, suggestedName: suggestedName, ext: ext)
     }
 
     /// Back-compat alias — the collage/sticker save flow.
@@ -47,10 +53,10 @@ enum Exporter {
     /// Write the PNG to a temp file (so services get a real, named file that
     /// AirDrop / Mail / Messages can attach) and present the share sheet.
     @MainActor
-    private static func presentShareSheet(data: Data, suggestedName: String) {
+    private static func presentShareSheet(data: Data, suggestedName: String, ext: String) {
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent(suggestedName)
-            .appendingPathExtension("png")
+            .appendingPathExtension(ext)
         do { try data.write(to: url, options: .atomic) } catch { return }
 
         #if os(iOS)

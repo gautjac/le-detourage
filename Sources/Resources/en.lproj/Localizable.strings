@@ -77,6 +77,10 @@
 
 /* Effects & die-cut */
 "style.effects" = "Effects";
+"cleanup.title" = "Clean up edges";
+"cleanup.feather" = "Feather";
+"cleanup.undo" = "Undo";
+"cleanup.reset" = "Reset";
 "style.title" = "Cutout style";
 "style.filter" = "Filter";
 "style.outline" = "Outline";
@@ -160,6 +164,8 @@
 "export.done" = "Exported";
 "export.collage" = "Collage exported";
 "export.sticker" = "Sticker exported";
+"export.animate" = "Animate";
+"export.gif" = "Export animated GIF";
 
 /* Misc */
 "common.cancel" = "Cancel";

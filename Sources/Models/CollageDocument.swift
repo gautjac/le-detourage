@@ -137,34 +137,7 @@ extension Collage {
 
     /// Replace the live collage's contents with a decoded document.
     func load(document: CollageDocument) {
-        var rebuilt: [PlacedSticker] = []
-        for e in document.elements {
-            if let sketchContent = e.sketch {
-                let s = PlacedSticker(id: e.id, sketch: sketchContent, position: e.position,
-                                      scale: e.scale, rotation: e.rotation,
-                                      flipped: e.flipped, shadow: e.shadow, z: e.z)
-                rebuilt.append(s)
-            } else if let embellishment = e.shape {
-                let s = PlacedSticker(id: e.id, shape: embellishment, position: e.position,
-                                      scale: e.scale, rotation: e.rotation,
-                                      flipped: e.flipped, shadow: e.shadow, z: e.z)
-                rebuilt.append(s)
-            } else if let content = e.text {
-                let s = PlacedSticker(id: e.id, text: content, position: e.position,
-                                      scale: e.scale, rotation: e.rotation,
-                                      flipped: e.flipped, shadow: e.shadow, z: e.z)
-                rebuilt.append(s)
-            } else if let data = e.pngData, let img = PlatformImage(data: data) {
-                let s = PlacedSticker(id: e.id, sourceID: e.sourceID, image: img,
-                                      position: e.position, scale: e.scale, rotation: e.rotation,
-                                      flipped: e.flipped, style: e.style,
-                                      filter: e.filter ?? .none,
-                                      outlineColorIndex: e.outlineColorIndex ?? 0,
-                                      shadow: e.shadow, z: e.z)
-                rebuilt.append(s)
-            }
-        }
-        stickers = rebuilt
+        stickers = document.elements.compactMap { makeSticker(from: $0) }
         background = document.background.background
         if case .photo = background, let data = document.backgroundImagePNG {
             backgroundImage = PlatformImage(data: data)

@@ -8,6 +8,8 @@ struct ExportSheet: View {
     @State private var transparent = false
     @State private var preview: PlatformImage?
     @State private var rendering = false
+    @State private var animateAmount: CGFloat = 0.7
+    @State private var makingGIF = false
 
     var body: some View {
         SheetScaffold(titleKey: "export.title") {
@@ -47,11 +49,33 @@ struct ExportSheet: View {
                 actions
                     .disabled(rendering || preview == nil)
 
+                animateSection
+
                 Spacer(minLength: 8)
             }
             .padding(.top, 8)
         } onDone: { dismiss() }
         .onAppear { regenerate() }
+    }
+
+    /// Turn the collage into a gently-wobbling looping GIF.
+    private var animateSection: some View {
+        VStack(spacing: 12) {
+            Divider().padding(.horizontal, 24)
+            HStack(spacing: 10) {
+                Image(systemName: "wand.and.rays").foregroundStyle(Theme.grape)
+                Text(loc: "export.animate").font(Theme.title(15)).foregroundStyle(Theme.ink)
+                Slider(value: $animateAmount, in: 0.2...1)
+                    .tint(Theme.grape)
+            }
+            .padding(.horizontal, 24)
+
+            PillButton(titleKey: "export.gif", systemImage: "sparkles", tint: Theme.grape) {
+                exportGIF()
+            }
+            .disabled(rendering || preview == nil || makingGIF)
+            .overlay { if makingGIF { ProgressView().controlSize(.small) } }
+        }
     }
 
     @ViewBuilder
@@ -96,5 +120,22 @@ struct ExportSheet: View {
 
     private func flatten() -> PlatformImage? {
         preview ?? CollageRenderer.render(session.collage, transparentBackground: transparent)
+    }
+
+    private func exportGIF() {
+        makingGIF = true
+        let t = transparent
+        let amount = animateAmount
+        // Render on the main actor (the collage is main-actor state); a yield lets
+        // the spinner paint before the frames are flattened.
+        Task { @MainActor in
+            await Task.yield()
+            let data = AnimatedExporter.makeGIF(for: session.collage, amount: amount,
+                                                transparentBackground: t)
+            makingGIF = false
+            guard let data else { return }
+            Exporter.shareFile(data, suggestedName: "collage-detourage", ext: "gif")
+            Haptics.success()
+        }
     }
 }

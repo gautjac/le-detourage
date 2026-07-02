@@ -228,6 +228,16 @@ final class PlacedSticker: Identifiable {
         set { if let value = newValue { kind = .text(value) } }
     }
 
+    /// Replace a cutout's pixels (e.g. after edge cleanup), keeping its
+    /// transform. Same pixel dimensions are expected, so the aspect is unchanged.
+    func replaceCutout(_ image: PlatformImage) {
+        guard case .cutout = kind else { return }
+        kind = .cutout(image)
+        cachedCutoutPNG = nil
+        styledKeyCache = nil
+        styledCache = nil
+    }
+
     /// The styled render of a cutout (filtered subject + die-cut outline),
     /// computed on demand and cached until the style inputs change. Nil for text.
     var styled: StyledCutout? {
@@ -343,6 +353,42 @@ final class Collage {
 
     func remove(_ sticker: PlacedSticker) {
         stickers.removeAll { $0.id == sticker.id }
+    }
+
+    /// Rebuild a placed element from a decoded DTO (keeps its own z).
+    func makeSticker(from e: ElementDTO) -> PlacedSticker? {
+        if let sketchContent = e.sketch {
+            return PlacedSticker(id: e.id, sketch: sketchContent, position: e.position,
+                                 scale: e.scale, rotation: e.rotation, flipped: e.flipped,
+                                 shadow: e.shadow, z: e.z)
+        }
+        if let embellishment = e.shape {
+            return PlacedSticker(id: e.id, shape: embellishment, position: e.position,
+                                 scale: e.scale, rotation: e.rotation, flipped: e.flipped,
+                                 shadow: e.shadow, z: e.z)
+        }
+        if let content = e.text {
+            return PlacedSticker(id: e.id, text: content, position: e.position,
+                                 scale: e.scale, rotation: e.rotation, flipped: e.flipped,
+                                 shadow: e.shadow, z: e.z)
+        }
+        if let data = e.pngData, let img = PlatformImage(data: data) {
+            return PlacedSticker(id: e.id, sourceID: e.sourceID, image: img,
+                                 position: e.position, scale: e.scale, rotation: e.rotation,
+                                 flipped: e.flipped, style: e.style, filter: e.filter ?? .none,
+                                 outlineColorIndex: e.outlineColorIndex ?? 0, shadow: e.shadow, z: e.z)
+        }
+        return nil
+    }
+
+    /// Add a single element from a DTO on top of the stack (used by paste).
+    @discardableResult
+    func addElement(from e: ElementDTO) -> PlacedSticker? {
+        guard let s = makeSticker(from: e) else { return nil }
+        s.z = nextZ
+        nextZ += 1
+        stickers.append(s)
+        return s
     }
 
     @discardableResult

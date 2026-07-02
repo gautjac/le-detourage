@@ -35,6 +35,16 @@ struct StickerInspector: View {
                 Divider().frame(height: 22)
             case .cutout:
                 pillButton("wand.and.stars", "style.effects") { session.editStyle(sticker) }
+                Button {
+                    Haptics.tap(); session.cleanUp(sticker)
+                } label: {
+                    Image(systemName: "eraser")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 34, height: 34)
+                        .background(Circle().fill(Theme.teal))
+                }
+                .buttonStyle(.plain)
                 Divider().frame(height: 22)
             case .shape(let emblem):
                 shapeColorStrip(emblem)
