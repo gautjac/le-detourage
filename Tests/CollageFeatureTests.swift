@@ -463,6 +463,16 @@ final class CollageFeatureTests: XCTestCase {
         XCTAssertTrue(r.guides.isEmpty)
     }
 
+    // MARK: Shared stickers (iMessage)
+
+    func testStickerPNGDownscales() {
+        let big = opaqueImage(1000, 1000).pngData!
+        let out = SharedStickers.stickerPNG(from: big, maxEdge: 256)!
+        XCTAssertEqual(Array(out.prefix(4)), [0x89, 0x50, 0x4E, 0x47])   // PNG header
+        let img = try! XCTUnwrap(PlatformImage(data: out))
+        XCTAssertLessThanOrEqual(img.pixelSize.width, 260)
+    }
+
     // MARK: Templates & themes
 
     func testGridLayoutSpreadsElements() {

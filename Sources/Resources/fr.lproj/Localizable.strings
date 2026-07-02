@@ -165,6 +165,7 @@
 "drawer.export" = "Enregistrer l'autocollant";
 "drawer.delete" = "Supprimer";
 "drawer.count" = "autocollants";
+"drawer.imessage" = "Tes découpes sont aussi des autocollants iMessage ✨";
 
 /* Fond */
 "bg.color" = "Couleur";

@@ -165,6 +165,7 @@
 "drawer.export" = "Save sticker";
 "drawer.delete" = "Delete";
 "drawer.count" = "stickers";
+"drawer.imessage" = "Your cutouts are iMessage stickers too ✨";
 
 /* Background */
 "bg.color" = "Color";

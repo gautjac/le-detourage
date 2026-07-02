@@ -18,6 +18,14 @@ struct DrawerView: View {
             header
             TornDivider().padding(.horizontal, 20).padding(.bottom, 8)
 
+            #if os(iOS)
+            if !stickers.isEmpty {
+                Text(loc: "drawer.imessage")
+                    .font(Theme.body(12)).foregroundStyle(Theme.inkFaint)
+                    .padding(.horizontal, 20).padding(.bottom, 6)
+            }
+            #endif
+
             if stickers.isEmpty {
                 emptyState
             } else {
@@ -34,6 +42,15 @@ struct DrawerView: View {
                 }
             }
         }
+        // Mirror the drawer to the shared container so the iMessage sticker
+        // extension shows the latest cutouts (a no-op on macOS).
+        .onAppear { syncSharedStickers() }
+        .onChange(of: stickers.map(\.id)) { _, _ in syncSharedStickers() }
+    }
+
+    private func syncSharedStickers() {
+        let items = stickers.map { (id: $0.id, data: $0.pngData) }
+        Task.detached { SharedStickers.sync(items) }
     }
 
     private var header: some View {
