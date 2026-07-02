@@ -160,6 +160,8 @@
 "export.done" = "Exported";
 "export.collage" = "Collage exported";
 "export.sticker" = "Sticker exported";
+"export.animate" = "Animate";
+"export.gif" = "Export animated GIF";
 
 /* Misc */
 "common.cancel" = "Cancel";

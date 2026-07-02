@@ -463,6 +463,37 @@ final class CollageFeatureTests: XCTestCase {
         XCTAssertTrue(r.guides.isEmpty)
     }
 
+    // MARK: Animated export
+
+    func testAnimatorLoopsSeamlessly() {
+        let a = CollageAnimator(amount: 1)
+        // t=0 and t=1 are the same point on the loop → identical transforms.
+        let f0 = a.transform(index: 2, t: 0)
+        let f1 = a.transform(index: 2, t: 1)
+        XCTAssertEqual(f0.dRot, f1.dRot, accuracy: 0.0001)
+        XCTAssertEqual(f0.scale, f1.scale, accuracy: 0.0001)
+    }
+
+    func testAnimatorAmountZeroIsIdentity() {
+        let a = CollageAnimator(amount: 0)
+        let f = a.transform(index: 1, t: 0.3)
+        XCTAssertEqual(f.dx, 0, accuracy: 0.0001)
+        XCTAssertEqual(f.dy, 0, accuracy: 0.0001)
+        XCTAssertEqual(f.dRot, 0, accuracy: 0.0001)
+        XCTAssertEqual(f.scale, 1, accuracy: 0.0001)
+    }
+
+    @MainActor
+    func testMakesAnimatedGIFData() {
+        let collage = Collage(); collage.canvasAspect = 1
+        collage.add(image: dummy())
+        collage.addText(TextContent(string: "Hi"))
+        let data = AnimatedExporter.makeGIF(for: collage, amount: 0.7, transparentBackground: false)
+        XCTAssertNotNil(data)
+        // GIF magic header.
+        XCTAssertEqual(Array(data!.prefix(3)), Array("GIF".utf8))
+    }
+
     // MARK: Multi-select / group ops
 
     func testGroupAlignCenterH() {
