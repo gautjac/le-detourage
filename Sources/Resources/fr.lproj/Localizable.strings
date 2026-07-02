@@ -9,6 +9,8 @@
 
 /* Atelier / import */
 "import.photo" = "Importer une photo";
+"import.photos" = "Depuis Photos…";
+"import.files" = "Depuis un fichier…";
 "import.sample" = "Photo d'exemple";
 "import.hint" = "Charge une photo, puis touche le sujet pour le découper.";
 "lift.title" = "Découpage";
