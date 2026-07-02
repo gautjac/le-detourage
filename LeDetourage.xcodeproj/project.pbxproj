@@ -29,10 +29,12 @@
 		4E7EE01A9BBDDDF3E68D3B02 /* SubjectLiftView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD05BF5480A62CE26E0CE9B2 /* SubjectLiftView.swift */; };
 		52617BF93563CF3CC9572B10 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 37439E5B534A9B6121D55A27 /* Localizable.strings */; };
 		56750BE3CCC789513D8E8A43 /* SubjectMasker.swift in Sources */ = {isa = PBXBuildFile; fileRef = D12F82B9B2514C36E1E3DA1A /* SubjectMasker.swift */; };
+		5CEC805AA1E0F0EAF32C3383 /* CutoutCleanup.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC7EC5D0E2AD6BEE5BEB4D34 /* CutoutCleanup.swift */; };
 		626163EB259D12FBB5DB093C /* AnimatedExporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CBB452CF89953A1EF3A0AC0D /* AnimatedExporter.swift */; };
 		6F1D3C3BA2F3EC2E69DCE334 /* LeDetourageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA3CB268535A6D8F469F86A8 /* LeDetourageTests.swift */; };
 		7495738D613B1D5D8228D314 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85ED9FE1EF95A998ABB79549 /* RootView.swift */; };
 		7C9491DB541A33F9500D9831 /* SavedCollage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45A0CE1CE1E18159838F6522 /* SavedCollage.swift */; };
+		7F21BF40B89B37760D980DFB /* CleanupSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 587173247A8DA97FC16D4775 /* CleanupSheet.swift */; };
 		8B47906B390A5877AFB49BAD /* GallerySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1F0938F90E5ECF9FA957A6 /* GallerySheet.swift */; };
 		8C22E3095F1D887F2E599E38 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034A9E3CEF3E980D95F80738 /* Session.swift */; };
 		922CB810FE4EC4C63458E84C /* LeDetourageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF432E8DFDC59AF5421A4EB /* LeDetourageApp.swift */; };
@@ -83,6 +85,7 @@
 		4712F554C09812BBFFB87AE7 /* CutoutStyleSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutoutStyleSheet.swift; sourceTree = "<group>"; };
 		4E9BACE1E2FCC7FBCC5269D2 /* GroupInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupInspector.swift; sourceTree = "<group>"; };
 		53BD4E952DB33D85AD160CB7 /* CollageCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageCanvasView.swift; sourceTree = "<group>"; };
+		587173247A8DA97FC16D4775 /* CleanupSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CleanupSheet.swift; sourceTree = "<group>"; };
 		65D37F04326A2446DB1D5A28 /* CollageHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageHistory.swift; sourceTree = "<group>"; };
 		67A7EC18E06D341F03E0596E /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
 		69F5C681523A7C13F7714993 /* StickerInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StickerInspector.swift; sourceTree = "<group>"; };
@@ -102,6 +105,7 @@
 		AC8D4464E4F065B8F4F2CB8A /* CutoutStage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutoutStage.swift; sourceTree = "<group>"; };
 		AD95EB9F9134F232C472E768 /* EmbellishmentPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbellishmentPicker.swift; sourceTree = "<group>"; };
 		B74BB6FED8617EAE3FB8F0C1 /* AtelierView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AtelierView.swift; sourceTree = "<group>"; };
+		BC7EC5D0E2AD6BEE5BEB4D34 /* CutoutCleanup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutoutCleanup.swift; sourceTree = "<group>"; };
 		BD05BF5480A62CE26E0CE9B2 /* SubjectLiftView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectLiftView.swift; sourceTree = "<group>"; };
 		BD15D70F9936423CB061D184 /* CollageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageStore.swift; sourceTree = "<group>"; };
 		C7BFFF22DCDF89F324B193C0 /* CollageRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageRenderer.swift; sourceTree = "<group>"; };
@@ -155,6 +159,7 @@
 				B74BB6FED8617EAE3FB8F0C1 /* AtelierView.swift */,
 				90957FE1DDE6AD46149E44E5 /* BackgroundPickerSheet.swift */,
 				2F271045A054629F0B6603CC /* CanvasFormatSheet.swift */,
+				587173247A8DA97FC16D4775 /* CleanupSheet.swift */,
 				53BD4E952DB33D85AD160CB7 /* CollageCanvasView.swift */,
 				D0F3CB5ECD0D7CF7021CA2F8 /* Components.swift */,
 				AC8D4464E4F065B8F4F2CB8A /* CutoutStage.swift */,
@@ -248,6 +253,7 @@
 				CBB452CF89953A1EF3A0AC0D /* AnimatedExporter.swift */,
 				C7BFFF22DCDF89F324B193C0 /* CollageRenderer.swift */,
 				BD15D70F9936423CB061D184 /* CollageStore.swift */,
+				BC7EC5D0E2AD6BEE5BEB4D34 /* CutoutCleanup.swift */,
 				3817163ED80607A0B1DA809D /* CutoutStyler.swift */,
 				1A27AB488667FD626B8AA6DC /* Exporter.swift */,
 				A9D0C9FBABF1D027A3FC7AD0 /* SampleImage.swift */,
@@ -366,6 +372,7 @@
 				42B786E28B2D00D70E1EBCA9 /* BackgroundPickerSheet.swift in Sources */,
 				0DFAE3744A294A63F24DC011 /* Brush.swift in Sources */,
 				F9E9A4C8CFC3A55091C44CD3 /* CanvasFormatSheet.swift in Sources */,
+				7F21BF40B89B37760D980DFB /* CleanupSheet.swift in Sources */,
 				05309191E74DFE30900C543C /* Collage.swift in Sources */,
 				AE30552F9206C7B2829E1AD3 /* CollageCanvasView.swift in Sources */,
 				D1BDA781E45748BFD900EFF0 /* CollageDocument.swift in Sources */,
@@ -374,6 +381,7 @@
 				B8AB2825B72ACB230581DF35 /* CollageStore.swift in Sources */,
 				16967CB2B1AED00B9EAFAC04 /* Components.swift in Sources */,
 				A9684436D68C9CD8047097BB /* CrossPlatform.swift in Sources */,
+				5CEC805AA1E0F0EAF32C3383 /* CutoutCleanup.swift in Sources */,
 				34356D355D58A1F87FFBCED5 /* CutoutStage.swift in Sources */,
 				32949D9D47B9DA2080C0E66C /* CutoutStyleSheet.swift in Sources */,
 				E3219DBB06FB1D67E6274ED0 /* CutoutStyler.swift in Sources */,

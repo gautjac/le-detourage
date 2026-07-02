@@ -77,6 +77,10 @@
 
 /* Effets et découpe */
 "style.effects" = "Effets";
+"cleanup.title" = "Nettoyer les bords";
+"cleanup.feather" = "Adoucir";
+"cleanup.undo" = "Annuler";
+"cleanup.reset" = "Réinitialiser";
 "style.title" = "Style du découpage";
 "style.filter" = "Filtre";
 "style.outline" = "Contour";

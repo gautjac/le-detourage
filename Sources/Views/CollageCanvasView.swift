@@ -44,6 +44,9 @@ struct CollageCanvasView: View {
         .sheet(item: Bindable(session).editingStyle) { sticker in
             CutoutStyleSheet(sticker: sticker).environment(session)
         }
+        .sheet(item: Bindable(session).cleaningCutout) { sticker in
+            CleanupSheet(sticker: sticker).environment(session)
+        }
         .confirmationDialog(L.t("canvas.clear.confirm"), isPresented: $confirmClear, titleVisibility: .visible) {
             Button(L.t("canvas.clear"), role: .destructive) {
                 session.checkpoint()

@@ -228,6 +228,16 @@ final class PlacedSticker: Identifiable {
         set { if let value = newValue { kind = .text(value) } }
     }
 
+    /// Replace a cutout's pixels (e.g. after edge cleanup), keeping its
+    /// transform. Same pixel dimensions are expected, so the aspect is unchanged.
+    func replaceCutout(_ image: PlatformImage) {
+        guard case .cutout = kind else { return }
+        kind = .cutout(image)
+        cachedCutoutPNG = nil
+        styledKeyCache = nil
+        styledCache = nil
+    }
+
     /// The styled render of a cutout (filtered subject + die-cut outline),
     /// computed on demand and cached until the style inputs change. Nil for text.
     var styled: StyledCutout? {

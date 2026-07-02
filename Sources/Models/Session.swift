@@ -71,6 +71,9 @@ final class Session {
     /// The cutout currently being styled (drives the filter/outline sheet).
     var editingStyle: PlacedSticker?
 
+    /// The cutout currently being cleaned up (drives the erase/feather sheet).
+    var cleaningCutout: PlacedSticker?
+
     /// Whether the freehand doodle editor is active.
     var isDrawing = false
 
@@ -304,6 +307,23 @@ final class Session {
     func finishEditingStyle(cancelled: Bool) {
         defer { editingStyle = nil }
         if cancelled { history.discardLast() }
+        scheduleAutosave()
+    }
+
+    /// Open the edge-cleanup editor for a cutout (checkpoint-before so the whole
+    /// cleanup is one undo step).
+    func cleanUp(_ sticker: PlacedSticker) {
+        guard sticker.image != nil else { return }
+        checkpoint()
+        selection = sticker
+        cleaningCutout = sticker
+    }
+
+    /// Finish cleanup: apply the cleaned image, or drop the checkpoint on cancel.
+    func finishCleanup(_ sticker: PlacedSticker, image: PlatformImage?) {
+        defer { cleaningCutout = nil }
+        if let image { sticker.replaceCutout(image) }
+        else { history.discardLast() }   // cancelled — no change
         scheduleAutosave()
     }
 

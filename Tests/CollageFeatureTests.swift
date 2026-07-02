@@ -463,6 +463,54 @@ final class CollageFeatureTests: XCTestCase {
         XCTAssertTrue(r.guides.isEmpty)
     }
 
+    // MARK: Cutout cleanup
+
+    private func opaqueImage(_ w: Int, _ h: Int) -> PlatformImage {
+        let space = CGColorSpaceCreateDeviceRGB()
+        let ctx = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8,
+                            bytesPerRow: w * 4, space: space,
+                            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        ctx.setFillColor(CGColor(red: 0, green: 0.5, blue: 1, alpha: 1))
+        ctx.fill(CGRect(x: 0, y: 0, width: w, height: h))
+        return PlatformImage.from(cgImage: ctx.makeImage()!)
+    }
+
+    private func transparentPixelCount(_ image: PlatformImage) -> Int {
+        let cg = image.cgImageNormalized!
+        let w = cg.width, h = cg.height
+        var px = [UInt8](repeating: 0, count: w * h * 4)
+        let space = CGColorSpaceCreateDeviceRGB()
+        let ctx = CGContext(data: &px, width: w, height: h, bitsPerComponent: 8,
+                            bytesPerRow: w * 4, space: space,
+                            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        ctx.draw(cg, in: CGRect(x: 0, y: 0, width: w, height: h))
+        return stride(from: 3, to: px.count, by: 4).reduce(0) { px[$1] < 10 ? $0 + 1 : $0 }
+    }
+
+    func testEraseClearsSomePixels() {
+        let img = opaqueImage(100, 100)
+        XCTAssertEqual(transparentPixelCount(img), 0)
+        let erased = CutoutCleanup.erase(img, points: [CGPoint(x: 50, y: 50)], radiusPx: 14)!
+        XCTAssertEqual(erased.pixelSize.width, 100, accuracy: 1)
+        let cleared = transparentPixelCount(erased)
+        XCTAssertGreaterThan(cleared, 0)           // erased a hole
+        XCTAssertLessThan(cleared, 100 * 100)      // but not everything
+    }
+
+    func testFeatherKeepsSize() {
+        let f = CutoutCleanup.feather(opaqueImage(80, 60))!
+        XCTAssertEqual(f.pixelSize.width, 80, accuracy: 1)
+        XCTAssertEqual(f.pixelSize.height, 60, accuracy: 1)
+    }
+
+    func testReplaceCutoutSwapsImage() {
+        let sticker = PlacedSticker(image: opaqueImage(50, 50), style: .thick)
+        let newImage = opaqueImage(50, 50)
+        sticker.replaceCutout(newImage)
+        XCTAssertTrue(sticker.image === newImage)
+        XCTAssertNotNil(sticker.styled?.outline)   // still a styled cutout after swap
+    }
+
     // MARK: Animated export
 
     func testAnimatorLoopsSeamlessly() {
