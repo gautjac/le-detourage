@@ -152,8 +152,24 @@
 /* Background */
 "bg.color" = "Color";
 "bg.gradient" = "Gradient";
+"bg.pattern" = "Pattern";
+"bg.finish" = "Finish";
 "bg.photo" = "Photo";
 "bg.transparent" = "Transparent";
+
+/* Patterns */
+"pattern.dots" = "Dots";
+"pattern.grid" = "Grid";
+"pattern.stripes" = "Stripes";
+"pattern.checker" = "Checker";
+"pattern.confetti" = "Confetti";
+
+/* Finish */
+"finish.none" = "None";
+"finish.grain" = "Grain";
+"finish.vignette" = "Vignette";
+"finish.lightLeak" = "Light leak";
+"finish.paper" = "Paper";
 
 /* Export */
 "export.title" = "Export";

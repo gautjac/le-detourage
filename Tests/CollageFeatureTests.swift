@@ -463,6 +463,35 @@ final class CollageFeatureTests: XCTestCase {
         XCTAssertTrue(r.guides.isEmpty)
     }
 
+    // MARK: Patterns & finish overlays
+
+    func testEveryPatternRenders() {
+        for style in PatternStyle.allCases {
+            XCTAssertNotNil(style.image(size: CGSize(width: 200, height: 150),
+                                        base: .white, accent: .red), "\(style)")
+        }
+    }
+
+    func testFinishOverlaysRender() {
+        for f in FinishOverlay.allCases where f != .none {
+            XCTAssertNotNil(f.image(size: CGSize(width: 200, height: 150)), "\(f)")
+        }
+        XCTAssertNil(FinishOverlay.none.image(size: CGSize(width: 100, height: 100)))
+    }
+
+    func testPatternAndFinishRoundTripThroughDocument() throws {
+        let c = Collage()
+        c.background = .pattern(.confetti, Theme.page, Theme.coral)
+        c.finish = .vignette
+        c.add(image: dummy())
+        let c2 = Collage()
+        c2.load(document: try JSONDecoder().decode(CollageDocument.self,
+                                                   from: try JSONEncoder().encode(c.document)))
+        if case .pattern(let s, _, _) = c2.background { XCTAssertEqual(s, .confetti) }
+        else { XCTFail("pattern not restored") }
+        XCTAssertEqual(c2.finish, .vignette)
+    }
+
     // MARK: Cutout cleanup
 
     private func opaqueImage(_ w: Int, _ h: Int) -> PlatformImage {

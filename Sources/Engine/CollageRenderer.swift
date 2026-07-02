@@ -62,6 +62,19 @@ enum CollageRenderer {
             drawSticker(sticker, in: ctx, canvas: canvas, transform: transformProvider?(i))
         }
 
+        // Finishing pass over everything (grain / vignette / light-leak / paper),
+        // skipped for a transparent (stickers-only) export.
+        if !transparentBackground,
+           let overlay = collage.finish.image(size: canvas)?.cgImageNormalized {
+            ctx.saveGState()
+            ctx.setBlendMode(collage.finish.blend.cg)
+            ctx.setAlpha(collage.finish.opacity)
+            ctx.translateBy(x: 0, y: canvas.height)
+            ctx.scaleBy(x: 1, y: -1)
+            ctx.draw(overlay, in: CGRect(origin: .zero, size: canvas))
+            ctx.restoreGState()
+        }
+
         guard let cg = ctx.makeImage() else { return nil }
         return PlatformImage.from(cgImage: cg)
     }
@@ -84,6 +97,16 @@ enum CollageRenderer {
                 ctx.drawLinearGradient(grad, start: CGPoint(x: 0, y: canvas.height),
                                        end: CGPoint(x: canvas.width, y: 0), options: [])
                 ctx.restoreGState()
+            }
+        case .pattern(let style, let base, let accent):
+            if let cg = style.image(size: canvas, base: base, accent: accent)?.cgImageNormalized {
+                ctx.saveGState()
+                ctx.translateBy(x: 0, y: canvas.height)
+                ctx.scaleBy(x: 1, y: -1)
+                ctx.draw(cg, in: rect)
+                ctx.restoreGState()
+            } else {
+                ctx.setFillColor(base.cg); ctx.fill(rect)
             }
         case .photo:
             if let img = image, let cg = img.cgImageNormalized {

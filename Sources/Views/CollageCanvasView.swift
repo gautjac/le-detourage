@@ -183,6 +183,12 @@ struct CollageCanvasView: View {
                         .environment(session)
                 }
 
+                // Finishing pass over the whole page.
+                if session.collage.finish != .none {
+                    FinishOverlayView(finish: session.collage.finish, pageSize: pageSize)
+                        .allowsHitTesting(false)
+                }
+
                 if !session.collage.hasContent {
                     emptyOverlay
                 }
@@ -261,6 +267,8 @@ struct CollageCanvasView: View {
             c
         case .gradient(let a, let b):
             LinearGradient(colors: [a, b], startPoint: .topLeading, endPoint: .bottomTrailing)
+        case .pattern(let style, let base, let accent):
+            PatternBackgroundView(style: style, base: base, accent: accent, size: size)
         case .transparent:
             CheckerboardBackground()
         case .photo:
@@ -335,6 +343,63 @@ struct CanvasKeyCommands: ViewModifier {
         #else
         content
         #endif
+    }
+}
+
+/// A patterned background, generated to an image (cached) and shown on the page.
+struct PatternBackgroundView: View {
+    let style: PatternStyle
+    let base: Color
+    let accent: Color
+    let size: CGSize
+    @State private var image: PlatformImage?
+
+    var body: some View {
+        Group {
+            if let image {
+                Image(platform: image).resizable().scaledToFill()
+                    .frame(width: size.width, height: size.height).clipped()
+            } else {
+                base
+            }
+        }
+        .onAppear(perform: render)
+        .onChange(of: size) { _, _ in render() }
+        .onChange(of: style) { _, _ in render() }
+        .onChange(of: base) { _, _ in render() }
+        .onChange(of: accent) { _, _ in render() }
+    }
+
+    private func render() {
+        let target = CGSize(width: size.width * 2, height: size.height * 2)
+        image = style.image(size: target, base: base, accent: accent)
+    }
+}
+
+/// The finishing pass (grain / vignette / light-leak / paper), generated to an
+/// image (cached) and composited over the page with its blend + opacity.
+struct FinishOverlayView: View {
+    let finish: FinishOverlay
+    let pageSize: CGSize
+    @State private var image: PlatformImage?
+
+    var body: some View {
+        Group {
+            if let image {
+                Image(platform: image).resizable()
+                    .frame(width: pageSize.width, height: pageSize.height)
+                    .blendMode(finish.blend.swiftUI)
+                    .opacity(finish.opacity)
+            }
+        }
+        .onAppear(perform: render)
+        .onChange(of: finish) { _, _ in render() }
+        .onChange(of: pageSize) { _, _ in render() }
+    }
+
+    private func render() {
+        let target = CGSize(width: pageSize.width * 2, height: pageSize.height * 2)
+        image = finish.image(size: target)
     }
 }
 

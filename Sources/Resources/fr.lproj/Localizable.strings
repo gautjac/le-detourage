@@ -152,8 +152,24 @@
 /* Fond */
 "bg.color" = "Couleur";
 "bg.gradient" = "Dégradé";
+"bg.pattern" = "Motif";
+"bg.finish" = "Finition";
 "bg.photo" = "Photo";
 "bg.transparent" = "Transparent";
+
+/* Motifs */
+"pattern.dots" = "Pois";
+"pattern.grid" = "Grille";
+"pattern.stripes" = "Rayures";
+"pattern.checker" = "Damier";
+"pattern.confetti" = "Confettis";
+
+/* Finition */
+"finish.none" = "Aucune";
+"finish.grain" = "Grain";
+"finish.vignette" = "Vignette";
+"finish.lightLeak" = "Fuite de lumière";
+"finish.paper" = "Papier";
 
 /* Export */
 "export.title" = "Exporter";

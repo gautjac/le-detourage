@@ -40,6 +40,7 @@ enum ElementKind {
 enum CollageBackground: Equatable {
     case color(Color)
     case gradient(Color, Color)
+    case pattern(PatternStyle, Color, Color)   // style, base, accent
     case photo               // uses `Collage.backgroundImage`
     case transparent
 
@@ -299,6 +300,8 @@ final class Collage {
     var canvasAspect: CGFloat = 1.0
     /// The animation style used by the GIF/MP4 "living collage" export.
     var motion: MotionStyle = .wobble
+    /// A finishing pass (grain / vignette / light-leak / paper) over everything.
+    var finish: FinishOverlay = .none
 
     @ObservationIgnored private var nextZ: Int = 0
 
@@ -476,6 +479,7 @@ final class Collage {
             backgroundImage: backgroundImage,
             canvasAspect: canvasAspect,
             motion: motion,
+            finish: finish,
             nextZ: nextZ)
     }
 
@@ -509,6 +513,7 @@ final class Collage {
         backgroundImage = snapshot.backgroundImage
         canvasAspect = snapshot.canvasAspect
         motion = snapshot.motion
+        finish = snapshot.finish
         nextZ = snapshot.nextZ
     }
 }
