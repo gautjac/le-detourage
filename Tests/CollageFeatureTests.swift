@@ -463,6 +463,65 @@ final class CollageFeatureTests: XCTestCase {
         XCTAssertTrue(r.guides.isEmpty)
     }
 
+    // MARK: Multi-select / group ops
+
+    func testGroupAlignCenterH() {
+        let c = Collage(); c.canvasAspect = 1
+        let a = c.add(image: dummy()); a.position = CGPoint(x: 0.2, y: 0.5)
+        let b = c.add(image: dummy()); b.position = CGPoint(x: 0.8, y: 0.5)
+        c.align([a.id, b.id], .centerH)
+        XCTAssertEqual(a.position.x, b.position.x, accuracy: 0.0001)
+    }
+
+    func testGroupScaleAroundCentroid() {
+        let c = Collage(); c.canvasAspect = 1
+        let a = c.add(image: dummy()); a.position = CGPoint(x: 0.4, y: 0.5); a.scale = 1
+        let b = c.add(image: dummy()); b.position = CGPoint(x: 0.6, y: 0.5); b.scale = 1
+        c.scaleSelected([a.id, b.id], by: 2)
+        XCTAssertEqual(a.position.x, 0.3, accuracy: 0.0001)   // centroid 0.5, doubled offset
+        XCTAssertEqual(b.position.x, 0.7, accuracy: 0.0001)
+        XCTAssertEqual(a.scale, 2, accuracy: 0.0001)
+    }
+
+    func testDuplicateSelectedReturnsFreshIDs() {
+        let c = Collage()
+        let a = c.add(image: dummy()); let b = c.add(image: dummy())
+        let copies = c.duplicateSelected([a.id, b.id])
+        XCTAssertEqual(copies.count, 2)
+        XCTAssertEqual(c.stickers.count, 4)
+        XCTAssertFalse(copies.contains(a.id))
+    }
+
+    func testRemoveSelected() {
+        let c = Collage()
+        let a = c.add(image: dummy()); let b = c.add(image: dummy()); c.add(image: dummy())
+        c.removeSelected([a.id, b.id])
+        XCTAssertEqual(c.stickers.count, 1)
+    }
+
+    func testAddElementFromDTO() {
+        let c = Collage()
+        let a = c.add(image: dummy()); a.filter = .noir
+        let dto = c.document.elements.first!
+        let c2 = Collage()
+        let added = c2.addElement(from: dto)
+        XCTAssertNotNil(added)
+        XCTAssertEqual(c2.stickers.count, 1)
+        XCTAssertEqual(added?.filter, .noir)
+    }
+
+    @MainActor
+    func testSelectionSetterSyncsWithSet() {
+        let session = Session()
+        let a = session.collage.add(image: dummy())
+        session.selection = a
+        XCTAssertEqual(session.selectedIDs, [a.id])
+        XCTAssertEqual(session.selection?.id, a.id)
+        session.selectedIDs = [a.id, UUID()]
+        XCTAssertNil(session.selection)      // multiple selected → no single selection
+        XCTAssertTrue(session.isMultiSelect)
+    }
+
     // MARK: Canvas formats
 
     func testCanvasFormatMatching() {

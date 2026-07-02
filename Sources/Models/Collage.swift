@@ -345,6 +345,42 @@ final class Collage {
         stickers.removeAll { $0.id == sticker.id }
     }
 
+    /// Rebuild a placed element from a decoded DTO (keeps its own z).
+    func makeSticker(from e: ElementDTO) -> PlacedSticker? {
+        if let sketchContent = e.sketch {
+            return PlacedSticker(id: e.id, sketch: sketchContent, position: e.position,
+                                 scale: e.scale, rotation: e.rotation, flipped: e.flipped,
+                                 shadow: e.shadow, z: e.z)
+        }
+        if let embellishment = e.shape {
+            return PlacedSticker(id: e.id, shape: embellishment, position: e.position,
+                                 scale: e.scale, rotation: e.rotation, flipped: e.flipped,
+                                 shadow: e.shadow, z: e.z)
+        }
+        if let content = e.text {
+            return PlacedSticker(id: e.id, text: content, position: e.position,
+                                 scale: e.scale, rotation: e.rotation, flipped: e.flipped,
+                                 shadow: e.shadow, z: e.z)
+        }
+        if let data = e.pngData, let img = PlatformImage(data: data) {
+            return PlacedSticker(id: e.id, sourceID: e.sourceID, image: img,
+                                 position: e.position, scale: e.scale, rotation: e.rotation,
+                                 flipped: e.flipped, style: e.style, filter: e.filter ?? .none,
+                                 outlineColorIndex: e.outlineColorIndex ?? 0, shadow: e.shadow, z: e.z)
+        }
+        return nil
+    }
+
+    /// Add a single element from a DTO on top of the stack (used by paste).
+    @discardableResult
+    func addElement(from e: ElementDTO) -> PlacedSticker? {
+        guard let s = makeSticker(from: e) else { return nil }
+        s.z = nextZ
+        nextZ += 1
+        stickers.append(s)
+        return s
+    }
+
     @discardableResult
     func duplicate(_ sticker: PlacedSticker) -> PlacedSticker {
         let copy: PlacedSticker

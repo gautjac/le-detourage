@@ -35,6 +35,8 @@
 		8B47906B390A5877AFB49BAD /* GallerySheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC1F0938F90E5ECF9FA957A6 /* GallerySheet.swift */; };
 		8C22E3095F1D887F2E599E38 /* Session.swift in Sources */ = {isa = PBXBuildFile; fileRef = 034A9E3CEF3E980D95F80738 /* Session.swift */; };
 		922CB810FE4EC4C63458E84C /* LeDetourageApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCF432E8DFDC59AF5421A4EB /* LeDetourageApp.swift */; };
+		99C24E9F2ECA1138EBA20521 /* GroupInspector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E9BACE1E2FCC7FBCC5269D2 /* GroupInspector.swift */; };
+		9FB99CA1855A44570F825BCD /* GroupOps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0729FF8674A57C6DC2594FA1 /* GroupOps.swift */; };
 		A8C6341E129A200E909867C3 /* Snapping.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1724442F900083E95443461 /* Snapping.swift */; };
 		A9684436D68C9CD8047097BB /* CrossPlatform.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3F3088EDF7D2000FF4803A /* CrossPlatform.swift */; };
 		AE30552F9206C7B2829E1AD3 /* CollageCanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BD4E952DB33D85AD160CB7 /* CollageCanvasView.swift */; };
@@ -64,6 +66,7 @@
 
 /* Begin PBXFileReference section */
 		034A9E3CEF3E980D95F80738 /* Session.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Session.swift; sourceTree = "<group>"; };
+		0729FF8674A57C6DC2594FA1 /* GroupOps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupOps.swift; sourceTree = "<group>"; };
 		0A2D1AD4C9FFF4554222593D /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		107C61804F5EF5153C6CC0D4 /* Collage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collage.swift; sourceTree = "<group>"; };
 		109FCF50B2EDA6DAD635F196 /* DrawerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrawerView.swift; sourceTree = "<group>"; };
@@ -77,6 +80,7 @@
 		3817163ED80607A0B1DA809D /* CutoutStyler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutoutStyler.swift; sourceTree = "<group>"; };
 		45A0CE1CE1E18159838F6522 /* SavedCollage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedCollage.swift; sourceTree = "<group>"; };
 		4712F554C09812BBFFB87AE7 /* CutoutStyleSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CutoutStyleSheet.swift; sourceTree = "<group>"; };
+		4E9BACE1E2FCC7FBCC5269D2 /* GroupInspector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupInspector.swift; sourceTree = "<group>"; };
 		53BD4E952DB33D85AD160CB7 /* CollageCanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageCanvasView.swift; sourceTree = "<group>"; };
 		65D37F04326A2446DB1D5A28 /* CollageHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollageHistory.swift; sourceTree = "<group>"; };
 		67A7EC18E06D341F03E0596E /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
@@ -158,6 +162,7 @@
 				AD95EB9F9134F232C472E768 /* EmbellishmentPicker.swift */,
 				F3760CDDDE0DAE85611DBC7F /* ExportSheet.swift */,
 				AC1F0938F90E5ECF9FA957A6 /* GallerySheet.swift */,
+				4E9BACE1E2FCC7FBCC5269D2 /* GroupInspector.swift */,
 				85ED9FE1EF95A998ABB79549 /* RootView.swift */,
 				69F5C681523A7C13F7714993 /* StickerInspector.swift */,
 				22FA4CE9F1B701F23EEB2096 /* StickerLayer.swift */,
@@ -214,6 +219,7 @@
 				7BECD975AA70627F87AD9124 /* CollageDocument.swift */,
 				65D37F04326A2446DB1D5A28 /* CollageHistory.swift */,
 				E2FFCDD1F25ABA118B5102CC /* Embellishment.swift */,
+				0729FF8674A57C6DC2594FA1 /* GroupOps.swift */,
 				27F16EBF7B464B0451BD9A2E /* Loc.swift */,
 				45A0CE1CE1E18159838F6522 /* SavedCollage.swift */,
 				034A9E3CEF3E980D95F80738 /* Session.swift */,
@@ -374,6 +380,8 @@
 				11D7B7A1F43EA35AEC5F890C /* ExportSheet.swift in Sources */,
 				0256327EDDF86B50623B3B8A /* Exporter.swift in Sources */,
 				8B47906B390A5877AFB49BAD /* GallerySheet.swift in Sources */,
+				99C24E9F2ECA1138EBA20521 /* GroupInspector.swift in Sources */,
+				9FB99CA1855A44570F825BCD /* GroupOps.swift in Sources */,
 				922CB810FE4EC4C63458E84C /* LeDetourageApp.swift in Sources */,
 				C2D240510B4620FC6F28EC45 /* Loc.swift in Sources */,
 				7495738D613B1D5D8228D314 /* RootView.swift in Sources */,

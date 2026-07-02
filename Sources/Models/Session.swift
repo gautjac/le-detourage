@@ -14,8 +14,31 @@ final class Session {
     /// The photo loaded into the cutout stage (nil until one is imported).
     var stageImage: PlatformImage?
 
-    /// The currently selected placed element on the canvas (for the inspector).
-    var selection: PlacedSticker?
+    /// The set of selected elements' ids (the source of truth for selection).
+    var selectedIDs: Set<UUID> = []
+
+    /// The single selected element (for the per-element inspector), or nil when
+    /// nothing or multiple things are selected. Setting it replaces the whole
+    /// selection — so existing single-select call sites keep working.
+    var selection: PlacedSticker? {
+        get {
+            guard selectedIDs.count == 1, let id = selectedIDs.first else { return nil }
+            return collage.stickers.first { $0.id == id }
+        }
+        set { selectedIDs = newValue.map { [$0.id] } ?? [] }
+    }
+
+    /// The selected elements, back-to-front.
+    var selectedStickers: [PlacedSticker] { collage.selected(selectedIDs) }
+    var isMultiSelect: Bool { selectedIDs.count > 1 }
+
+    /// Live group-drag translation (page points) while multiple elements move
+    /// together, and whether such a drag is active.
+    var groupDrag: CGSize = .zero
+    var groupDragging = false
+
+    /// Copied elements' documents, for macOS copy/paste.
+    var clipboard: [ElementDTO] = []
 
     /// A cut-out currently in flight (drives spinners / disables controls).
     var isLifting = false
@@ -104,13 +127,85 @@ final class Session {
     }
 
     private func apply(_ snapshot: CollageSnapshot) {
-        let selectedID = selection?.id
+        let ids = selectedIDs
         collage.restore(snapshot)
-        // Re-map the selection onto the freshly-rebuilt element instances.
-        selection = selectedID.flatMap { id in collage.stickers.first { $0.id == id } }
+        // Keep whichever selected ids still exist after the restore.
+        selectedIDs = ids.intersection(Set(collage.stickers.map(\.id)))
         editingText = nil
         scheduleAutosave()
         Haptics.tap()
+    }
+
+    // MARK: Multi-selection
+
+    func toggleSelection(_ sticker: PlacedSticker) {
+        if selectedIDs.contains(sticker.id) { selectedIDs.remove(sticker.id) }
+        else { selectedIDs.insert(sticker.id) }
+        Haptics.tap()
+    }
+
+    func deselectAll() { selectedIDs = [] }
+    func setSelection(_ ids: Set<UUID>) { selectedIDs = ids }
+
+    // Group edits — each a single undo step.
+    func align(_ edge: AlignEdge) { checkpoint(); collage.align(selectedIDs, edge); Haptics.tap() }
+    func groupScale(_ factor: CGFloat) { checkpoint(); collage.scaleSelected(selectedIDs, by: factor) }
+    func groupRotate(_ delta: CGFloat) { checkpoint(); collage.rotateSelected(selectedIDs, by: delta) }
+    func groupBringToFront() { checkpoint(); collage.bringSelectedToFront(selectedIDs) }
+    func groupSendToBack() { checkpoint(); collage.sendSelectedToBack(selectedIDs) }
+
+    func duplicateSelection() {
+        checkpoint()
+        selectedIDs = collage.duplicateSelected(selectedIDs)
+        Haptics.success()
+    }
+
+    func deleteSelection() {
+        checkpoint()
+        collage.removeSelected(selectedIDs)
+        selectedIDs = []
+    }
+
+    /// Commit a finished group drag (page-space translation) into the elements.
+    func commitGroupDrag(_ translation: CGSize, canvas: CGSize) {
+        checkpoint()
+        for s in collage.selected(selectedIDs) {
+            let c = s.center(in: canvas)
+            let nc = CGPoint(x: c.x + translation.width, y: c.y + translation.height)
+            s.position = CGPoint(x: (nc.x / max(1, canvas.width)).clamped(-0.1, 1.1),
+                                 y: (nc.y / max(1, canvas.height)).clamped(-0.1, 1.1))
+        }
+        groupDrag = .zero
+        groupDragging = false
+    }
+
+    /// Nudge the selection by a normalized delta (arrow keys on macOS).
+    func nudge(dx: CGFloat, dy: CGFloat) {
+        guard !selectedIDs.isEmpty else { return }
+        checkpoint()
+        for s in collage.selected(selectedIDs) {
+            s.position = CGPoint(x: (s.position.x + dx).clamped(-0.1, 1.1),
+                                 y: (s.position.y + dy).clamped(-0.1, 1.1))
+        }
+    }
+
+    // MARK: Clipboard (macOS copy/paste)
+
+    func copySelection() {
+        clipboard = collage.document.elements.filter { selectedIDs.contains($0.id) }
+    }
+
+    func pasteClipboard() {
+        guard !clipboard.isEmpty else { return }
+        checkpoint()
+        var newIDs: Set<UUID> = []
+        for var dto in clipboard {
+            dto.id = UUID()
+            dto.position = CGPoint(x: min(1, dto.position.x + 0.05), y: min(1, dto.position.y + 0.05))
+            if let placed = collage.addElement(from: dto) { newIDs.insert(placed.id) }
+        }
+        selectedIDs = newIDs
+        Haptics.success()
     }
 
     // MARK: Canvas format

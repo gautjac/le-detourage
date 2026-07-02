@@ -1,5 +1,8 @@
 import SwiftUI
 import Foundation
+#if os(macOS)
+import AppKit
+#endif
 
 /// A single placed element on the canvas — a cutout (with its optional white
 /// paper border and drop shadow) or a text label. Interactive: drag the body to
@@ -22,10 +25,16 @@ struct StickerLayer: View {
     @State private var scaleStart: (scale: CGFloat, dist: CGFloat)?
     @State private var rotating = false
 
-    private var isSelected: Bool { session.selection?.id == sticker.id }
+    private var isSelected: Bool { session.selectedIDs.contains(sticker.id) }
 
     /// The element's live on-canvas rotation (committed + transient two-finger).
     private var liveAngle: Angle { Angle(radians: sticker.rotation) + twist }
+
+    /// The drag offset actually applied: the shared group translation when this
+    /// element is part of an active group drag, else its own drag offset.
+    private var appliedOffset: CGSize {
+        (session.groupDragging && session.selectedIDs.contains(sticker.id)) ? session.groupDrag : dragOffset
+    }
 
     var body: some View {
         let size = sticker.renderSize(in: canvasSize)
@@ -35,7 +44,7 @@ struct StickerLayer: View {
             stickerBody(size: size)
                 .rotationEffect(liveAngle)
                 .scaleEffect(pinch)
-                .position(x: center.x + dragOffset.width, y: center.y + dragOffset.height)
+                .position(x: center.x + appliedOffset.width, y: center.y + appliedOffset.height)
                 .gesture(dragGesture(center: center, size: size))
                 .simultaneousGesture(magnifyGesture)
                 .simultaneousGesture(rotateGesture)
@@ -44,15 +53,43 @@ struct StickerLayer: View {
                         if sticker.isText { session.editText(sticker) }
                     }
                 )
+                .simultaneousGesture(
+                    // Long-press toggles this element in/out of a multi-selection.
+                    LongPressGesture(minimumDuration: 0.4).onEnded { _ in
+                        session.toggleSelection(sticker)
+                    }
+                )
                 .onTapGesture {
                     Haptics.tap()
+                    #if os(macOS)
+                    if NSEvent.modifierFlags.contains(.shift) {
+                        session.toggleSelection(sticker); return
+                    }
+                    #endif
                     session.selection = sticker
                 }
 
             if isSelected {
-                selectionOverlay(size: size, center: center)
+                if session.isMultiSelect {
+                    multiFrame(size: size, center: center)
+                } else {
+                    selectionOverlay(size: size, center: center)
+                }
             }
         }
+    }
+
+    /// A plain dashed frame for an element that's part of a multi-selection
+    /// (full rotate/scale handles show only when a single element is selected).
+    private func multiFrame(size: CGSize, center: CGPoint) -> some View {
+        let pad = sticker.style.outlineWidth + 8
+        return RoundedRectangle(cornerRadius: 8, style: .continuous)
+            .stroke(Theme.accent.opacity(0.85), style: StrokeStyle(lineWidth: 2, dash: [6, 4]))
+            .frame(width: size.width + pad * 2, height: size.height + pad * 2)
+            .rotationEffect(liveAngle)
+            .scaleEffect(pinch)
+            .position(x: center.x + appliedOffset.width, y: center.y + appliedOffset.height)
+            .allowsHitTesting(false)
     }
 
     @ViewBuilder
@@ -212,7 +249,7 @@ struct StickerLayer: View {
         .frame(width: containerW, height: containerH)
         .rotationEffect(liveAngle)
         .scaleEffect(pinch)
-        .position(x: center.x + dragOffset.width, y: center.y + dragOffset.height)
+        .position(x: center.x + appliedOffset.width, y: center.y + appliedOffset.height)
     }
 
     /// A round handle knob with an upright glyph.
@@ -262,27 +299,34 @@ struct StickerLayer: View {
     private func dragGesture(center: CGPoint, size: CGSize) -> some Gesture {
         DragGesture()
             .onChanged { value in
-                if session.selection?.id != sticker.id {
-                    session.selection = sticker
+                if session.isMultiSelect && session.selectedIDs.contains(sticker.id) {
+                    // Move the whole selection together (no per-element snapping).
+                    session.groupDragging = true
+                    session.groupDrag = value.translation
+                } else {
+                    if session.selectedIDs != [sticker.id] { session.selection = sticker }
+                    let raw = CGPoint(x: center.x + value.translation.width,
+                                      y: center.y + value.translation.height)
+                    let result = snapResult(for: raw, size: size)
+                    dragOffset = CGSize(width: result.center.x - center.x,
+                                        height: result.center.y - center.y)
+                    session.activeGuides = result.guides
                 }
-                let raw = CGPoint(x: center.x + value.translation.width,
-                                  y: center.y + value.translation.height)
-                let result = snapResult(for: raw, size: size)
-                dragOffset = CGSize(width: result.center.x - center.x,
-                                    height: result.center.y - center.y)
-                session.activeGuides = result.guides
             }
             .onEnded { _ in
-                session.checkpoint()
-                let snapped = CGPoint(x: center.x + dragOffset.width,
-                                      y: center.y + dragOffset.height)
-                sticker.position = CGPoint(
-                    x: (snapped.x / max(1, canvasSize.width)).clamped(-0.1, 1.1),
-                    y: (snapped.y / max(1, canvasSize.height)).clamped(-0.1, 1.1))
-                dragOffset = .zero
-                session.activeGuides = []
-                // Moving an element leaves its layer order untouched — use the
-                // inspector's arrange row to reorder deliberately.
+                if session.groupDragging {
+                    session.commitGroupDrag(session.groupDrag, canvas: canvasSize)
+                } else {
+                    session.checkpoint()
+                    let snapped = CGPoint(x: center.x + dragOffset.width,
+                                          y: center.y + dragOffset.height)
+                    sticker.position = CGPoint(
+                        x: (snapped.x / max(1, canvasSize.width)).clamped(-0.1, 1.1),
+                        y: (snapped.y / max(1, canvasSize.height)).clamped(-0.1, 1.1))
+                    dragOffset = .zero
+                    session.activeGuides = []
+                }
+                // Moving leaves layer order untouched — reorder from the inspector.
             }
     }
 

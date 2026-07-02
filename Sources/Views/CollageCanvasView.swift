@@ -14,6 +14,7 @@ struct CollageCanvasView: View {
     @State private var showFormat = false
     @State private var confirmClear = false
     @State private var confirmNew = false
+    @State private var marquee: CGRect?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -162,12 +163,17 @@ struct CollageCanvasView: View {
         let pageSize = fit(aspect: aspect, in: avail)
 
         return ZStack {
-            // Tap empty space to deselect.
+            // Tap outside the page to deselect.
             Color.clear.contentShape(Rectangle())
-                .onTapGesture { session.selection = nil }
+                .onTapGesture { session.deselectAll() }
 
             ZStack {
                 backgroundLayer(pageSize)
+
+                // Empty-page layer: tap to deselect, drag to marquee-select.
+                Color.clear.contentShape(Rectangle())
+                    .onTapGesture { session.deselectAll() }
+                    .gesture(marqueeGesture(pageSize: pageSize))
 
                 ForEach(session.collage.ordered) { sticker in
                     StickerLayer(sticker: sticker, canvasSize: pageSize)
@@ -181,6 +187,16 @@ struct CollageCanvasView: View {
                 // Alignment guides while dragging.
                 if !session.activeGuides.isEmpty {
                     GuidesOverlay(guides: session.activeGuides, pageSize: pageSize)
+                        .allowsHitTesting(false)
+                }
+
+                // Marquee selection rectangle.
+                if let m = marquee {
+                    Rectangle().fill(Theme.accent.opacity(0.08))
+                        .overlay(Rectangle().stroke(Theme.accent.opacity(0.7),
+                                                    style: StrokeStyle(lineWidth: 1, dash: [4, 3])))
+                        .frame(width: m.width, height: m.height)
+                        .position(x: m.midX, y: m.midY)
                         .allowsHitTesting(false)
                 }
             }
@@ -200,14 +216,39 @@ struct CollageCanvasView: View {
             }
         }
         .overlay(alignment: .bottom) {
-            if let sel = session.selection, !session.isDrawing {
-                StickerInspector(sticker: sel).environment(session)
-                    .padding(.bottom, 14)
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            if !session.isDrawing {
+                if session.isMultiSelect {
+                    GroupInspector().environment(session)
+                        .padding(.bottom, 14)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                } else if let sel = session.selection {
+                    StickerInspector(sticker: sel).environment(session)
+                        .padding(.bottom, 14)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
             }
         }
-        .animation(.spring(duration: 0.3), value: session.selection?.id)
+        .animation(.spring(duration: 0.3), value: session.selectedIDs)
         .animation(.spring(duration: 0.3), value: session.collage.canvasAspect)
+        .modifier(CanvasKeyCommands(session: session))
+    }
+
+    /// Marquee selection: drag on empty page area to rubber-band select the
+    /// elements whose centers fall inside.
+    private func marqueeGesture(pageSize: CGSize) -> some Gesture {
+        DragGesture(minimumDistance: 6, coordinateSpace: .local)
+            .onChanged { value in
+                let rect = CGRect(x: min(value.startLocation.x, value.location.x),
+                                  y: min(value.startLocation.y, value.location.y),
+                                  width: abs(value.location.x - value.startLocation.x),
+                                  height: abs(value.location.y - value.startLocation.y))
+                marquee = rect
+                let ids = session.collage.stickers
+                    .filter { rect.contains($0.center(in: pageSize)) }
+                    .map(\.id)
+                session.setSelection(Set(ids))
+            }
+            .onEnded { _ in marquee = nil }
     }
 
     @ViewBuilder
@@ -253,6 +294,44 @@ struct CollageCanvasView: View {
             w = h * aspect
         }
         return CGSize(width: w, height: h)
+    }
+}
+
+/// macOS keyboard commands for the selection: arrow-key nudge (⇧ for a bigger
+/// step), delete, and ⌘C / ⌘V copy-paste. A no-op on iOS.
+struct CanvasKeyCommands: ViewModifier {
+    let session: Session
+
+    func body(content: Content) -> some View {
+        #if os(macOS)
+        content
+            .focusable()
+            .focusEffectDisabled()
+            .onKeyPress(keys: [.leftArrow, .rightArrow, .upArrow, .downArrow]) { press in
+                guard !session.selectedIDs.isEmpty else { return .ignored }
+                let step: CGFloat = press.modifiers.contains(.shift) ? 0.02 : 0.004
+                switch press.key {
+                case .leftArrow:  session.nudge(dx: -step, dy: 0)
+                case .rightArrow: session.nudge(dx: step, dy: 0)
+                case .upArrow:    session.nudge(dx: 0, dy: -step)
+                case .downArrow:  session.nudge(dx: 0, dy: step)
+                default: return .ignored
+                }
+                return .handled
+            }
+            .onKeyPress(.delete) {
+                guard !session.selectedIDs.isEmpty else { return .ignored }
+                session.deleteSelection(); return .handled
+            }
+            .onKeyPress(keys: ["c", "v"]) { press in
+                guard press.modifiers.contains(.command) else { return .ignored }
+                if press.key == "c" { session.copySelection(); return .handled }
+                if press.key == "v" { session.pasteClipboard(); return .handled }
+                return .ignored
+            }
+        #else
+        content
+        #endif
     }
 }
 
