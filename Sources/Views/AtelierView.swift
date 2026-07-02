@@ -26,7 +26,7 @@ struct AtelierView: View {
                     .overlay(alignment: .bottomTrailing) {
                         addButton
                             .padding(.trailing, 18)
-                            .padding(.bottom, 84)
+                            .padding(.bottom, 20)
                     }
                     .sheet(isPresented: $showCutout) {
                         NavigationStackCompat {

@@ -196,9 +196,7 @@ struct CollageCanvasView: View {
         .overlay(alignment: .bottom) {
             if let sel = session.selection, !session.isDrawing {
                 StickerInspector(sticker: sel).environment(session)
-                    // Clear the floating Studio/Drawer tab bar (same clearance the
-                    // iOS add-button uses) so the action row isn't hidden behind it.
-                    .padding(.bottom, 84)
+                    .padding(.bottom, 14)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }

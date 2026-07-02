@@ -30,7 +30,7 @@ struct DrawerView: View {
                         }
                     }
                     .padding(20)
-                    .padding(.bottom, 80)
+                    .padding(.bottom, 24)
                 }
             }
         }
