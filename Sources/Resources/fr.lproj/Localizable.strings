@@ -125,6 +125,23 @@
 "brush.dashed" = "Tirets";
 "brush.neon" = "Néon";
 
+/* Modèles */
+"templates.title" = "Modèles";
+"templates.layouts" = "Dispositions";
+"templates.themes" = "Thèmes";
+"layout.grid" = "Grille";
+"layout.row" = "Rangée";
+"layout.stack" = "Pile";
+"layout.circle" = "Cercle";
+"layout.scatter" = "Éparpiller";
+"theme.cream" = "Crème";
+"theme.sunset" = "Coucher";
+"theme.mint" = "Menthe";
+"theme.night" = "Nuit";
+"theme.confetti" = "Confettis";
+"theme.dots" = "Pois";
+"theme.film" = "Pellicule";
+
 /* Format de la toile */
 "format.title" = "Format";
 "format.square" = "Carré";

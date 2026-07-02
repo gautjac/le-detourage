@@ -125,6 +125,23 @@
 "brush.dashed" = "Dashed";
 "brush.neon" = "Neon";
 
+/* Templates */
+"templates.title" = "Templates";
+"templates.layouts" = "Layouts";
+"templates.themes" = "Themes";
+"layout.grid" = "Grid";
+"layout.row" = "Row";
+"layout.stack" = "Stack";
+"layout.circle" = "Circle";
+"layout.scatter" = "Scatter";
+"theme.cream" = "Cream";
+"theme.sunset" = "Sunset";
+"theme.mint" = "Mint";
+"theme.night" = "Night";
+"theme.confetti" = "Confetti";
+"theme.dots" = "Dots";
+"theme.film" = "Film";
+
 /* Canvas format */
 "format.title" = "Format";
 "format.square" = "Square";

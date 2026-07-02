@@ -463,6 +463,33 @@ final class CollageFeatureTests: XCTestCase {
         XCTAssertTrue(r.guides.isEmpty)
     }
 
+    // MARK: Templates & themes
+
+    func testGridLayoutSpreadsElements() {
+        let c = Collage()
+        let items = (0..<4).map { _ in c.add(image: dummy()) }
+        LayoutTemplate.grid.arrange(items, aspect: 1)
+        let positions = Set(items.map { "\($0.position.x),\($0.position.y)" })
+        XCTAssertEqual(positions.count, 4)   // all distinct
+    }
+
+    func testRowLayoutAlignsHorizontally() {
+        let c = Collage()
+        let items = (0..<3).map { _ in c.add(image: dummy()) }
+        LayoutTemplate.row.arrange(items, aspect: 1)
+        XCTAssertEqual(items[0].position.y, items[2].position.y, accuracy: 0.0001)
+        XCTAssertLessThan(items[0].position.x, items[2].position.x)
+    }
+
+    @MainActor
+    func testApplyThemeSetsBackgroundAndFinish() {
+        let session = Session()
+        let sunset = CollageTheme.all.first { $0.id == "sunset" }!
+        session.applyTheme(sunset)
+        if case .gradient = session.collage.background {} else { XCTFail("theme background not applied") }
+        XCTAssertEqual(session.collage.finish, .grain)
+    }
+
     // MARK: Patterns & finish overlays
 
     func testEveryPatternRenders() {

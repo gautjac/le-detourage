@@ -12,6 +12,7 @@ struct CollageCanvasView: View {
     @State private var showGallery = false
     @State private var showEmblems = false
     @State private var showFormat = false
+    @State private var showTemplates = false
     @State private var confirmClear = false
     @State private var confirmNew = false
     @State private var marquee: CGRect?
@@ -37,6 +38,9 @@ struct CollageCanvasView: View {
         }
         .sheet(isPresented: $showFormat) {
             CanvasFormatSheet().environment(session)
+        }
+        .sheet(isPresented: $showTemplates) {
+            TemplatesSheet().environment(session)
         }
         .sheet(item: Bindable(session).editingText) { sticker in
             TextEditorSheet(sticker: sticker).environment(session)
@@ -82,6 +86,9 @@ struct CollageCanvasView: View {
             toolButton("scribble", tint: Theme.leaf) { session.startDrawing() }
 
             Menu {
+                Button { showTemplates = true } label: {
+                    Label(L.t("templates.title"), systemImage: "square.grid.2x2")
+                }
                 Button { showFormat = true } label: {
                     Label(L.t("format.title"), systemImage: "aspectratio")
                 }
