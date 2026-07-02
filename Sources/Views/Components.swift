@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import ImageIO
 import PhotosUI   // PhotosPicker is available on macOS 13+ as well as iOS
 
 /// A platform-appropriate "import a photo" control: the system Photos picker on
@@ -12,8 +13,10 @@ struct PhotoImportButton: View {
     var filled: Bool = true
     var onImage: (PlatformImage) -> Void
 
-    #if os(iOS)
+    @Environment(Session.self) private var session
     @State private var item: PhotosPickerItem?
+
+    #if os(iOS)
     var body: some View {
         // The label is passed as a static image so the picker's Sendable label
         // closure captures no main-actor state, then styled with the shared
@@ -21,18 +24,9 @@ struct PhotoImportButton: View {
         PhotosPicker(selection: $item, matching: .images, photoLibrary: .shared()) {
             LabelBody(titleKey: titleKey, systemImage: systemImage, tint: tint, filled: filled)
         }
-        .onChange(of: item) { _, newValue in
-            guard let newValue else { return }
-            Task {
-                if let data = try? await newValue.loadTransferable(type: Data.self),
-                   let img = PlatformImage(data: data) {
-                    await MainActor.run { onImage(img) }
-                }
-            }
-        }
+        .onChange(of: item) { _, newValue in load(newValue) }
     }
     #else
-    @State private var item: PhotosPickerItem?
     @State private var showPhotos = false
     @State private var showFiles = false
     var body: some View {
@@ -56,26 +50,35 @@ struct PhotoImportButton: View {
         // Omit `photoLibrary: .shared()` so macOS uses the privacy-preserving
         // out-of-process picker — no photo-library entitlement or prompt needed.
         .photosPicker(isPresented: $showPhotos, selection: $item, matching: .images)
-        .onChange(of: item) { _, newValue in
-            guard let newValue else { return }
-            Task {
-                if let data = try? await newValue.loadTransferable(type: Data.self),
-                   let img = PlatformImage(data: data) {
-                    await MainActor.run { onImage(img) }
-                }
-            }
-        }
+        .onChange(of: item) { _, newValue in load(newValue) }
         .fileImporter(isPresented: $showFiles,
                       allowedContentTypes: [.image], allowsMultipleSelection: false) { result in
             guard case let .success(urls) = result, let url = urls.first else { return }
             let needsStop = url.startAccessingSecurityScopedResource()
             defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-            if let data = try? Data(contentsOf: url), let img = PlatformImage(data: data) {
+            if let data = try? Data(contentsOf: url), let img = ImageDecoding.decode(data) {
                 onImage(img)
+            } else {
+                session.flash(L.t("import.failed"))
             }
         }
     }
     #endif
+
+    /// Load a picked item robustly: try its raw data, fall back to a file
+    /// representation (some items — iCloud / shared-album photos — only vend a
+    /// file reliably), decode with ImageIO for formats the plain init misses,
+    /// and surface a toast on failure instead of doing nothing.
+    private func load(_ item: PhotosPickerItem?) {
+        guard let item else { return }
+        Task {
+            let image = await ImageDecoding.load(from: item)
+            await MainActor.run {
+                if let image { onImage(image) }
+                else { session.flash(L.t("import.failed")) }
+            }
+        }
+    }
 
     /// The pill label, factored into its own `View` so it can be used inside the
     /// PhotosPicker's Sendable label closure without capturing main-actor state.
@@ -98,6 +101,50 @@ struct PhotoImportButton: View {
                     .overlay(Capsule().stroke(tint, lineWidth: filled ? 0 : 2))
             )
             .shadow(color: filled ? tint.opacity(0.35) : .clear, radius: 8, y: 4)
+        }
+    }
+}
+
+/// Robust image loading/decoding shared by the import controls.
+enum ImageDecoding {
+    /// Decode raw bytes, falling back to ImageIO for formats the platform image
+    /// initializer can't parse (some HEIC / wide-gamut / RAW captures).
+    static func decode(_ data: Data) -> PlatformImage? {
+        if let img = PlatformImage(data: data) { return img }
+        guard let src = CGImageSourceCreateWithData(data as CFData, nil),
+              let cg = CGImageSourceCreateImageAtIndex(src, 0, nil) else { return nil }
+        return PlatformImage.from(cgImage: cg)
+    }
+
+    /// Load a PhotosPicker item to an image, trying its raw data first and then a
+    /// file representation — some items (iCloud / shared-album photos) only vend
+    /// a file reliably. Runs off the main actor; returns nil if nothing decodes.
+    static func load(from item: PhotosPickerItem) async -> PlatformImage? {
+        if let data = try? await item.loadTransferable(type: Data.self),
+           let img = decode(data) {
+            return img
+        }
+        if let file = try? await item.loadTransferable(type: PhotoFileTransfer.self) {
+            defer { try? FileManager.default.removeItem(at: file.url) }
+            if let data = try? Data(contentsOf: file.url) { return decode(data) }
+        }
+        return nil
+    }
+}
+
+/// A `Transferable` that imports a picked photo as a copied temp file, for items
+/// whose in-memory data representation fails to load.
+struct PhotoFileTransfer: Transferable {
+    let url: URL
+    static var transferRepresentation: some TransferRepresentation {
+        FileRepresentation(importedContentType: .image) { received in
+            let ext = received.file.pathExtension.isEmpty ? "img" : received.file.pathExtension
+            let dest = FileManager.default.temporaryDirectory
+                .appendingPathComponent(UUID().uuidString)
+                .appendingPathExtension(ext)
+            try? FileManager.default.removeItem(at: dest)
+            try FileManager.default.copyItem(at: received.file, to: dest)
+            return PhotoFileTransfer(url: dest)
         }
     }
 }
