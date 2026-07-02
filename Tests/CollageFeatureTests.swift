@@ -513,22 +513,31 @@ final class CollageFeatureTests: XCTestCase {
 
     // MARK: Animated export
 
-    func testAnimatorLoopsSeamlessly() {
-        let a = CollageAnimator(amount: 1)
-        // t=0 and t=1 are the same point on the loop → identical transforms.
-        let f0 = a.transform(index: 2, t: 0)
-        let f1 = a.transform(index: 2, t: 1)
-        XCTAssertEqual(f0.dRot, f1.dRot, accuracy: 0.0001)
-        XCTAssertEqual(f0.scale, f1.scale, accuracy: 0.0001)
+    func testAllMotionStylesLoopSeamlessly() {
+        for style in MotionStyle.allCases {
+            let f0 = style.transform(index: 3, t: 0, amount: 1)
+            let f1 = style.transform(index: 3, t: 1, amount: 1)
+            XCTAssertEqual(f0.dx, f1.dx, accuracy: 0.0001, "\(style) dx")
+            XCTAssertEqual(f0.dy, f1.dy, accuracy: 0.0001, "\(style) dy")
+            XCTAssertEqual(f0.dRot, f1.dRot, accuracy: 0.0001, "\(style) dRot")
+            XCTAssertEqual(f0.scale, f1.scale, accuracy: 0.0001, "\(style) scale")
+        }
     }
 
-    func testAnimatorAmountZeroIsIdentity() {
-        let a = CollageAnimator(amount: 0)
-        let f = a.transform(index: 1, t: 0.3)
+    func testMotionAmountZeroIsIdentity() {
+        let f = MotionStyle.wobble.transform(index: 1, t: 0.3, amount: 0)
         XCTAssertEqual(f.dx, 0, accuracy: 0.0001)
         XCTAssertEqual(f.dy, 0, accuracy: 0.0001)
         XCTAssertEqual(f.dRot, 0, accuracy: 0.0001)
         XCTAssertEqual(f.scale, 1, accuracy: 0.0001)
+    }
+
+    func testMotionRoundTripsThroughDocument() throws {
+        let c = Collage(); c.motion = .parallax; c.add(image: dummy())
+        let c2 = Collage()
+        c2.load(document: try JSONDecoder().decode(CollageDocument.self,
+                                                   from: try JSONEncoder().encode(c.document)))
+        XCTAssertEqual(c2.motion, .parallax)
     }
 
     @MainActor
@@ -536,10 +545,24 @@ final class CollageFeatureTests: XCTestCase {
         let collage = Collage(); collage.canvasAspect = 1
         collage.add(image: dummy())
         collage.addText(TextContent(string: "Hi"))
-        let data = AnimatedExporter.makeGIF(for: collage, amount: 0.7, transparentBackground: false)
+        let data = AnimatedExporter.makeGIF(for: collage, amount: 0.7, style: .float,
+                                            transparentBackground: false)
         XCTAssertNotNil(data)
-        // GIF magic header.
-        XCTAssertEqual(Array(data!.prefix(3)), Array("GIF".utf8))
+        XCTAssertEqual(Array(data!.prefix(3)), Array("GIF".utf8))   // GIF magic header
+    }
+
+    @MainActor
+    func testMakesMP4File() async {
+        let collage = Collage(); collage.canvasAspect = 1
+        collage.add(image: dummy())
+        let url = await AnimatedExporter.makeMP4(for: collage, amount: 0.7, style: .wobble)
+        XCTAssertNotNil(url)
+        if let url {
+            let attrs = try? FileManager.default.attributesOfItem(atPath: url.path)
+            let size = (attrs?[.size] as? Int) ?? 0
+            XCTAssertGreaterThan(size, 0)
+            try? FileManager.default.removeItem(at: url)
+        }
     }
 
     // MARK: Multi-select / group ops

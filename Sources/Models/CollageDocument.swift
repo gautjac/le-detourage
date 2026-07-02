@@ -25,6 +25,7 @@ struct CollageSnapshot {
     var background: CollageBackground
     var backgroundImage: PlatformImage?
     var canvasAspect: CGFloat
+    var motion: MotionStyle
     var nextZ: Int
 }
 
@@ -97,17 +98,20 @@ struct CollageDocument: Codable {
     var background: BackgroundDTO
     var backgroundImagePNG: Data?
     var canvasAspect: CGFloat
+    var motion: MotionStyle?
 
     init(version: Int = 1,
          elements: [ElementDTO] = [],
          background: BackgroundDTO = .color(RGBAColor(Theme.page)),
          backgroundImagePNG: Data? = nil,
-         canvasAspect: CGFloat = 1.0) {
+         canvasAspect: CGFloat = 1.0,
+         motion: MotionStyle? = nil) {
         self.version = version
         self.elements = elements
         self.background = background
         self.backgroundImagePNG = backgroundImagePNG
         self.canvasAspect = canvasAspect
+        self.motion = motion
     }
 }
 
@@ -132,7 +136,8 @@ extension Collage {
                 if case .photo = background { return backgroundImage?.pngData }
                 return nil
             }(),
-            canvasAspect: canvasAspect)
+            canvasAspect: canvasAspect,
+            motion: motion)
     }
 
     /// Replace the live collage's contents with a decoded document.
@@ -145,6 +150,7 @@ extension Collage {
             backgroundImage = nil
         }
         canvasAspect = document.canvasAspect
+        motion = document.motion ?? .wobble
         normalizeZ()
     }
 }

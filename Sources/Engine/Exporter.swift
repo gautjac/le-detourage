@@ -44,6 +44,12 @@ enum Exporter {
         presentShareSheet(data: data, suggestedName: suggestedName, ext: ext)
     }
 
+    /// Share an existing file (e.g. an MP4 already written to disk).
+    @MainActor
+    static func shareFileURL(_ url: URL) {
+        presentShare(fileURL: url)
+    }
+
     /// Back-compat alias — the collage/sticker save flow.
     @MainActor
     static func exportPNG(_ image: PlatformImage, suggestedName: String) {
@@ -58,7 +64,11 @@ enum Exporter {
             .appendingPathComponent(suggestedName)
             .appendingPathExtension(ext)
         do { try data.write(to: url, options: .atomic) } catch { return }
+        presentShare(fileURL: url)
+    }
 
+    @MainActor
+    private static func presentShare(fileURL url: URL) {
         #if os(iOS)
         let activity = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         guard let scene = UIApplication.shared.connectedScenes

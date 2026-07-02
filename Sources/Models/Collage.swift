@@ -297,6 +297,8 @@ final class Collage {
     /// The canvas aspect ratio (width / height). Square by default; picks up the
     /// device on iPhone but stays authoritative for export dimensions.
     var canvasAspect: CGFloat = 1.0
+    /// The animation style used by the GIF/MP4 "living collage" export.
+    var motion: MotionStyle = .wobble
 
     @ObservationIgnored private var nextZ: Int = 0
 
@@ -473,6 +475,7 @@ final class Collage {
             background: background,
             backgroundImage: backgroundImage,
             canvasAspect: canvasAspect,
+            motion: motion,
             nextZ: nextZ)
     }
 
@@ -505,6 +508,7 @@ final class Collage {
         background = snapshot.background
         backgroundImage = snapshot.backgroundImage
         canvasAspect = snapshot.canvasAspect
+        motion = snapshot.motion
         nextZ = snapshot.nextZ
     }
 }

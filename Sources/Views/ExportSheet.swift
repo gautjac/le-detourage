@@ -10,6 +10,7 @@ struct ExportSheet: View {
     @State private var rendering = false
     @State private var animateAmount: CGFloat = 0.7
     @State private var makingGIF = false
+    @State private var makingVideo = false
     @State private var animFrames: [PlatformImage] = []
     @State private var frameTask: Task<Void, Never>?
 
@@ -71,7 +72,7 @@ struct ExportSheet: View {
         .onDisappear { frameTask?.cancel() }
     }
 
-    /// Turn the collage into a gently-wobbling looping GIF.
+    /// Turn the collage into a looping animation (GIF or MP4) with a motion style.
     private var animateSection: some View {
         VStack(spacing: 12) {
             Divider().padding(.horizontal, 24)
@@ -84,11 +85,38 @@ struct ExportSheet: View {
             }
             .padding(.horizontal, 24)
 
-            PillButton(titleKey: "export.gif", systemImage: "sparkles", tint: Theme.grape) {
-                exportGIF()
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(MotionStyle.allCases) { style in
+                        let selected = session.collage.motion == style
+                        Button {
+                            Haptics.tap()
+                            session.collage.motion = style
+                            session.scheduleAutosave()
+                            renderPreviewFrames()
+                        } label: {
+                            Text(loc: style.titleKey)
+                                .font(Theme.body(13))
+                                .foregroundStyle(selected ? .white : Theme.inkDim)
+                                .padding(.horizontal, 13).padding(.vertical, 7)
+                                .background(Capsule().fill(selected ? Theme.grape : Theme.card))
+                                .overlay(Capsule().stroke(Theme.hairline, lineWidth: selected ? 0 : 1))
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, 24)
             }
-            .disabled(rendering || preview == nil || makingGIF)
-            .overlay { if makingGIF { ProgressView().controlSize(.small) } }
+
+            HStack(spacing: 12) {
+                PillButton(titleKey: "export.gif", systemImage: "sparkles",
+                           tint: Theme.grape, filled: false) { exportGIF() }
+                    .disabled(preview == nil || makingGIF || makingVideo)
+                PillButton(titleKey: "export.mp4", systemImage: "film.fill",
+                           tint: Theme.grape) { exportMP4() }
+                    .disabled(preview == nil || makingGIF || makingVideo)
+            }
+            .overlay { if makingGIF || makingVideo { ProgressView().controlSize(.small) } }
         }
     }
 
@@ -112,11 +140,12 @@ struct ExportSheet: View {
         frameTask?.cancel()
         let amount = animateAmount
         let t = transparent
+        let style = session.collage.motion
         frameTask = Task { @MainActor in
             try? await Task.sleep(nanoseconds: 300_000_000)
             if Task.isCancelled { return }
             await Task.yield()
-            let cgs = AnimatedExporter.frames(for: session.collage, amount: amount,
+            let cgs = AnimatedExporter.frames(for: session.collage, amount: amount, style: style,
                                               transparentBackground: t, longEdge: 480)
             if !Task.isCancelled {
                 animFrames = cgs.map { PlatformImage.from(cgImage: $0) }
@@ -157,15 +186,29 @@ struct ExportSheet: View {
         makingGIF = true
         let t = transparent
         let amount = animateAmount
+        let style = session.collage.motion
         // Render on the main actor (the collage is main-actor state); a yield lets
         // the spinner paint before the frames are flattened.
         Task { @MainActor in
             await Task.yield()
-            let data = AnimatedExporter.makeGIF(for: session.collage, amount: amount,
+            let data = AnimatedExporter.makeGIF(for: session.collage, amount: amount, style: style,
                                                 transparentBackground: t)
             makingGIF = false
             guard let data else { return }
             Exporter.shareFile(data, suggestedName: "collage-detourage", ext: "gif")
+            Haptics.success()
+        }
+    }
+
+    private func exportMP4() {
+        makingVideo = true
+        let amount = animateAmount
+        let style = session.collage.motion
+        Task { @MainActor in
+            let url = await AnimatedExporter.makeMP4(for: session.collage, amount: amount, style: style)
+            makingVideo = false
+            guard let url else { return }
+            Exporter.shareFileURL(url)
             Haptics.success()
         }
     }

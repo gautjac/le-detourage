@@ -165,7 +165,15 @@
 "export.collage" = "Collage exporté";
 "export.sticker" = "Autocollant exporté";
 "export.animate" = "Animer";
-"export.gif" = "Exporter le GIF animé";
+"export.gif" = "GIF";
+"export.mp4" = "Vidéo";
+"motion.wobble" = "Frémir";
+"motion.float" = "Flotter";
+"motion.spin" = "Pivoter";
+"motion.pop" = "Pulser";
+"motion.drift" = "Dériver";
+"motion.sway" = "Balancer";
+"motion.parallax" = "Parallaxe";
 
 /* Divers */
 "common.cancel" = "Annuler";
