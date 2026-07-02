@@ -211,6 +211,26 @@ final class Session {
         Haptics.success()
     }
 
+    // MARK: Templates & themes
+
+    /// Auto-arrange the elements (the selection if several are selected, else all).
+    func applyLayout(_ template: LayoutTemplate) {
+        let items = isMultiSelect ? collage.selected(selectedIDs) : collage.ordered
+        guard !items.isEmpty else { return }
+        checkpoint()
+        template.arrange(items, aspect: collage.canvasAspect)
+        Haptics.success()
+    }
+
+    /// Apply a theme's background + finish in one tap.
+    func applyTheme(_ theme: CollageTheme) {
+        checkpoint()
+        collage.background = theme.background
+        collage.backgroundImage = nil
+        collage.finish = theme.finish
+        Haptics.success()
+    }
+
     // MARK: Canvas format
 
     /// Change the work-area aspect (undoable). Elements keep their normalized

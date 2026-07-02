@@ -49,6 +49,45 @@ struct BackgroundPickerSheet: View {
                         }
                     }
 
+                    section(titleKey: "bg.pattern") {
+                        LazyVGrid(columns: gridColumns, spacing: 12) {
+                            ForEach(PatternStyle.allCases) { style in
+                                Button {
+                                    Haptics.tap()
+                                    session.checkpoint()
+                                    session.collage.background = .pattern(style, Theme.page, Theme.coral)
+                                } label: {
+                                    patternSwatch(style)
+                                        .overlay(selectedRing(isPatternSelected(style)))
+                                }
+                                .buttonStyle(.plain)
+                            }
+                        }
+                    }
+
+                    section(titleKey: "bg.finish") {
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 8) {
+                                ForEach(FinishOverlay.allCases) { finish in
+                                    let selected = session.collage.finish == finish
+                                    Button {
+                                        Haptics.tap()
+                                        session.checkpoint()
+                                        session.collage.finish = finish
+                                    } label: {
+                                        Text(loc: finish.titleKey)
+                                            .font(Theme.body(13))
+                                            .foregroundStyle(selected ? .white : Theme.inkDim)
+                                            .padding(.horizontal, 13).padding(.vertical, 8)
+                                            .background(Capsule().fill(selected ? Theme.grape : Theme.card))
+                                            .overlay(Capsule().stroke(Theme.hairline, lineWidth: selected ? 0 : 1))
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                        }
+                    }
+
                     section(titleKey: "bg.photo") {
                         HStack(spacing: 12) {
                             PhotoImportButton(titleKey: "bg.photo", systemImage: "photo",
@@ -90,6 +129,25 @@ struct BackgroundPickerSheet: View {
     private func isGradientSelected(_ g: (Color, Color)) -> Bool {
         if case .gradient(let a, let b) = session.collage.background { return a == g.0 && b == g.1 }
         return false
+    }
+
+    private func isPatternSelected(_ style: PatternStyle) -> Bool {
+        if case .pattern(let s, _, _) = session.collage.background { return s == style }
+        return false
+    }
+
+    private func patternSwatch(_ style: PatternStyle) -> some View {
+        ZStack {
+            if let img = style.image(size: CGSize(width: 120, height: 116),
+                                     base: Theme.page, accent: Theme.coral) {
+                Image(platform: img).resizable().scaledToFill()
+            } else {
+                Theme.page
+            }
+        }
+        .frame(height: 58)
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 14).stroke(Theme.hairline, lineWidth: 1))
     }
 
     private func section<Content: View>(titleKey: String, @ViewBuilder content: () -> Content) -> some View {

@@ -125,6 +125,23 @@
 "brush.dashed" = "Dashed";
 "brush.neon" = "Neon";
 
+/* Templates */
+"templates.title" = "Templates";
+"templates.layouts" = "Layouts";
+"templates.themes" = "Themes";
+"layout.grid" = "Grid";
+"layout.row" = "Row";
+"layout.stack" = "Stack";
+"layout.circle" = "Circle";
+"layout.scatter" = "Scatter";
+"theme.cream" = "Cream";
+"theme.sunset" = "Sunset";
+"theme.mint" = "Mint";
+"theme.night" = "Night";
+"theme.confetti" = "Confetti";
+"theme.dots" = "Dots";
+"theme.film" = "Film";
+
 /* Canvas format */
 "format.title" = "Format";
 "format.square" = "Square";
@@ -148,12 +165,29 @@
 "drawer.export" = "Save sticker";
 "drawer.delete" = "Delete";
 "drawer.count" = "stickers";
+"drawer.imessage" = "Your cutouts are iMessage stickers too ✨";
 
 /* Background */
 "bg.color" = "Color";
 "bg.gradient" = "Gradient";
+"bg.pattern" = "Pattern";
+"bg.finish" = "Finish";
 "bg.photo" = "Photo";
 "bg.transparent" = "Transparent";
+
+/* Patterns */
+"pattern.dots" = "Dots";
+"pattern.grid" = "Grid";
+"pattern.stripes" = "Stripes";
+"pattern.checker" = "Checker";
+"pattern.confetti" = "Confetti";
+
+/* Finish */
+"finish.none" = "None";
+"finish.grain" = "Grain";
+"finish.vignette" = "Vignette";
+"finish.lightLeak" = "Light leak";
+"finish.paper" = "Paper";
 
 /* Export */
 "export.title" = "Export";
@@ -165,7 +199,15 @@
 "export.collage" = "Collage exported";
 "export.sticker" = "Sticker exported";
 "export.animate" = "Animate";
-"export.gif" = "Export animated GIF";
+"export.gif" = "GIF";
+"export.mp4" = "Video";
+"motion.wobble" = "Wobble";
+"motion.float" = "Float";
+"motion.spin" = "Spin";
+"motion.pop" = "Pop";
+"motion.drift" = "Drift";
+"motion.sway" = "Sway";
+"motion.parallax" = "Parallax";
 
 /* Misc */
 "common.cancel" = "Cancel";

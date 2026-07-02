@@ -25,6 +25,8 @@ struct CollageSnapshot {
     var background: CollageBackground
     var backgroundImage: PlatformImage?
     var canvasAspect: CGFloat
+    var motion: MotionStyle
+    var finish: FinishOverlay
     var nextZ: Int
 }
 
@@ -45,6 +47,7 @@ struct RGBAColor: Codable, Equatable {
 enum BackgroundDTO: Codable {
     case color(RGBAColor)
     case gradient(RGBAColor, RGBAColor)
+    case pattern(PatternStyle, RGBAColor, RGBAColor)
     case photo
     case transparent
 
@@ -52,6 +55,7 @@ enum BackgroundDTO: Codable {
         switch bg {
         case .color(let c):        self = .color(RGBAColor(c))
         case .gradient(let a, let b): self = .gradient(RGBAColor(a), RGBAColor(b))
+        case .pattern(let s, let base, let accent): self = .pattern(s, RGBAColor(base), RGBAColor(accent))
         case .photo:               self = .photo
         case .transparent:         self = .transparent
         }
@@ -61,6 +65,7 @@ enum BackgroundDTO: Codable {
         switch self {
         case .color(let c):        return .color(c.color)
         case .gradient(let a, let b): return .gradient(a.color, b.color)
+        case .pattern(let s, let base, let accent): return .pattern(s, base.color, accent.color)
         case .photo:               return .photo
         case .transparent:         return .transparent
         }
@@ -97,17 +102,23 @@ struct CollageDocument: Codable {
     var background: BackgroundDTO
     var backgroundImagePNG: Data?
     var canvasAspect: CGFloat
+    var motion: MotionStyle?
+    var finish: FinishOverlay?
 
     init(version: Int = 1,
          elements: [ElementDTO] = [],
          background: BackgroundDTO = .color(RGBAColor(Theme.page)),
          backgroundImagePNG: Data? = nil,
-         canvasAspect: CGFloat = 1.0) {
+         canvasAspect: CGFloat = 1.0,
+         motion: MotionStyle? = nil,
+         finish: FinishOverlay? = nil) {
         self.version = version
         self.elements = elements
         self.background = background
         self.backgroundImagePNG = backgroundImagePNG
         self.canvasAspect = canvasAspect
+        self.motion = motion
+        self.finish = finish
     }
 }
 
@@ -132,7 +143,9 @@ extension Collage {
                 if case .photo = background { return backgroundImage?.pngData }
                 return nil
             }(),
-            canvasAspect: canvasAspect)
+            canvasAspect: canvasAspect,
+            motion: motion,
+            finish: finish)
     }
 
     /// Replace the live collage's contents with a decoded document.
@@ -145,6 +158,8 @@ extension Collage {
             backgroundImage = nil
         }
         canvasAspect = document.canvasAspect
+        motion = document.motion ?? .wobble
+        finish = document.finish ?? .none
         normalizeZ()
     }
 }

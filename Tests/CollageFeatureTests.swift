@@ -463,6 +463,72 @@ final class CollageFeatureTests: XCTestCase {
         XCTAssertTrue(r.guides.isEmpty)
     }
 
+    // MARK: Shared stickers (iMessage)
+
+    func testStickerPNGDownscales() {
+        let big = opaqueImage(1000, 1000).pngData!
+        let out = SharedStickers.stickerPNG(from: big, maxEdge: 256)!
+        XCTAssertEqual(Array(out.prefix(4)), [0x89, 0x50, 0x4E, 0x47])   // PNG header
+        let img = try! XCTUnwrap(PlatformImage(data: out))
+        XCTAssertLessThanOrEqual(img.pixelSize.width, 260)
+    }
+
+    // MARK: Templates & themes
+
+    func testGridLayoutSpreadsElements() {
+        let c = Collage()
+        let items = (0..<4).map { _ in c.add(image: dummy()) }
+        LayoutTemplate.grid.arrange(items, aspect: 1)
+        let positions = Set(items.map { "\($0.position.x),\($0.position.y)" })
+        XCTAssertEqual(positions.count, 4)   // all distinct
+    }
+
+    func testRowLayoutAlignsHorizontally() {
+        let c = Collage()
+        let items = (0..<3).map { _ in c.add(image: dummy()) }
+        LayoutTemplate.row.arrange(items, aspect: 1)
+        XCTAssertEqual(items[0].position.y, items[2].position.y, accuracy: 0.0001)
+        XCTAssertLessThan(items[0].position.x, items[2].position.x)
+    }
+
+    @MainActor
+    func testApplyThemeSetsBackgroundAndFinish() {
+        let session = Session()
+        let sunset = CollageTheme.all.first { $0.id == "sunset" }!
+        session.applyTheme(sunset)
+        if case .gradient = session.collage.background {} else { XCTFail("theme background not applied") }
+        XCTAssertEqual(session.collage.finish, .grain)
+    }
+
+    // MARK: Patterns & finish overlays
+
+    func testEveryPatternRenders() {
+        for style in PatternStyle.allCases {
+            XCTAssertNotNil(style.image(size: CGSize(width: 200, height: 150),
+                                        base: .white, accent: .red), "\(style)")
+        }
+    }
+
+    func testFinishOverlaysRender() {
+        for f in FinishOverlay.allCases where f != .none {
+            XCTAssertNotNil(f.image(size: CGSize(width: 200, height: 150)), "\(f)")
+        }
+        XCTAssertNil(FinishOverlay.none.image(size: CGSize(width: 100, height: 100)))
+    }
+
+    func testPatternAndFinishRoundTripThroughDocument() throws {
+        let c = Collage()
+        c.background = .pattern(.confetti, Theme.page, Theme.coral)
+        c.finish = .vignette
+        c.add(image: dummy())
+        let c2 = Collage()
+        c2.load(document: try JSONDecoder().decode(CollageDocument.self,
+                                                   from: try JSONEncoder().encode(c.document)))
+        if case .pattern(let s, _, _) = c2.background { XCTAssertEqual(s, .confetti) }
+        else { XCTFail("pattern not restored") }
+        XCTAssertEqual(c2.finish, .vignette)
+    }
+
     // MARK: Cutout cleanup
 
     private func opaqueImage(_ w: Int, _ h: Int) -> PlatformImage {
@@ -513,22 +579,31 @@ final class CollageFeatureTests: XCTestCase {
 
     // MARK: Animated export
 
-    func testAnimatorLoopsSeamlessly() {
-        let a = CollageAnimator(amount: 1)
-        // t=0 and t=1 are the same point on the loop → identical transforms.
-        let f0 = a.transform(index: 2, t: 0)
-        let f1 = a.transform(index: 2, t: 1)
-        XCTAssertEqual(f0.dRot, f1.dRot, accuracy: 0.0001)
-        XCTAssertEqual(f0.scale, f1.scale, accuracy: 0.0001)
+    func testAllMotionStylesLoopSeamlessly() {
+        for style in MotionStyle.allCases {
+            let f0 = style.transform(index: 3, t: 0, amount: 1)
+            let f1 = style.transform(index: 3, t: 1, amount: 1)
+            XCTAssertEqual(f0.dx, f1.dx, accuracy: 0.0001, "\(style) dx")
+            XCTAssertEqual(f0.dy, f1.dy, accuracy: 0.0001, "\(style) dy")
+            XCTAssertEqual(f0.dRot, f1.dRot, accuracy: 0.0001, "\(style) dRot")
+            XCTAssertEqual(f0.scale, f1.scale, accuracy: 0.0001, "\(style) scale")
+        }
     }
 
-    func testAnimatorAmountZeroIsIdentity() {
-        let a = CollageAnimator(amount: 0)
-        let f = a.transform(index: 1, t: 0.3)
+    func testMotionAmountZeroIsIdentity() {
+        let f = MotionStyle.wobble.transform(index: 1, t: 0.3, amount: 0)
         XCTAssertEqual(f.dx, 0, accuracy: 0.0001)
         XCTAssertEqual(f.dy, 0, accuracy: 0.0001)
         XCTAssertEqual(f.dRot, 0, accuracy: 0.0001)
         XCTAssertEqual(f.scale, 1, accuracy: 0.0001)
+    }
+
+    func testMotionRoundTripsThroughDocument() throws {
+        let c = Collage(); c.motion = .parallax; c.add(image: dummy())
+        let c2 = Collage()
+        c2.load(document: try JSONDecoder().decode(CollageDocument.self,
+                                                   from: try JSONEncoder().encode(c.document)))
+        XCTAssertEqual(c2.motion, .parallax)
     }
 
     @MainActor
@@ -536,10 +611,24 @@ final class CollageFeatureTests: XCTestCase {
         let collage = Collage(); collage.canvasAspect = 1
         collage.add(image: dummy())
         collage.addText(TextContent(string: "Hi"))
-        let data = AnimatedExporter.makeGIF(for: collage, amount: 0.7, transparentBackground: false)
+        let data = AnimatedExporter.makeGIF(for: collage, amount: 0.7, style: .float,
+                                            transparentBackground: false)
         XCTAssertNotNil(data)
-        // GIF magic header.
-        XCTAssertEqual(Array(data!.prefix(3)), Array("GIF".utf8))
+        XCTAssertEqual(Array(data!.prefix(3)), Array("GIF".utf8))   // GIF magic header
+    }
+
+    @MainActor
+    func testMakesMP4File() async {
+        let collage = Collage(); collage.canvasAspect = 1
+        collage.add(image: dummy())
+        let url = await AnimatedExporter.makeMP4(for: collage, amount: 0.7, style: .wobble)
+        XCTAssertNotNil(url)
+        if let url {
+            let attrs = try? FileManager.default.attributesOfItem(atPath: url.path)
+            let size = (attrs?[.size] as? Int) ?? 0
+            XCTAssertGreaterThan(size, 0)
+            try? FileManager.default.removeItem(at: url)
+        }
     }
 
     // MARK: Multi-select / group ops

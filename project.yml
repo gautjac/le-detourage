@@ -34,6 +34,12 @@ targets:
       macOS: "26.0"
     sources:
       - path: Sources
+    dependencies:
+      # iMessage sticker extension — embedded on iOS only (macOS has no Messages
+      # extensions), so the universal macOS build isn't affected.
+      - target: MessagesSticker
+        embed: true
+        platformFilter: iOS
     info:
       path: Sources/Resources/Info.plist
       properties:
@@ -71,8 +77,36 @@ targets:
         # export. iOS draws photo access from the usage strings above and must
         # NOT carry the sandbox entitlement, so this is scoped to the macOS SDK.
         "CODE_SIGN_ENTITLEMENTS[sdk=macosx*]": Sources/Resources/macOS.entitlements
+        # iOS: App Group so the iMessage sticker extension can read the drawer.
+        "CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]": Sources/Resources/iOS.entitlements
+        "CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]": Sources/Resources/iOS.entitlements
         # Native macOS app, not "Designed for iPad" running on Apple Silicon.
         SUPPORTS_MACCATALYST: NO
+
+  MessagesSticker:
+    # Code-based iMessage sticker extension (iOS only). Presents the drawer's
+    # cutouts (mirrored to the shared App Group container) as sendable stickers.
+    type: com.apple.product-type.app-extension.messages
+    platform: iOS
+    deploymentTarget:
+      iOS: "26.0"
+    sources:
+      - path: StickerExtension
+    info:
+      path: StickerExtension/Info.plist
+      properties:
+        CFBundleDisplayName: Le Détourage
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.message-payload-provider
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).StickerBrowserViewController
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.jac.LeDetourage.Stickers
+        CODE_SIGN_ENTITLEMENTS: StickerExtension/Stickers.entitlements
+        TARGETED_DEVICE_FAMILY: "1,2"
+        GENERATE_INFOPLIST_FILE: NO
 
   LeDetourageTests:
     type: bundle.unit-test

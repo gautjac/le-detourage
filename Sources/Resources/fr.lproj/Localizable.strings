@@ -125,6 +125,23 @@
 "brush.dashed" = "Tirets";
 "brush.neon" = "Néon";
 
+/* Modèles */
+"templates.title" = "Modèles";
+"templates.layouts" = "Dispositions";
+"templates.themes" = "Thèmes";
+"layout.grid" = "Grille";
+"layout.row" = "Rangée";
+"layout.stack" = "Pile";
+"layout.circle" = "Cercle";
+"layout.scatter" = "Éparpiller";
+"theme.cream" = "Crème";
+"theme.sunset" = "Coucher";
+"theme.mint" = "Menthe";
+"theme.night" = "Nuit";
+"theme.confetti" = "Confettis";
+"theme.dots" = "Pois";
+"theme.film" = "Pellicule";
+
 /* Format de la toile */
 "format.title" = "Format";
 "format.square" = "Carré";
@@ -148,12 +165,29 @@
 "drawer.export" = "Enregistrer l'autocollant";
 "drawer.delete" = "Supprimer";
 "drawer.count" = "autocollants";
+"drawer.imessage" = "Tes découpes sont aussi des autocollants iMessage ✨";
 
 /* Fond */
 "bg.color" = "Couleur";
 "bg.gradient" = "Dégradé";
+"bg.pattern" = "Motif";
+"bg.finish" = "Finition";
 "bg.photo" = "Photo";
 "bg.transparent" = "Transparent";
+
+/* Motifs */
+"pattern.dots" = "Pois";
+"pattern.grid" = "Grille";
+"pattern.stripes" = "Rayures";
+"pattern.checker" = "Damier";
+"pattern.confetti" = "Confettis";
+
+/* Finition */
+"finish.none" = "Aucune";
+"finish.grain" = "Grain";
+"finish.vignette" = "Vignette";
+"finish.lightLeak" = "Fuite de lumière";
+"finish.paper" = "Papier";
 
 /* Export */
 "export.title" = "Exporter";
@@ -165,7 +199,15 @@
 "export.collage" = "Collage exporté";
 "export.sticker" = "Autocollant exporté";
 "export.animate" = "Animer";
-"export.gif" = "Exporter le GIF animé";
+"export.gif" = "GIF";
+"export.mp4" = "Vidéo";
+"motion.wobble" = "Frémir";
+"motion.float" = "Flotter";
+"motion.spin" = "Pivoter";
+"motion.pop" = "Pulser";
+"motion.drift" = "Dériver";
+"motion.sway" = "Balancer";
+"motion.parallax" = "Parallaxe";
 
 /* Divers */
 "common.cancel" = "Annuler";
