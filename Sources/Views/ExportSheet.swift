@@ -10,6 +10,8 @@ struct ExportSheet: View {
     @State private var rendering = false
     @State private var animateAmount: CGFloat = 0.7
     @State private var makingGIF = false
+    @State private var animFrames: [PlatformImage] = []
+    @State private var frameTask: Task<Void, Never>?
 
     var body: some View {
         SheetScaffold(titleKey: "export.title") {
@@ -23,7 +25,17 @@ struct ExportSheet: View {
                             .clipShape(RoundedRectangle(cornerRadius: 14))
                             .padding(8)
                     }
-                    if let preview {
+                    if animFrames.count > 1 {
+                        // Live looping preview of the animation (a flipbook of the
+                        // pre-rendered loop frames).
+                        TimelineView(.periodic(from: .now, by: 1.0 / AnimatedExporter.fps)) { timeline in
+                            let idx = Int(timeline.date.timeIntervalSinceReferenceDate
+                                          * AnimatedExporter.fps) % animFrames.count
+                            Image(platform: animFrames[idx])
+                                .resizable().scaledToFit()
+                                .padding(8)
+                        }
+                    } else if let preview {
                         Image(platform: preview)
                             .resizable().scaledToFit()
                             .padding(8)
@@ -44,7 +56,7 @@ struct ExportSheet: View {
                 }
                 .tint(Theme.accent)
                 .padding(.horizontal, 24)
-                .onChange(of: transparent) { _, _ in regenerate() }
+                .onChange(of: transparent) { _, _ in regenerate(); renderPreviewFrames() }
 
                 actions
                     .disabled(rendering || preview == nil)
@@ -55,7 +67,8 @@ struct ExportSheet: View {
             }
             .padding(.top, 8)
         } onDone: { dismiss() }
-        .onAppear { regenerate() }
+        .onAppear { regenerate(); renderPreviewFrames() }
+        .onDisappear { frameTask?.cancel() }
     }
 
     /// Turn the collage into a gently-wobbling looping GIF.
@@ -67,6 +80,7 @@ struct ExportSheet: View {
                 Text(loc: "export.animate").font(Theme.title(15)).foregroundStyle(Theme.ink)
                 Slider(value: $animateAmount, in: 0.2...1)
                     .tint(Theme.grape)
+                    .onChange(of: animateAmount) { _, _ in renderPreviewFrames() }
             }
             .padding(.horizontal, 24)
 
@@ -91,6 +105,23 @@ struct ExportSheet: View {
         PillButton(titleKey: "export.share", systemImage: "square.and.arrow.up.fill",
                    tint: Theme.accent) { shareNow() }
         #endif
+    }
+
+    /// Render the loop frames for the live preview (debounced, lower-res).
+    private func renderPreviewFrames() {
+        frameTask?.cancel()
+        let amount = animateAmount
+        let t = transparent
+        frameTask = Task { @MainActor in
+            try? await Task.sleep(nanoseconds: 300_000_000)
+            if Task.isCancelled { return }
+            await Task.yield()
+            let cgs = AnimatedExporter.frames(for: session.collage, amount: amount,
+                                              transparentBackground: t, longEdge: 480)
+            if !Task.isCancelled {
+                animFrames = cgs.map { PlatformImage.from(cgImage: $0) }
+            }
+        }
     }
 
     private func regenerate() {
