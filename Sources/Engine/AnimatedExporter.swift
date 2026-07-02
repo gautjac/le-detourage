@@ -27,12 +27,12 @@ enum AnimatedExporter {
     static let frameCount = 18
     static let fps: Double = 12
     /// GIFs stay modest in size; render at a lower resolution than the PNG export.
-    static let longEdge: CGFloat = 720
+    static let gifLongEdge: CGFloat = 720
 
     /// Render one loop's frames (main-actor: the collage is main-actor state).
     @MainActor
-    static func frames(for collage: Collage, amount: CGFloat,
-                       transparentBackground: Bool) -> [CGImage] {
+    static func frames(for collage: Collage, amount: CGFloat, transparentBackground: Bool,
+                       longEdge: CGFloat = gifLongEdge) -> [CGImage] {
         let animator = CollageAnimator(amount: amount)
         var out: [CGImage] = []
         for i in 0..<frameCount {
