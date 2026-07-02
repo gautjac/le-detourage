@@ -1,11 +1,10 @@
 import SwiftUI
 import UniformTypeIdentifiers
-#if os(iOS)
-import PhotosUI
-#endif
+import PhotosUI   // PhotosPicker is available on macOS 13+ as well as iOS
 
-/// A platform-appropriate "import a photo" control: the Photos picker on iOS, a
-/// file importer on macOS. Hands back a decoded `PlatformImage`.
+/// A platform-appropriate "import a photo" control: the system Photos picker on
+/// iOS; on macOS a menu offering the Photos library picker (primary) or a file
+/// browser. Hands back a decoded `PlatformImage`.
 struct PhotoImportButton: View {
     var titleKey: String = "import.photo"
     var systemImage: String = "photo.badge.plus.fill"
@@ -33,21 +32,48 @@ struct PhotoImportButton: View {
         }
     }
     #else
-    @State private var showImporter = false
+    @State private var item: PhotosPickerItem?
+    @State private var showPhotos = false
+    @State private var showFiles = false
     var body: some View {
-        Button { showImporter = true } label: {
+        Menu {
+            Button {
+                showPhotos = true
+            } label: {
+                Label(L.t("import.photos"), systemImage: "photo.on.rectangle.angled")
+            }
+            Button {
+                showFiles = true
+            } label: {
+                Label(L.t("import.files"), systemImage: "folder")
+            }
+        } label: {
             LabelBody(titleKey: titleKey, systemImage: systemImage, tint: tint, filled: filled)
         }
-            .buttonStyle(.plain)
-            .fileImporter(isPresented: $showImporter,
-                          allowedContentTypes: [.image], allowsMultipleSelection: false) { result in
-                guard case let .success(urls) = result, let url = urls.first else { return }
-                let needsStop = url.startAccessingSecurityScopedResource()
-                defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
-                if let data = try? Data(contentsOf: url), let img = PlatformImage(data: data) {
-                    onImage(img)
+        .menuStyle(.borderlessButton)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        // Omit `photoLibrary: .shared()` so macOS uses the privacy-preserving
+        // out-of-process picker — no photo-library entitlement or prompt needed.
+        .photosPicker(isPresented: $showPhotos, selection: $item, matching: .images)
+        .onChange(of: item) { _, newValue in
+            guard let newValue else { return }
+            Task {
+                if let data = try? await newValue.loadTransferable(type: Data.self),
+                   let img = PlatformImage(data: data) {
+                    await MainActor.run { onImage(img) }
                 }
             }
+        }
+        .fileImporter(isPresented: $showFiles,
+                      allowedContentTypes: [.image], allowsMultipleSelection: false) { result in
+            guard case let .success(urls) = result, let url = urls.first else { return }
+            let needsStop = url.startAccessingSecurityScopedResource()
+            defer { if needsStop { url.stopAccessingSecurityScopedResource() } }
+            if let data = try? Data(contentsOf: url), let img = PlatformImage(data: data) {
+                onImage(img)
+            }
+        }
     }
     #endif
 
