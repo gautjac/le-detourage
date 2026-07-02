@@ -38,7 +38,7 @@ struct DoodleEditor: View {
         // toolbar can size to its own content instead of being squeezed to the
         // (possibly narrow) page width.
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .overlay(alignment: .bottom) { toolbar.padding(.bottom, 84) }
+        .overlay(alignment: .bottom) { toolbar.padding(.bottom, 16) }
     }
 
     // MARK: Drawing
